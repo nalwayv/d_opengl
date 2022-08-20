@@ -499,7 +499,7 @@ struct Mat3
         m22 = n.m22;
     }
 
-    float[3][3] toArray()
+    float[3][3] toArrayM()
     {
         float[3][3] result;
 
@@ -512,6 +512,23 @@ struct Mat3
         result[2][0] = m20;
         result[2][1] = m21;
         result[2][2] = m22;
+
+        return result;
+    }
+
+    float[9] toArrayS()
+    {
+        float[9] result;
+
+        result[0] = m00;
+        result[1] = m01;
+        result[2] = m02;
+        result[3] = m10;
+        result[4] = m11;
+        result[5] = m12;
+        result[6] = m20;
+        result[7] = m21;
+        result[8] = m22;
 
         return result;
     }

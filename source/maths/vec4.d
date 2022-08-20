@@ -292,7 +292,19 @@ struct Vec4
     bool isNormal()
     {
         return isOneF(lengthSq());
-    }   
+    }  
+
+    float[4] toArray()
+    {
+        float[4] result;
+
+        result[0] = x;
+        result[1] = y;
+        result[2] = z;
+        result[3] = w;
+        
+        return result;
+    }
 
     // -- override
 

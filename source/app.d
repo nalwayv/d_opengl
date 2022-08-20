@@ -2,10 +2,13 @@
 import std.stdio : writeln;
 import bindbc.opengl;
 import bindbc.glfw;
+import maths.vec3;
+import maths.mat4;
 import clock;
 import keyboard;
 import mesh;
 import shader;
+// import camera;
 
 
 enum WIDTH = 500;
@@ -62,6 +65,7 @@ void main()
 
     auto clock = Clock.newClock(glfwGetTime());
     auto kb = Keyboard.newKeyboard(window);
+    // auto cam = new Camera(Vec3(0.0f, 0.0f, 5.0f), cast(float)WIDTH, cast(float)HEIGHT);
     
     float[18] triVerts = [
         0.0f, 0.5f, 0.0f,  1.0f, 0.0f, 0.0f,
@@ -90,13 +94,21 @@ void main()
         clock.update(glfwGetTime());
 
         triShader.use();
+        // triShader.setMat4("cmatrix", cam.matrix());
         triMesh.render();
 
         // ---
 
-        if(kb.getState(GLFW_KEY_A) == KEY_PRESSED)
+        if(kb.getState(GLFW_KEY_W) == KEY_HELD)
         {
-            writeln("A PRESSED");
+            writeln("A");
+            // cam.translateUp();
+        }
+
+        if(kb.getState(GLFW_KEY_S) == KEY_HELD)
+        {
+            writeln("S");
+            // cam.translateDown();
         }
 
         // ---

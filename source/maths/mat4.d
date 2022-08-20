@@ -772,7 +772,7 @@ struct Mat4
         return result;
     }
 
-    float[4][4] toArray()
+    float[4][4] toArrayM()
     {
         float[4][4] result;
 
@@ -795,6 +795,30 @@ struct Mat4
 
         return result;
     }   
+
+    float[16] toArrayS()
+    {
+        float[16] result;
+
+        result[0] = m00;
+        result[1] = m01;
+        result[2] = m02;
+        result[3] = m03;
+        result[4] = m10;
+        result[5] = m11;
+        result[6] = m12;
+        result[7] = m13;
+        result[8] = m20;
+        result[9] = m21;
+        result[10] = m22;
+        result[11] = m23;
+        result[12] = m30;
+        result[13] = m31;
+        result[14] = m32;
+        result[15] = m33;
+
+        return result;
+    } 
 
     // -- ovcerride
 

@@ -3,6 +3,7 @@ module shader;
 
 
 import std.string : toStringz;
+import std.stdio:writeln;
 import bindbc.opengl;
 import utils.path;
 import maths.vec3;
@@ -80,22 +81,28 @@ class Shader
     public void setMat4(string name, Mat4 value)
     {
         auto at = glGetUniformLocation(id, name.ptr);
-        auto arr = value.toArray();
-        glUniformMatrix4fv(at, 1, GL_FALSE, arr[0].ptr);
+        assert(at != -1);
+
+        auto arr = value.toArrayS();
+        glUniformMatrix4fv(at, 1, GL_FALSE, arr.ptr);
     }
 
     /// Set global uniform mat4 value within shader
     public void setMat3(string name, Mat3 value)
     {
         auto at = glGetUniformLocation(id, name.ptr);
-        auto arr = value.toArray();
-        glUniformMatrix4fv(at, 1, GL_FALSE, arr[0].ptr);
+        assert(at != -1);
+
+        auto arr = value.toArrayS();
+        glUniformMatrix4fv(at, 1, GL_FALSE, arr.ptr);
     }
 
     /// Set global uniform mat4 value within shader
     public void setVec4(string name, Vec4 value)
     {
         auto at = glGetUniformLocation(id, name.ptr);
+        assert(at != -1);
+
         glUniform4f(at, value.x, value.y, value.z, value.w);
     }
 
@@ -103,6 +110,8 @@ class Shader
     public void setVec3(string name, Vec3 value)
     {
         auto at = glGetUniformLocation(id, name.ptr);
+        assert(at != -1);
+
         glUniform3f(at, value.x, value.y, value.z);
     }
 
@@ -110,12 +119,17 @@ class Shader
     public void setFloat(string name, float value)
     {
         auto at = glGetUniformLocation(id, name.ptr);
+        assert(at != -1);
+
         glUniform1f(at, value);
     }
+
     /// Set global uniform Int value within shader
     void setInt(string name, int value)
     {
         auto at = glGetUniformLocation(id, name.ptr);
+        assert(at != -1);
+
         glUniform1i(at, value);
     }
 
@@ -123,6 +137,8 @@ class Shader
     public void setBool(string name, bool value)
     {
         auto at = glGetUniformLocation(id, name.ptr);
+        assert(at != -1);
+
         glUniform1i(at, (value == true) ? GL_TRUE : GL_FALSE);
     }
 }

@@ -372,6 +372,17 @@ struct Vec3
         return isOneF(lengthSq());
     }
 
+    float[3] toArray()
+    {
+        float[3] result;
+
+        result[0] = x;
+        result[1] = y;
+        result[2] = z;
+        
+        return result;
+    }
+
     // -- override
 
     string toString() const pure
