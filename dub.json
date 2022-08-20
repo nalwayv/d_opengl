@@ -1,0 +1,17 @@
+{
+	"authors": [
+		"foo"
+	],
+	"copyright": "Copyright © 2022, foo",
+	"dependencies": {
+		"bindbc-glfw": "~>1.0.1",
+		"bindbc-opengl": "~>1.0.2"
+	},
+	"versions": [
+		"GLFW_33",
+		"GL_43"
+	],
+	"description": "A minimal D application.",
+	"license": "proprietary",
+	"name": "d_gl"
+}

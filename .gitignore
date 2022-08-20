@@ -1,0 +1,16 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/d_gl
+d_gl.so
+d_gl.dylib
+d_gl.dll
+d_gl.a
+d_gl.lib
+d_gl-test-*
+*.exe
+*.o
+*.obj
+*.lst
+*.pdb
