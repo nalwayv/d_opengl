@@ -2,13 +2,12 @@
 import std.stdio : writeln;
 import bindbc.opengl;
 import bindbc.glfw;
-import maths.vec3;
 import maths.mat4;
 import clock;
 import keyboard;
-import mesh;
+import obj;
 import shader;
-// import camera;
+import camera;
 
 
 enum WIDTH = 500;
@@ -65,7 +64,6 @@ void main()
 
     auto clock = Clock.newClock(glfwGetTime());
     auto kb = Keyboard.newKeyboard(window);
-    // auto cam = new Camera(Vec3(0.0f, 0.0f, 5.0f), cast(float)WIDTH, cast(float)HEIGHT);
     
     float[18] triVerts = [
         0.0f, 0.5f, 0.0f,  1.0f, 0.0f, 0.0f,
@@ -74,12 +72,9 @@ void main()
     ];
     int[3] triInd = [0, 1, 2];
     auto triShader = new Shader("shaders\\default.vert", "shaders\\default.frag");
-    auto triMesh = new Mesh(
-        triVerts.ptr,
-        triVerts.length,
-        triInd.ptr,
-        triInd.length
-    );
+    auto triObj = new Obj(triVerts, triInd);
+    auto triMatrix = Mat4.identity();
+    auto cam = new Camera(0.0f, 0.0f, 3.0f, cast(float)WIDTH, cast(float)HEIGHT);
 
 	while(!glfwWindowShouldClose(window))
     {
@@ -94,21 +89,40 @@ void main()
         clock.update(glfwGetTime());
 
         triShader.use();
-        // triShader.setMat4("cmatrix", cam.matrix());
-        triMesh.render();
+        triShader.setMat4("model_Matrix", triMatrix);
+        triShader.setMat4("cam_Matrix", cam.matrix());
+        triObj.render();
 
         // ---
 
         if(kb.getState(GLFW_KEY_W) == KEY_HELD)
         {
-            writeln("A");
-            // cam.translateUp();
+            cam.translateIn(clock.dt);
+        }
+
+        if(kb.getState(GLFW_KEY_A) == KEY_HELD)
+        {
+            cam.translateLeft(clock.dt);
         }
 
         if(kb.getState(GLFW_KEY_S) == KEY_HELD)
         {
-            writeln("S");
-            // cam.translateDown();
+            cam.translateOut(clock.dt);
+        }
+
+        if(kb.getState(GLFW_KEY_D) == KEY_HELD)
+        {
+            cam.translateRight(clock.dt);
+        }
+
+        if(kb.getState(GLFW_KEY_Q) == KEY_HELD)
+        {
+            cam.translateUp(clock.dt);
+        }
+
+        if(kb.getState(GLFW_KEY_E) == KEY_HELD)
+        {
+            cam.translateDown(clock.dt);
         }
 
         // ---

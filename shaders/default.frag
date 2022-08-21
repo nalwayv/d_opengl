@@ -1,9 +1,9 @@
 # version 430 core
 
-in vec3 bcol;
-out vec4 ccol;
+in vec3 b_Color;
+out vec4 c_Color;
 
 void main(void)
 {
-    ccol = vec4(bcol, 1.0);
+    c_Color = vec4(b_Color, 1.0);
 }

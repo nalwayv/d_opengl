@@ -1,6 +1,7 @@
 // AABB
 module geometry.aabb;
 
+
 import std.format;
 import utils.bits;
 import maths.utils;
@@ -29,12 +30,12 @@ struct AABB
         return result; 
     }
 
-    /// create an aabb from 'min and 'max points
+    /// create an aabb from 'ptMin and 'ptMax points
     /// Returns: AABB
-    static AABB fromMinMax(Vec3 min, Vec3 max)
+    static AABB fromMinMax(Vec3 ptMin, Vec3 ptMax)
     {
-        auto p1 = min.added(max).scaled(0.5);
-        auto p2 = min.subbed(max).scaled(0.5);
+        auto p1 = ptMin.added(ptMax).scaled(0.5);
+        auto p2 = ptMin.subbed(ptMax).scaled(0.5);
 
         AABB result;
 
@@ -49,12 +50,54 @@ struct AABB
         return result;
     }
 
-    // create an aabb from the combined aabb's of 'a and 'b
+    /// create an aabb from the combined aabb's of 'a and 'b
     /// Returns: AABB
     static AABB fromCombined(AABB a, AABB b)
     {
         auto ptMin = Vec3.fromMin(a.min(), b.min());
         auto ptMax = Vec3.fromMax(a.max(), b.max());
+
+        return AABB.fromMinMax(ptMin, ptMax);
+    }
+
+    /// create an aabb from min max based on array of vec3 values
+    /// Returns: AABB
+    static AABB fromArray(const Vec3* arr, int length)
+    {
+        auto ptMin = Vec3(MAXFLOAT, MAXFLOAT, MAXFLOAT);
+        auto ptMax = Vec3(MINFLOAT, MINFLOAT, MINFLOAT);
+    
+        for(int i = 0; i < length; i++)
+        {
+            auto v3 = arr[i];
+            
+            if(v3.x < ptMin.x)
+            {
+                ptMin.x = v3.x;
+            }
+            if(v3.x > ptMax.x)
+            {
+                ptMax.x = v3.x;
+            }
+            
+            if(v3.y < ptMin.y)
+            {
+                ptMin.y = v3.y;
+            }
+            if(v3.y > ptMax.y)
+            {
+                ptMax.y = v3.y;
+            }
+
+            if(v3.z < ptMin.z)
+            {
+                ptMin.z = v3.z;
+            }
+            if(v3.z > ptMax.z)
+            {
+                ptMax.z = v3.z;
+            }
+        }
 
         return AABB.fromMinMax(ptMin, ptMax);
     }

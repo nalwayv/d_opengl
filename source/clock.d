@@ -2,7 +2,7 @@
 module clock;
 
 
-enum double DELTA = 0.01666666666666666667;
+enum double DELTA = 1.0/60.0;
 
 
 struct Clock

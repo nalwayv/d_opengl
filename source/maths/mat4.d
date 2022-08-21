@@ -268,7 +268,7 @@ struct Mat4
         result.m20 = (right + left) / (right - left);
         result.m21 = (top + bottom) / (top - bottom);
         result.m22 = -(zfar + znear) / (zfar - znear);
-        result.m23 = 0.0f;
+        result.m23 = -1.0f;
         result.m30 = 0.0f;
         result.m31 = 0.0f;
         result.m32 = -(2.0f * zfar * znear) / (zfar - znear);

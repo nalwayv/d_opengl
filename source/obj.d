@@ -1,5 +1,5 @@
 /// Mesh
-module mesh;
+module obj;
 
 
 import bindbc.opengl;
@@ -106,37 +106,38 @@ struct Ebo
 
 // TODO(...)
 
-class Mesh
+class Obj
 {
     private Vbo vbo;
     private Vao vao;
     private Ebo ebo;
     private int indiciesLen;
 
-    this(const float* vertData, int vertLen, const int* indiciesData, int indiciesLen)
+    this(const float[] verts, const int[] indicies)    
     {
         vbo = Vbo.newVbo();
         vao = Vao.newVao();
         ebo = Ebo.newEbo();
-        this.indiciesLen = indiciesLen;
+        indiciesLen = cast(int)indicies.length;
 
         // setup
         vao.bind();
         vbo.bind();
-
+    
         glBufferData(
             GL_ARRAY_BUFFER,
-            vertLen * float.sizeof,
-            vertData,
+            cast(GLsizeiptr)(verts.length * float.sizeof),
+            verts.ptr,
             GL_STATIC_DRAW
         );
 
         // ebo set data
         ebo.bind();
+        
         glBufferData(
             GL_ELEMENT_ARRAY_BUFFER,
-            indiciesLen * int.sizeof,
-            indiciesData,
+            cast(GLsizeiptr)(indicies.length * int.sizeof),
+            indicies.ptr,
             GL_STATIC_DRAW
         );
 
@@ -147,7 +148,7 @@ class Mesh
             COMPONENTS,
             GL_FLOAT,
             GL_FALSE,
-            STRIDE * float.sizeof,
+            cast(GLsizei)(STRIDE * float.sizeof),
             null
         );
 
@@ -157,7 +158,7 @@ class Mesh
             COMPONENTS,
             GL_FLOAT,
             GL_FALSE,
-            STRIDE * float.sizeof,
+            cast(GLsizei)(STRIDE * float.sizeof),
             cast(void*)(COMPONENTS * float.sizeof)
         );
 
