@@ -27,10 +27,10 @@ enum float PHI = 1.57079632679489661923f;
 enum float TAU = 6.28318530717958647693f;
 
 /// radian value
-enum float TORAD = 0.01745329251994329577f;
+enum float RAD = 0.01745329251994329577f;
 
 /// degree value
-enum float TODEG = 57.2957795130823208768f;
+enum float DEG = 57.2957795130823208768f;
 
 /// swap float values 'x and 'y using ref's
 void swapF(ref float x, ref float y)

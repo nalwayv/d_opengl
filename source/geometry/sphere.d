@@ -33,7 +33,7 @@ struct Sphere
         auto p = pt.subbed(origin);
         if(!p.isNormal())
         {
-            p.normalize();
+            p = p.normalized();
         }
 
         Vec3 result;

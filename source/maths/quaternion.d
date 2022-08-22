@@ -19,7 +19,7 @@ struct Quaternion
             
         if(!axis.isNormal())
         {
-            axis.normalize();
+            axis = axis.normalized();
         }
 
         auto c = cosF(rad * 0.5f);
@@ -81,7 +81,7 @@ struct Quaternion
                 axis = unitY.cross(from);
             }
 
-            axis.normalize();
+            axis = axis.normalized();
             auto qaxis = Quaternion.fromAxis(PI, axis);
 
             result.x = qaxis.x;

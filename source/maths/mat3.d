@@ -123,7 +123,10 @@ struct Mat3
     /// Returns: Mat3
     static Mat3 fromAxis(float rad, Vec3 axis)
     {
-        assert(axis.isNormal());
+        if(!axis.isNormal())
+        {
+            axis = axis.normalized();
+        }
 
         auto c = cosF(rad);
         auto s = sinF(rad);

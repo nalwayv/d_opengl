@@ -18,7 +18,7 @@ struct Plane
     {
         if(!normal.isNormal())
         {
-            normal.normalize();
+            normal = normal.normalized();
         }
 
         this.normal.x = normal.x;
@@ -37,7 +37,7 @@ struct Plane
 
         if(!abc.isNormal())
         {
-            abc.normalize();
+            abc = abc.normalized();
         }
 
         Plane result;

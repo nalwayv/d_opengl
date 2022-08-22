@@ -235,6 +235,21 @@ struct Vec3
         return result;
     }
 
+    /// return linear vec3 between 'this and 'to by time
+    /// Returns: Vec3
+    Vec3 linear(Vec3 to, float dt)
+    {
+        auto by = 1.0f - dt;
+
+        Vec3 result;
+
+        result.x = (to.x - x) * by;
+        result.y = (to.y - y) * by;
+        result.z = (to.z - z) * by;
+
+        return result;
+    }
+
     /// return a normalized vec3 of 'this vec3
     /// Returns: Vec3
     Vec3 normalized()
@@ -258,17 +273,6 @@ struct Vec3
         }
 
         return result;
-    }
-
-    /// normalize this vec3
-    /// Returns: void
-    void normalize()
-    {
-        auto n = normalized();
-        
-        x = n.x;
-        y = n.y;
-        z = n.z;
     }
 
     /// return cross product between vec3 'this and vec3 'other
@@ -319,7 +323,10 @@ struct Vec3
     /// Returns: Vec3
     Vec3 rotateAxis(float rad, Vec3 unitAxis)
     {
-        assert(unitAxis.isNormal());
+        if(!unitAxis.isNormal())
+        {
+            unitAxis = unitAxis.normalized();
+        }
 
         auto c = acosF(rad);
         auto s = asinF(rad);

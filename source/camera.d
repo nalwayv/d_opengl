@@ -1,77 +1,98 @@
+/// CAMERA
 module camera;
+
+import bindbc.glfw;
 
 import maths.utils;
 import maths.vec3;
+import maths.mat3;
 import maths.mat4;
 
 // TODO(...)
 
+
+enum ROTATION = 1.11701072127637092928; // 64 * RAD
+enum SPEED = 1.6f;
+
+
 class Camera
 {
-    private Vec3 position;
-    private Vec3 orientation;
-    private Vec3 up;
-    private float screenWidth;
-    private float screenHeight;
-    private float fov;
-    private float nearZ;
-    private float farZ;
-    private float speed;
+    private 
+    {
+        Mat3 basis;
+        Vec3 position;
+        float screenWidth;
+        float screenHeight;
+        float fov;
+        float nearZ;
+        float farZ;
+        float speed;
+    }
 
     this(float x, float y, float z, float screenW, float screenH)
     {
+        basis = Mat3(
+            1.0f, 0.0f,  0.0f, // 0: right
+            0.0f, 1.0f,  0.0f, // 1: up
+            0.0f, 0.0f, -1.0f  // 2: front
+        );
         position = Vec3(x, y, z);
-        orientation = Vec3(0.0f, 0.0f, -1.0f);
-        up = Vec3(0.0f, 1.0f, 0.0f);
+
         screenWidth = screenW;
         screenHeight = screenH;
         fov = PHI;
         nearZ = 0.1f;
         farZ = 100.0f;
-        speed = 1.6f;
     }
 
-    void translateIn(float dt)
-    {
-        auto os = orientation.scaled(speed * dt);
-        position = position.added(os);
+    public void transform(float dt, float x, float y, float z)
+    {   
+        auto axis = Vec3(x, y, z).normalized();
+        position = position.added(basis.transform(axis.scaled(SPEED * dt)));
     }
 
-    void translateOut(float dt)
+    public void rotate(float dt, float x, float y, float z)
     {
-        auto os = orientation.negated().scaled(speed * dt);
-        position = position.added(os);
+        auto axis = Vec3(x,y,z).normalized();
+        basis = basis.rotated(ROTATION * dt, axis);
+
+        // update basis
+        auto right = basis.row0();
+        auto up = basis.row1();
+        Vec3 front = basis.row2();
+
+        if(!front.isNormal())
+        {
+            front = front.normalized();
+        }
+
+        right = front.cross(Vec3(0.0f, 1.0f, 0.0f));
+        if(!right.isNormal())
+        {
+            right = right.normalized();
+        }
+
+        up = right.cross(front);
+
+        basis.m00 = right.x;
+        basis.m01 = right.y;
+        basis.m02 = right.z;
+        basis.m10 = up.x;
+        basis.m11 = up.y;
+        basis.m12 = up.z;
+        basis.m20 = front.x;
+        basis.m21 = front.y;
+        basis.m22 = front.z;
     }
 
-    void translateRight(float dt)
+    public Mat4 matrix()
     {
-        auto os = orientation.cross(up).normalized().negated().scaled(speed * dt);
-        position = position.added(os);
-    }
+        auto up = basis.row1();
+        auto front = basis.row2();
 
-    void translateLeft(float dt)
-    {
-        auto os = orientation.cross(up).normalized().scaled(speed * dt);
-        position = position.added(os);
-    }
+        auto view =  Mat4.lookAt(position, position.added(front), up);
+        auto projection =  Mat4.perspective(fov, screenWidth / screenHeight, nearZ, farZ);
 
-    void translateUp(float dt)
-    {
-        auto ups = up.negated().scaled(speed * dt);
-        position = position.added(ups);
-    }
-
-    void translateDown(float dt)
-    {
-        auto ups = up.scaled(speed * dt);
-        position = position.added(ups);
-    }
-
-    Mat4 matrix()
-    {
-        auto v =  Mat4.lookAt(position, position.added(orientation), up);
-        auto p =  Mat4.perspective(fov, screenWidth / screenHeight, nearZ, farZ);
-
-        return v.multiplied(p);
+        return view.multiplied(projection);
     }
 }

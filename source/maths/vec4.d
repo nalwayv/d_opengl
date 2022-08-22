@@ -218,17 +218,6 @@ struct Vec4
         return result;
     }
 
-    /// normalize 'this vec4
-    void normalize()
-    {
-        auto n = normalized();
-
-        x = n.x;
-        y = n.y;
-        z = n.z;
-        w = n.w;
-    }
-
     /// return a negated copy of 'this
     /// Returns: Vec4
     Vec4 negated()

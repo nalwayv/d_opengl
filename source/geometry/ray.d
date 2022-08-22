@@ -18,7 +18,7 @@ struct Ray
     {
         if(!direction.isNormal())
         {
-            direction.normalize();
+            direction = direction.normalized();
         }
         
         this.origin.x = origin.x;

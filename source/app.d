@@ -3,8 +3,10 @@ import std.stdio : writeln;
 import bindbc.opengl;
 import bindbc.glfw;
 import maths.mat4;
+import maths.vec3;
 import clock;
 import keyboard;
+import mouse;
 import obj;
 import shader;
 import camera;
@@ -63,8 +65,12 @@ void main()
     // ---
 
     auto clock = Clock.newClock(glfwGetTime());
-    auto kb = Keyboard.newKeyboard(window);
-    
+    auto keyb = Keyboard.newKeyboard(window);
+    auto mouse = Mouse.newMouse(window);
+    mouse.hideCursor();
+    bool clicked;
+    auto cam = new Camera(0.0f, 0.0f, 3.0f, cast(float)WIDTH, cast(float)HEIGHT);
+
     float[18] triVerts = [
         0.0f, 0.5f, 0.0f,  1.0f, 0.0f, 0.0f,
         -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,
@@ -74,7 +80,6 @@ void main()
     auto triShader = new Shader("shaders\\default.vert", "shaders\\default.frag");
     auto triObj = new Obj(triVerts, triInd);
     auto triMatrix = Mat4.identity();
-    auto cam = new Camera(0.0f, 0.0f, 3.0f, cast(float)WIDTH, cast(float)HEIGHT);
 
 	while(!glfwWindowShouldClose(window))
     {
@@ -95,34 +100,57 @@ void main()
 
         // ---
 
-        if(kb.getState(GLFW_KEY_W) == KEY_HELD)
+        if(keyb.getState(GLFW_KEY_W) == KEY_HELD)
         {
-            cam.translateIn(clock.dt);
+            cam.transform(clock.dt, 0.0f, -1.0f, 0.0f);
         }
 
-        if(kb.getState(GLFW_KEY_A) == KEY_HELD)
+        if(keyb.getState(GLFW_KEY_A) == KEY_HELD)
         {
-            cam.translateLeft(clock.dt);
+            cam.transform(clock.dt, 1.0f, 0.0f, 0.0f);
         }
 
-        if(kb.getState(GLFW_KEY_S) == KEY_HELD)
+        if(keyb.getState(GLFW_KEY_S) == KEY_HELD)
         {
-            cam.translateOut(clock.dt);
+            cam.transform(clock.dt, 0.0f, 1.0f, 0.0f);
         }
 
-        if(kb.getState(GLFW_KEY_D) == KEY_HELD)
+        if(keyb.getState(GLFW_KEY_D) == KEY_HELD)
         {
-            cam.translateRight(clock.dt);
+            cam.transform(clock.dt, -1.0f, 0.0f, 0.0f);
         }
 
-        if(kb.getState(GLFW_KEY_Q) == KEY_HELD)
+        if(keyb.getState(GLFW_KEY_Q) == KEY_HELD)
         {
-            cam.translateUp(clock.dt);
+            cam.transform(clock.dt, 0.0f, 0.0f, 1.0f);
         }
 
-        if(kb.getState(GLFW_KEY_E) == KEY_HELD)
+        if(keyb.getState(GLFW_KEY_E) == KEY_HELD)
         {
-            cam.translateDown(clock.dt);
+            cam.transform(clock.dt, 0.0f, 0.0f, -1.0f);
+        }
+
+        if(mouse.getState(GLFW_MOUSE_BUTTON_LEFT) == BUTTON_HELD)
+        {
+            auto w = cast(float)WIDTH;
+            auto h = cast(float)HEIGHT;
+
+            if(clicked)
+            {
+                mouse.setCursorPosition(w / 2, h / 2);
+                clicked = false;
+            }
+            
+            auto rx = (mouse.y() - h / 2) / h;
+            auto ry = (mouse.x() - w / 2) / w;
+            cam.rotate(clock.dt, rx, ry, 0.0f);
+        
+            mouse.setCursorPosition(w / 2, h / 2);
+        
+        }
+        else
+        {
+            clicked = true;
         }
 
         // ---
