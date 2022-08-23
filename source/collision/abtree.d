@@ -36,11 +36,14 @@ template TplTree(T)
 
     class ABTree
     {
-        private Node[] nodes;
-        private int cap;
-        private int count;
-        private int free;
-        private int root;
+        private 
+        {
+            Node[] nodes;
+            int cap;
+            int count;
+            int free;
+            int root;
+        }
         
         this()
         {

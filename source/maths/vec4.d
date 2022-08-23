@@ -199,6 +199,7 @@ struct Vec4
         auto lsq = lengthSq();
         Vec4 result;
 
+
         if(isZeroF(lsq))
         {
             result.x = 0.0f;
@@ -206,9 +207,17 @@ struct Vec4
             result.z = 0.0f;
             result.w = 0.0f;
         }
+        else if(isOneF(lsq))
+        {
+            result.x = x;
+            result.y = y;
+            result.z = z;
+            result.w = w;
+        }
         else 
         {
             auto inv = invSqrtF(lsq);
+            
             result.x = x * inv;
             result.y = y * inv;
             result.z = z * inv;

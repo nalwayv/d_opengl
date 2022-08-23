@@ -263,6 +263,12 @@ struct Vec3
             result.y = 0.0f;
             result.z = 0.0f;
         }
+        else if(isOneF(lsq))
+        {
+            result.x = x;
+            result.y = y;
+            result.z = z;
+        }
         else 
         {
             auto inv = invSqrtF(lsq);

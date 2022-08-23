@@ -243,6 +243,11 @@ struct Vec2
             result.x = 0.0f;
             result.y = 0.0f;
         }
+        else if(isOneF(lsq))
+        {
+            result.x = x;
+            result.y = y;
+        }
         else 
         {
             auto inv = invSqrtF(lsq);

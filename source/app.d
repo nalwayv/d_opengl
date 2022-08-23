@@ -67,9 +67,9 @@ void main()
     auto clock = Clock.newClock(glfwGetTime());
     auto keyb = Keyboard.newKeyboard(window);
     auto mouse = Mouse.newMouse(window);
-    mouse.hideCursor();
+    auto cam = new Camera(0, 0, 1,cast(float)WIDTH, cast(float)HEIGHT);
+    
     bool clicked;
-    auto cam = new Camera(0.0f, 0.0f, 3.0f, cast(float)WIDTH, cast(float)HEIGHT);
 
     float[18] triVerts = [
         0.0f, 0.5f, 0.0f,  1.0f, 0.0f, 0.0f,
@@ -100,37 +100,27 @@ void main()
 
         // ---
 
-        if(keyb.getState(GLFW_KEY_W) == KEY_HELD)
+        if(keyb.keyState(GLFW_KEY_W) == KEY_HELD)
         {
-            cam.transform(clock.dt, 0.0f, -1.0f, 0.0f);
+            cam.transform(clock.dt, CAM_FORWARD);
         }
 
-        if(keyb.getState(GLFW_KEY_A) == KEY_HELD)
+        if(keyb.keyState(GLFW_KEY_A) == KEY_HELD)
         {
-            cam.transform(clock.dt, 1.0f, 0.0f, 0.0f);
+            cam.transform(clock.dt, CAM_LEFT);
         }
 
-        if(keyb.getState(GLFW_KEY_S) == KEY_HELD)
+        if(keyb.keyState(GLFW_KEY_S) == KEY_HELD)
         {
-            cam.transform(clock.dt, 0.0f, 1.0f, 0.0f);
+            cam.transform(clock.dt, CAM_BACKWARD);
         }
 
-        if(keyb.getState(GLFW_KEY_D) == KEY_HELD)
+        if(keyb.keyState(GLFW_KEY_D) == KEY_HELD)
         {
-            cam.transform(clock.dt, -1.0f, 0.0f, 0.0f);
+            cam.transform(clock.dt, CAM_RIGHT);
         }
 
-        if(keyb.getState(GLFW_KEY_Q) == KEY_HELD)
-        {
-            cam.transform(clock.dt, 0.0f, 0.0f, 1.0f);
-        }
-
-        if(keyb.getState(GLFW_KEY_E) == KEY_HELD)
-        {
-            cam.transform(clock.dt, 0.0f, 0.0f, -1.0f);
-        }
-
-        if(mouse.getState(GLFW_MOUSE_BUTTON_LEFT) == BUTTON_HELD)
+        if(mouse.buttonState(GLFW_MOUSE_BUTTON_LEFT) == BUTTON_HELD)
         {
             auto w = cast(float)WIDTH;
             auto h = cast(float)HEIGHT;
@@ -143,10 +133,9 @@ void main()
             
             auto rx = (mouse.y() - h / 2) / h;
             auto ry = (mouse.x() - w / 2) / w;
-            cam.rotate(clock.dt, rx, ry, 0.0f);
+            cam.rotate(clock.dt, rx, ry);
         
             mouse.setCursorPosition(w / 2, h / 2);
-        
         }
         else
         {

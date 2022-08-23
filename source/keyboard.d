@@ -34,7 +34,7 @@ struct Keyboard
     /// return current state that glfw key is in
     /// Examples: getState(GLFW_KEY_A) == KEY_PRESSED
     /// Returns: int
-    int getState(int key)
+    int keyState(int key)
     {
         assert(window !is null);
         assert(key >= 0 && key < KBSIZE);
@@ -64,11 +64,11 @@ struct Keyboard
         { 
             if(getC == 0)
             {
-                return KEY_RELEASED;
+                result = KEY_RELEASED;
             }
             else
             {
-                return KEY_HELD;
+                result = KEY_HELD;
             }
         }
         

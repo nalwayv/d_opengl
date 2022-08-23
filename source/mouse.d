@@ -36,7 +36,7 @@ struct Mouse
 
     /// return current state that glfw mouse button is in
     /// Returns: int
-    public int getState(int button)
+    public int buttonState(int button)
     {
         assert(window !is null);
         assert(button >= 0 && button < MOUSESIZE);
@@ -66,11 +66,11 @@ struct Mouse
         { 
             if(getC == 0)
             {
-                return BUTTON_RELEASED;
+                result = BUTTON_RELEASED;
             }
             else
             {
-                return BUTTON_HELD;
+                result = BUTTON_HELD;
             }
         }
         
@@ -104,4 +104,5 @@ struct Mouse
     {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
     }
+
 }

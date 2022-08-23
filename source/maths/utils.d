@@ -5,6 +5,7 @@ module maths.utils;
 import std.math;
 
 
+
 /// small float value near zero
 enum float EPSILON = float.epsilon;
 
@@ -27,10 +28,12 @@ enum float PHI = 1.57079632679489661923f;
 enum float TAU = 6.28318530717958647693f;
 
 /// radian value
-enum float RAD = 0.01745329251994329577f;
+enum float RAD = PI/180.0f;
 
 /// degree value
-enum float DEG = 57.2957795130823208768f;
+enum float DEG = 180.0f/PI;
+
+
 
 /// swap float values 'x and 'y using ref's
 void swapF(ref float x, ref float y)
@@ -38,6 +41,18 @@ void swapF(ref float x, ref float y)
     const auto tmp = x;
     x = y;
     y = tmp;
+}
+
+/// convert deg to rad
+float toRad(float value)
+{
+    return value * RAD;
+}
+
+/// convert rad to deg
+float toDeg(float value)
+{
+    return value * DEG;
 }
 
 /// return the absolute 'value of float
@@ -97,7 +112,9 @@ float floorF(float value)
 /// clamp 'value between 'min and 'max float values
 float clampF(float value, float min, float max)
 {
-    return maxF(minF(value, max), min);
+    if(value <= min) return min;
+    if(value >= max) return max;
+    return value;
 }
 
 /// lerp value between 'from and 'to by 'weight
