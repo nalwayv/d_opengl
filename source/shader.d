@@ -3,7 +3,6 @@ module shader;
 
 
 import std.string : toStringz;
-import std.stdio:writeln;
 import bindbc.opengl;
 import utils.path;
 import maths.vec3;

@@ -1,6 +1,5 @@
 module utils.path;
 
-import std.stdio : writeln;
 import std.stdio : File;
 import std.exception : ErrnoException;
 
