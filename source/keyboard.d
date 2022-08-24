@@ -5,8 +5,8 @@ module keyboard;
 import bindbc.glfw;
 
 
-enum KBSIZE = 350;
-enum
+enum size_t KBSIZE = 350;
+enum : int
 {
     KEY_DEFAULT = 0,
     KEY_PRESSED = 1,

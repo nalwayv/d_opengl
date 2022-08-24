@@ -7,8 +7,8 @@ import maths.vec3;
 import geometry.aabb;
 
 
-enum TREECAP = 16;
-enum NULLNODE = -1;
+enum size_t TREECAP = 16;
+enum int NULLNODE = -1;
 
 // TODO(...)
 // alias ABStack = Stack!int;

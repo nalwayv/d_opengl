@@ -2,6 +2,7 @@
 import std.stdio : writeln;
 import bindbc.opengl;
 import bindbc.glfw;
+import maths.utils;
 import maths.mat4;
 import maths.vec3;
 import clock;
@@ -67,19 +68,54 @@ void main()
     auto clock = Clock.newClock(glfwGetTime());
     auto keyb = Keyboard.newKeyboard(window);
     auto mouse = Mouse.newMouse(window);
-    auto cam = new Camera(0, 0, 1,cast(float)WIDTH, cast(float)HEIGHT);
+    auto cam = new Camera(0, 0, 5, cast(float)WIDTH, cast(float)HEIGHT);
     
     bool clicked;
-
-    float[18] triVerts = [
-        0.0f, 0.5f, 0.0f,  1.0f, 0.0f, 0.0f,
-        -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,
-        0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f
+    Vec3 size = Vec3(2,2,2);
+    float[144] objVerts = [
+        // front
+         size.x,  size.y,  size.z, 0.0f, 0.0f, 1.0f,
+        -size.x,  size.y,  size.z, 0.0f, 0.0f, 1.0f,
+        -size.x, -size.y,  size.z, 0.0f, 0.0f, 1.0f,
+         size.x, -size.y,  size.z, 0.0f, 0.0f, 1.0f,
+        // right
+         size.x,  size.y,  size.z, 1.0f, 0.0f, 0.0f,
+         size.x, -size.y,  size.z, 1.0f, 0.0f, 0.0f,
+         size.x, -size.y, -size.z, 1.0f, 0.0f, 0.0f,
+         size.x,  size.y, -size.z, 1.0f, 0.0f, 0.0f,
+        // top
+         size.x,  size.y,  size.z, 0.0f, 1.0f, 0.0f,
+         size.x,  size.y, -size.z, 0.0f, 1.0f, 0.0f,
+        -size.x,  size.y, -size.z, 0.0f, 1.0f, 0.0f,
+        -size.x,  size.y,  size.z, 0.0f, 1.0f, 0.0f,
+        // left
+        -size.x,  size.y,  size.z, 0.0f, 1.0f, 0.0f,
+        -size.x,  size.y, -size.z, 0.0f, 1.0f, 0.0f,
+        -size.x, -size.y, -size.z, 0.0f, 1.0f, 0.0f,
+        -size.x, -size.y,  size.z, 0.0f, 1.0f, 0.0f,
+        // bottom
+        -size.x, -size.y, -size.z, 0.0f, 0.0f, 1.0f,
+         size.x, -size.y, -size.z, 0.0f, 0.0f, 1.0f,
+         size.x, -size.y,  size.z, 0.0f, 0.0f, 1.0f,
+        -size.x, -size.y,  size.z, 0.0f, 0.0f, 1.0f,
+        // back
+         size.x, -size.y, -size.z, 1.0f, 0.0f, 0.0f,
+        -size.x, -size.y, -size.z, 1.0f, 0.0f, 0.0f,
+        -size.x,  size.y, -size.z, 1.0f, 0.0f, 0.0f,
+         size.x,  size.y, -size.z, 1.0f, 0.0f, 0.0f
     ];
-    int[3] triInd = [0, 1, 2];
-    auto triShader = new Shader("shaders\\default.vert", "shaders\\default.frag");
-    auto triObj = new Obj(triVerts, triInd);
-    auto triMatrix = Mat4.identity();
+    
+    int[36] objInd = [
+        0,  1,  2,  2,  3,  0,
+        4,  5,  6,  6,  7,  4,
+        8,  9, 10, 10, 11,  8,
+        12, 13, 14, 14, 15, 12,
+        16, 17, 18, 18, 19, 16,
+        20, 21, 22, 22, 23, 20
+    ];
+    auto objShader = new Shader("shaders\\default.vert", "shaders\\default.frag");
+    auto obj = new Obj(objVerts, objInd);
+    auto objTransform = Mat4.identity();
 
 	while(!glfwWindowShouldClose(window))
     {
@@ -93,52 +129,69 @@ void main()
 
         clock.update(glfwGetTime());
 
-        triShader.use();
-        triShader.setMat4("model_Matrix", triMatrix);
-        triShader.setMat4("cam_Matrix", cam.matrix());
-        triObj.render();
+        objTransform = objTransform.rotated(
+            toRad(15.0f * clock.dt), 
+            Vec3(1.0f, 0.0f, -1.0f)
+        );
+
+        objShader.use();
+        objShader.setMat4("model_Matrix", objTransform);
+        objShader.setMat4("cam_Matrix", cam.matrix());
+        obj.render();
 
         // ---
 
         if(keyb.keyState(GLFW_KEY_W) == KEY_HELD)
         {
-            cam.transform(clock.dt, CAM_FORWARD);
+            cam.transform(CAM_FORWARD, clock.dt);
         }
 
         if(keyb.keyState(GLFW_KEY_A) == KEY_HELD)
         {
-            cam.transform(clock.dt, CAM_LEFT);
+            cam.transform(CAM_LEFT, clock.dt);
         }
 
         if(keyb.keyState(GLFW_KEY_S) == KEY_HELD)
         {
-            cam.transform(clock.dt, CAM_BACKWARD);
+            cam.transform(CAM_BACKWARD, clock.dt);
         }
 
         if(keyb.keyState(GLFW_KEY_D) == KEY_HELD)
         {
-            cam.transform(clock.dt, CAM_RIGHT);
+            cam.transform(CAM_RIGHT, clock.dt);
+        }
+
+        if(keyb.keyState(GLFW_KEY_Q) == KEY_HELD)
+        {
+            cam.zoom(CAM_IN, clock.dt);
+        }
+        
+        if(keyb.keyState(GLFW_KEY_E) == KEY_HELD)
+        {
+            cam.zoom(CAM_OUT, clock.dt);
+        }
+        
+        if(keyb.keyState(GLFW_KEY_R) == KEY_PRESSED)
+        {
+            cam.reset();
         }
 
         if(mouse.buttonState(GLFW_MOUSE_BUTTON_LEFT) == BUTTON_HELD)
         {
-            auto w = cast(float)WIDTH;
-            auto h = cast(float)HEIGHT;
+            mouse.hideCursor();
 
             if(clicked)
             {
-                mouse.setCursorPosition(w / 2, h / 2);
+                mouse.setCursorPosition(cast(float)WIDTH / 2, cast(float)HEIGHT / 2);
                 clicked = false;
             }
             
-            auto rx = (mouse.y() - h / 2) / h;
-            auto ry = (mouse.x() - w / 2) / w;
-            cam.rotate(clock.dt, rx, ry);
-        
-            mouse.setCursorPosition(w / 2, h / 2);
+            cam.rotate(mouse.x(), mouse.y(), clock.dt);
+            mouse.setCursorPosition(cast(float)WIDTH / 2, cast(float)HEIGHT / 2);
         }
         else
         {
+            mouse.showCursor();
             clicked = true;
         }
 

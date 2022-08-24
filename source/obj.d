@@ -5,10 +5,13 @@ module obj;
 import bindbc.opengl;
 
 
-enum VERT_POSITION_IDX = 0;
-enum VERT_COLOR_IDX = 1;
-enum COMPONENTS = 3;
-enum STRIDE = 6;
+enum int COMPONENTS = 3;
+enum int STRIDE = 6;
+enum : int
+{
+    POSITION_IDX = 0,
+    COLOR_IDX = 1
+}
 
 
 struct Vbo
@@ -142,9 +145,10 @@ class Obj
         );
 
         // vbo link
-        glEnableVertexAttribArray(VERT_POSITION_IDX);
+        glEnableVertexAttribArray(POSITION_IDX);
+
         glVertexAttribPointer(
-            VERT_POSITION_IDX,
+            POSITION_IDX,
             COMPONENTS,
             GL_FLOAT,
             GL_FALSE,
@@ -152,9 +156,9 @@ class Obj
             null
         );
 
-        glEnableVertexAttribArray(VERT_COLOR_IDX);
+        glEnableVertexAttribArray(COLOR_IDX);
         glVertexAttribPointer(
-            VERT_COLOR_IDX,
+            COLOR_IDX,
             COMPONENTS,
             GL_FLOAT,
             GL_FALSE,

@@ -212,7 +212,10 @@ struct Mat4
     /// Returns: Mat4
     static Mat4 fromAxis(float rad, Vec3 axis)
     {
-        assert(axis.isNormal());
+        if(!axis.isNormal())
+        {
+            axis = axis.normalized();
+        }
 
         auto c = cosF(rad);
         auto s = sinF(rad);

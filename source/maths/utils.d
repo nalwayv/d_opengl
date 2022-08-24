@@ -112,9 +112,21 @@ float floorF(float value)
 /// clamp 'value between 'min and 'max float values
 float clampF(float value, float min, float max)
 {
-    if(value <= min) return min;
-    if(value >= max) return max;
-    return value;
+    float result;
+    
+    if(value < min)
+    {
+        result = min;
+    } 
+    else if(value > max)
+    {
+        result = max;
+    } 
+    else 
+    {
+        result = value;
+    }
+    return result;
 }
 
 /// lerp value between 'from and 'to by 'weight

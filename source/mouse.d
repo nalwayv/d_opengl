@@ -5,8 +5,8 @@ module mouse;
 import bindbc.glfw;
 
 
-enum MOUSESIZE = 7;
-enum
+enum size_t MOUSESIZE = 7;
+enum : int
 {
     BUTTON_DEFAULT = 0,
     BUTTON_PRESSED = 1,
@@ -103,6 +103,11 @@ struct Mouse
     void hideCursor()
     {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+    }
+
+    void showCursor()
+    {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
 
 }

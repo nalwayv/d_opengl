@@ -9,14 +9,20 @@ import maths.vec3;
 import maths.mat4;
 
 
-enum float SPEED = 3.2f;
-enum float SENSITIVITY = 1000.25f;
-enum 
+enum float SPEED = 5.0f;
+enum float SENSITIVITY = 2500.0f;
+enum float ZOOM = 50.0f;
+enum : int
 {
     CAM_FORWARD = 0,
     CAM_BACKWARD = 1,
     CAM_LEFT = 2,
     CAM_RIGHT = 3,
+}
+enum : int
+{
+    CAM_IN = 0,
+    CAM_OUT = 1
 }
 
 
@@ -38,6 +44,8 @@ class Camera
 
         float yaw;
         float pitch;
+
+        float resetZ;
     }
 
     this(float x, float y, float z, float screenW, float screenH)
@@ -56,32 +64,35 @@ class Camera
 
         yaw = -90.0f;
         pitch = 0.0f;
+
+        resetZ = position.z;
     }
 
-    public void transform(float dt, int dir)
+    public void transform(int dir, float dt)
     {   
         Vec3 tr;
+        auto by = SPEED * dt;
 
         // z forward
-        if(dir == 0)
+        if(dir == CAM_FORWARD)
         {
-            tr = front.scaled(SPEED * dt);
+            tr = front.scaled(by);
         }
         // z backward
-        else if(dir == 1)
+        else if(dir == CAM_BACKWARD)
         {
-            tr = front.negated().scaled(SPEED * dt);
+            tr = front.negated().scaled(by);
         }
         // x left
-        else if(dir == 2)
+        else if(dir == CAM_LEFT)
         {
-            tr = front.cross(up).scaled(SPEED * dt);
+            tr = front.cross(up).scaled(by);
 
         }
         // x right
-        else if(dir == 3)
+        else if(dir == CAM_RIGHT)
         {
-            tr = front.cross(up).negated().scaled(SPEED * dt);
+            tr = front.cross(up).negated().scaled(by);
         }
         else 
         {
@@ -93,27 +104,69 @@ class Camera
         position = position.added(tr);
     }
 
-    public void rotate(float dt, float x, float y)
+    public void zoom(int dir, float dt)
     {
-        x *= SENSITIVITY * dt;
-        y *= SENSITIVITY * dt;
+        float d;
+        auto by = ZOOM * dt;
 
-        yaw += y;
-        pitch += clampF(x, -89.0f, 89.0f);
+        if(dir == CAM_IN)
+        {
+            d = 1.0f;
+        }
+        else if(dir == CAM_OUT)
+        {
+            d = -1.0f;
+        }
+        else
+        {
+            d = 0.0f;
+        }
+
+        d *= by;
+        fov -= toRad(d);
+        fov = clampF(fov, toRad(5.0f), PHI);
+    }
+
+    public void rotate(float x, float y, float dt)
+    {
+        auto px = (y - screenHeight / 2) / screenHeight;
+        auto py = (x - screenWidth / 2) / screenWidth;
+        auto by = SENSITIVITY * dt;
+
+        px *= by;
+        py *= by;
+
+        yaw -= py;
+        pitch += px;
+
+        pitch = clampF(pitch, -89.0f, 89.0f);
 
         front.x = cosF(toRad(yaw)) * cosF(toRad(pitch));
         front.y = sinF(toRad(pitch));
         front.z = sinF(toRad(yaw)) * cosF(toRad(pitch));
 
         front = front.normalized();
-        right = front.cross(Vec3(0, 1, 0)).normalized();
-        up = right.cross(front);
+    }
+
+    public void reset()
+    {
+        right = Vec3(1.0f, 0.0f,  0.0f);
+        up = Vec3(0.0f, 1.0f,  0.0f);
+        front = Vec3(0.0f, 0.0f, -1.0f);
+        position = Vec3(0.0f, 0.0f, resetZ);
+
+        fov = PHI;
+        nearZ = 0.1f;
+        farZ = 100.0f;
+
+        yaw = -90.0f;
+        pitch = 0.0f;
     }
 
     public Mat4 matrix()
     {
         auto view =  Mat4.lookAt(position, position.added(front), up);
-        auto projection =  Mat4.perspective(fov, screenWidth / screenHeight, nearZ, farZ);
+        auto projection =  Mat4.perspective(fov, screenWidth/screenHeight, nearZ, farZ);
 
         return view.multiplied(projection);
     }
