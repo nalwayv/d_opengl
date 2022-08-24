@@ -160,6 +160,7 @@ float invSqrtF(float value)
 }
 
 /// return a normalized float 'value between 'min and 'max
+/// Examples: normalizeF(50, 0, 100) // 0.5
 float normalizeF(float value, float min, float max)
 {
     return (value - min) / (max - min);

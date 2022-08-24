@@ -2,9 +2,8 @@
 module utils.stack;
 
 
-import core.memory : GC;
-
 enum size_t STACKCAP = 4;
+
 
 /// helper class for simple stack collection uses
 /// ```
@@ -14,7 +13,7 @@ enum size_t STACKCAP = 4;
 /// ```
 class Stack(T)
 {
-    private T* stack;
+    private T[] stack;
     private size_t cap;
     private int top;
 
@@ -22,15 +21,7 @@ class Stack(T)
     {
         cap = STACKCAP;
         top = -1;
-        stack = cast(T*)(GC.calloc(STACKCAP));
-    }
-
-    ~this()
-    {
-        if(stack !is null)
-        {
-            GC.free(stack);
-        }
+        stack = new T[STACKCAP];
     }
 
     bool isEmpty()
@@ -43,8 +34,6 @@ class Stack(T)
         if(top == cap - 1)
         {
             cap *= 2;
-            stack = cast(T*)(GC.realloc(stack, cap));
-            assert(stack !is null);
             stack.length = cap;
         }
         stack[++top] = value;

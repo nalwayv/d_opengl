@@ -73,7 +73,7 @@ void main()
     bool clicked;
     
     // cube
-    auto size = Vec3(2,2,2);
+    auto size = Vec3(2.0f, 2.0f, 2.0f);
     float[144] objVerts = [
         // front
          size.x,  size.y,  size.z, 0.0f, 0.0f, 1.0f,
