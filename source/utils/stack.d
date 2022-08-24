@@ -4,7 +4,7 @@ module utils.stack;
 
 import core.memory : GC;
 
-enum STACKCAP = 4;
+enum size_t STACKCAP = 4;
 
 /// helper class for simple stack collection uses
 /// ```
@@ -15,8 +15,8 @@ enum STACKCAP = 4;
 class Stack(T)
 {
     private T* stack;
+    private size_t cap;
     private int top;
-    private int cap;
 
     this()
     {

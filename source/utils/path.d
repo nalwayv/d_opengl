@@ -5,14 +5,14 @@ import std.stdio : File;
 import std.exception : ErrnoException;
 
 
-enum KB = 1 << 10;
+enum size_t KB = 1 << 10;
 
 
 /// helper function to read a file's content
 /// Returns: string
 string readFile(immutable string path)
 {
-    auto chunk = cast(size_t)(KB * 4);
+    auto chunk = KB * 4;
     string result;
 
     try

@@ -71,7 +71,9 @@ void main()
     auto cam = new Camera(0, 0, 5, cast(float)WIDTH, cast(float)HEIGHT);
     
     bool clicked;
-    Vec3 size = Vec3(2,2,2);
+    
+    // cube
+    auto size = Vec3(2,2,2);
     float[144] objVerts = [
         // front
          size.x,  size.y,  size.z, 0.0f, 0.0f, 1.0f,
@@ -113,6 +115,7 @@ void main()
         16, 17, 18, 18, 19, 16,
         20, 21, 22, 22, 23, 20
     ];
+
     auto objShader = new Shader("shaders\\default.vert", "shaders\\default.frag");
     auto obj = new Obj(objVerts, objInd);
     auto objTransform = Mat4.identity();
