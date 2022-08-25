@@ -242,7 +242,7 @@ struct Mat3
         result.x = m01;
         result.y = m11;
         result.z = m21;
-        
+
         return result;
     }
 
@@ -255,11 +255,11 @@ struct Mat3
         result.x = m02;
         result.y = m12;
         result.z = m22;
-        
+
         return result;
     }
 
-    /// return a vec3 transformed by this mat3
+    /// return a vec3 transformed by 'this mat3
     /// Returns: Vec3
     Vec3 transform(Vec3 v3)
     {
@@ -268,15 +268,15 @@ struct Mat3
         auto c2 = col2();
 
         Vec3 result;
-        
+
         result.x = v3.dot(c0);
         result.y = v3.dot(c1);
         result.z = v3.dot(c2);
 
         return result;
     }
-    
-    /// get float value at 'row 'col
+
+    /// get the float value at coords 'row and 'col
     /// Returns: float
     float at(size_t row, size_t col) const
     {

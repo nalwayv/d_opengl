@@ -11,6 +11,7 @@ import mouse;
 import obj;
 import shader;
 import camera;
+import transform;
 
 
 enum WIDTH = 500;
@@ -69,9 +70,9 @@ void main()
     auto keyb = Keyboard.newKeyboard(window);
     auto mouse = Mouse.newMouse(window);
     auto cam = new Camera(0, 0, 5, cast(float)WIDTH, cast(float)HEIGHT);
-    
+
     bool clicked;
-    
+
     // cube
     auto size = Vec3(2.0f, 2.0f, 2.0f);
     float[144] objVerts = [
@@ -106,7 +107,7 @@ void main()
         -size.x,  size.y, -size.z, 1.0f, 0.0f, 0.0f,
          size.x,  size.y, -size.z, 1.0f, 0.0f, 0.0f
     ];
-    
+
     int[36] objInd = [
         0,  1,  2,  2,  3,  0,
         4,  5,  6,  6,  7,  4,
@@ -118,7 +119,7 @@ void main()
 
     auto objShader = new Shader("shaders\\default.vert", "shaders\\default.frag");
     auto obj = new Obj(objVerts, objInd);
-    auto objTransform = Mat4.identity();
+    auto objTransform = Transform.newTransform(0.0f, 0.0f, 0.0f);
 
 	while(!glfwWindowShouldClose(window))
     {
@@ -132,13 +133,10 @@ void main()
 
         clock.update(glfwGetTime());
 
-        objTransform = objTransform.rotated(
-            toRad(15.0f * clock.dt), 
-            Vec3(1.0f, 0.0f, -1.0f)
-        );
+        objTransform.rotate(toRad(15 * clock.dt), Vec3(0.2, 1, 0.5));
 
         objShader.use();
-        objShader.setMat4("model_Matrix", objTransform);
+        objShader.setMat4("model_Matrix", objTransform.matrix());
         objShader.setMat4("cam_Matrix", cam.matrix());
         obj.render();
 
@@ -168,12 +166,12 @@ void main()
         {
             cam.zoom(CAM_IN, clock.dt);
         }
-        
+
         if(keyb.keyState(GLFW_KEY_E) == KEY_HELD)
         {
             cam.zoom(CAM_OUT, clock.dt);
         }
-        
+
         if(keyb.keyState(GLFW_KEY_R) == KEY_PRESSED)
         {
             cam.reset();
@@ -188,7 +186,7 @@ void main()
                 mouse.setCursorPosition(cast(float)WIDTH / 2, cast(float)HEIGHT / 2);
                 clicked = false;
             }
-            
+
             cam.rotate(mouse.x(), mouse.y(), clock.dt);
             mouse.setCursorPosition(cast(float)WIDTH / 2, cast(float)HEIGHT / 2);
         }

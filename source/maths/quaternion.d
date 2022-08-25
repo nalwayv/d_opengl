@@ -16,7 +16,7 @@ struct Quaternion
     static Quaternion fromAxis(float rad, Vec3 axis)
     {
         Quaternion result;
-            
+
         if(!axis.isNormal())
         {
             axis = axis.normalized();
@@ -31,14 +31,14 @@ struct Quaternion
         result.w = c;
 
         return result;
-    }    
+    }
 
     static Quaternion fromEuler(float x, float y, float z)
     {
         auto c1 = cosF(x * 0.5);
         auto c2 = cosF(y * 0.5);
         auto c3 = cosF(z * 0.5);
-        
+
         auto s1 = sinF(x * 0.5);
         auto s2 = sinF(y * 0.5);
         auto s3 = sinF(z * 0.5);
@@ -49,14 +49,14 @@ struct Quaternion
         result.x = (s1 * c2 * c3) + (c1 * s2 * s3);
         result.y = (c1 * s2 * c3) - (s1 * c2 * s3);
         result.z = (c1 * c2 * s3) + (s1 * s2 * c3);
-        
+
         return result;
     }
 
     static Quaternion identity()
     {
         Quaternion result;
-        
+
         result.x = 0.0f;
         result.y = 0.0f;
         result.z = 0.0f;
@@ -105,7 +105,7 @@ struct Quaternion
             result.z = axis.z;
             result.w = 1.0f + d;
         }
-        
+
         return result;
     }
 
@@ -118,7 +118,7 @@ struct Quaternion
         {
             auto s = sqrtF(t + 1.0f) * 2.0f;
             auto invS = 1.0f / s;
-            
+
             result.w = s * 0.25f;
             result.x = (m4.m21 - m4.m02) * invS;
             result.y = (m4.m02 - m4.m20) * invS;
@@ -126,8 +126,8 @@ struct Quaternion
         }
         else 
         {
-            auto ax = m4.m00;    
-            auto by = m4.m11;    
+            auto ax = m4.m00;
+            auto by = m4.m11;
             auto cz = m4.m22;
             if (ax > by && ax > cz)
             {
@@ -203,21 +203,31 @@ struct Quaternion
         return xx + yy + zz + ww;
     }
 
+    /// Returns: float
     float lengthSq()
     {
         auto x2 = sqrF(x);
         auto y2 = sqrF(x);
         auto z2 = sqrF(x);
         auto w2 = sqrF(x);
-        
+
         return x2 + y2 + z2 + w2;
     }
 
+    /// Returns: float
     float length()
     {
         return sqrtF(lengthSq());
     }
 
+    /// returns abs angle between 'this and 'other
+    /// Returns: float
+    float angleBetween(Quaternion other)
+    {
+        return acosF(minF(absF(dot(other)), 1.0f)) * 2.0f;
+    }
+
+    /// Returns: bool
     bool isNormal()
     {
         return isOneF(lengthSq());
@@ -231,10 +241,10 @@ struct Quaternion
         result.y = y * by;
         result.z = z * by;
         result.w = w * by;
-        
+
         return result;
     }
-    
+ 
     Quaternion added(Quaternion other)
     {
         Quaternion result;
@@ -243,7 +253,7 @@ struct Quaternion
         result.y = y + other.y;
         result.z = z + other.z;
         result.w = w + other.w;
-        
+
         return result;
     }
 
@@ -255,7 +265,7 @@ struct Quaternion
         result.y = y - other.y;
         result.z = z - other.z;
         result.w = w - other.w;
-        
+
         return result;
     }
 
@@ -322,7 +332,7 @@ struct Quaternion
 
         if(!result.isNormal())
         {
-            result.normalize();
+            result = result.normalized();
         }
 
         return result;
@@ -345,10 +355,10 @@ struct Quaternion
         }
         else 
         {
-            result.x = x;    
-            result.y = y;    
-            result.z = z;    
-            result.w = w;    
+            result.x = x;
+            result.y = y;
+            result.z = z;
+            result.w = w;
         }
 
         return result;
@@ -378,14 +388,18 @@ struct Quaternion
         return result;
     }
 
-    void normalize()
+    /// return a negated copy of 'this quaternion
+    /// Returns: Quaternion
+    Quaternion negate()
     {
-        auto n = normalized();
+        Quaternion result;
 
-        x = n.x;
-        y = n.y;
-        z = n.z;
-        w = n.w;
+        result.x = -x;
+        result.y = -y;
+        result.z = -z;
+        result.w = -w;
+
+        return result;
     }
 
     Mat4 toMat4()
@@ -405,7 +419,7 @@ struct Quaternion
         auto s2 = 2.0f / (x2 + y2 + z2 + w2);
 
         Mat4 result;
-        
+
         result.m00 = 1.0f - (s2 * (y2 + z2));
         result.m01 = s2 * (xy + zw);
         result.m02 = s2 * (xz - yw);
@@ -472,11 +486,11 @@ struct Quaternion
 
         if (absF(q.w) > 1.0f)
         {
-            q.normalize();
+            q = q.normalized();
         }
 
         Vec3 result;
-        
+
         auto d = sqrtF(1.0f - sqrF(q.w));
 
         if (d > 1e-4)
@@ -487,12 +501,53 @@ struct Quaternion
             result.y = q.y * inv;
             result.z = q.z * inv;
         }
-        else 
+        else
         {
             result.x = 1.0f;
             result.y = 0.0f;
             result.z = 0.0f;
         }
+
+        return result;
+    }
+
+    /// return a vec3 transformed by 'this quaternion
+    /// Returns: Vec3
+    Vec3 transform(Vec3 v3)
+    {
+        auto x1 = x + x;
+        auto y1 = y + y;
+        auto z1 = z + z;
+
+        auto wx = w * x1;
+        auto wy = w * y1;
+        auto wz = w * z1;
+
+        auto xx = x * x1;
+        auto xy = y * y1;
+        auto xz = z * z1;
+
+        auto yy = y * y1;
+        auto yz = y * z1;
+        auto zz = z * z1;
+
+        auto ax = v3.x * ((1.0f - yy) - zz);
+        auto ay = v3.y * (xy - wz);
+        auto az = v3.z * (xz + wy);
+
+        auto bx = v3.x * (xy + wz);
+        auto by = v3.y * ((1.0f - xx) - zz);
+        auto bz = v3.z * (yz - wx);
+
+        auto cx = v3.x * (xz - wy);
+        auto cy = v3.y * (yz + wx);
+        auto cz = v3.z * ((1.0f - xx) - yy);
+
+        Vec3 result;
+
+        result.x = ax + ay + az;
+        result.y = bx + by + bz;
+        result.z = cx + cy + cz;
 
         return result;
     }

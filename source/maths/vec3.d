@@ -222,7 +222,7 @@ struct Vec3
         return result;
     }
 
-    /// return lerp vec3 between 'this and 'to by weight value
+    /// return lerp vec3 between 'this and 'to
     /// Returns: Vec3
     Vec3 lerp(Vec3 to, float weight)
     {
@@ -231,6 +231,22 @@ struct Vec3
         result.x = lerpF(x, to.x, weight);
         result.y = lerpF(y, to.y, weight);
         result.z = lerpF(z, to.z, weight);
+
+        return result;
+    }
+
+    /// return a cubic interpolation between 'this and 'to
+    /// Returns: Vec3
+    Vec3 smoothStep(Vec3 to, float weight)
+    {
+        weight = clampF(weight, 0.0f, 1.0f);
+        auto by = sqrF(weight) * (3.0f - (2.0f * weight));
+
+        Vec3 result;
+
+        result.x = x + ((to.x - x) * by);
+        result.y = y + ((to.y - y) * by);
+        result.z = z + ((to.z - z) * by);
 
         return result;
     }

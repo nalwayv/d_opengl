@@ -26,8 +26,8 @@ struct Plane
         this.normal.z = normal.z;
         this.d = d;
     }
-    
-    /// create a plane
+
+    /// create a plane from three points
     /// Returns: Plane
     static Plane fromPts(Vec3 a, Vec3 b, Vec3 c)
     {
@@ -58,7 +58,7 @@ struct Plane
 
         return xx + yy + zz + ww;
     }
-    
+
     /// classify point to plane
     /// Returns: float
     float classify(Vec3 pt)
@@ -105,23 +105,31 @@ struct Plane
     {
         Plane result;
 
-        result.d = -d;
         result.normal.x = -normal.x;
         result.normal.y = -normal.y;
         result.normal.z = -normal.z;
-        
+        result.d = -d;
+
         return result;
     }
 
+    /// return a copy of 'this plane normalized
     /// Returns: Plane
     Plane normalized()
     {
         auto lsq = normal.lengthSq();
         // auto t = 2.220446049250313e-16f;
-        
+
         Plane result;
-        
-        if(isZeroF(lsq))
+
+        if(isOneF(lsq))
+        {
+            result.normal.x = normal.x;
+            result.normal.y = normal.y;
+            result.normal.z = normal.z;
+            result.d = d;
+        }
+        else if(isZeroF(lsq))
         {
             result.normal.x = 0.0f;
             result.normal.y = 0.0f;
@@ -141,17 +149,6 @@ struct Plane
         return result;
     }
 
-    /// normalize 'this
-    void normalize()
-    {
-        auto n = normalized();
-
-        normal.x = n.normal.x;
-        normal.y = n.normal.y;
-        normal.z = n.normal.z;
-        d = n.d;
-    }
-    
     // -- override
 
     size_t toHash() const nothrow @safe
@@ -185,7 +182,6 @@ struct Plane
 
         return checkN && checkD;
     }
-
 
     /// Returns: string
     string toString() const pure

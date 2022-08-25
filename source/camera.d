@@ -28,7 +28,7 @@ enum : int
 
 class Camera
 {
-    private 
+    private
     {
         Vec3 position;
         Vec3 up;
@@ -57,7 +57,7 @@ class Camera
 
         screenWidth = screenW;
         screenHeight = screenH;
-        
+
         fov = PHI;
         nearZ = 0.1f;
         farZ = 100.0f;
@@ -69,7 +69,7 @@ class Camera
     }
 
     public void transform(int dir, float dt)
-    {   
+    {
         Vec3 tr;
         auto by = SPEED * dt;
 
