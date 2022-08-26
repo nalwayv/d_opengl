@@ -1,3 +1,4 @@
+/// Transform
 module transform;
 
 import maths.vec3;
@@ -13,12 +14,14 @@ struct Transform
     static Transform newTransform(float x, float y, float z)
     {
         Transform result;
+
         result.position = Vec3(x, y, z);
         result.basis = Mat3.identity();
+
         return result;
     }
 
-    /// translate
+    /// translate along its x, y and z axis
     void translate(float x, float y, float z)
     {
         Vec3 p;
@@ -32,12 +35,28 @@ struct Transform
         position = position.added(tr);
     }
 
-    /// rotate
+    /// rotate around axis
     void rotate(float rad, Vec3 axis)
     {
         basis = basis.rotated(rad, axis);
     }
 
+    /// scale along its x, y and z axis
+    void scale(float x, float y, float z)
+    {
+        basis = basis.scaled(x, y, z);
+    }
+
+    /// reset basis
+    void reset(float x, float y, float z)
+    {
+        position.x = x;
+        position.y = y;
+        position.z = z;
+        basis = Mat3.identity();
+    }
+
+    /// return mat4 matrix of position, rotation and scale
     Mat4 matrix()
     {
         Mat4 result;

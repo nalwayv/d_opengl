@@ -727,35 +727,22 @@ struct Mat4
         return result;
     }
 
-    /// return 'this mat4 rotated by 'rad along the unit 'axis
+    /// return 'this mat4 rotated by 'rad along the 'axis
     /// Returns: Mat4
     Mat4 rotated(float rad, Vec3 axis)
     {
         return multiplied(Mat4.fromAxis(rad, axis));
     }
 
-    void normalize()
+    /// return 'this mat4 scaled along its x, y and z axis
+    /// Returns: Mat4
+    Mat4 scaled(float x, float y, float z)
     {
-        auto n = normalized();
-        
-        m00 = n.m00;
-        m01 = n.m01;
-        m02 = n.m02;
-        m03 = n.m03;
-        m10 = n.m10;
-        m11 = n.m11;
-        m12 = n.m12;
-        m13 = n.m13;
-        m20 = n.m20;
-        m21 = n.m21;
-        m22 = n.m22;
-        m23 = n.m23;
-        m30 = n.m30;
-        m31 = n.m31;
-        m32 = n.m32;
-        m33 = n.m33;
+        return multiplied(Mat4.scaler(x, y, z));
     }
 
+    /// Return this 'mat4 as a 'mat3
+    /// Returns: Mat3
     Mat3 toMat3()
     {
         Mat3 result;

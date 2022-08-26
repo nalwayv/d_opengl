@@ -119,6 +119,24 @@ struct Mat3
         return result;
     }
 
+
+    static Mat3 scaler(float x, float y, float z)
+    {
+        Mat3 result;
+
+        result.m00 = x;
+        result.m01 = 0.0f;
+        result.m02 = 0.0f;
+        result.m10 = 0.0f;
+        result.m11 = y;
+        result.m12 = 0.0f;
+        result.m20 = 0.0f;
+        result.m21 = 0.0f;
+        result.m22 = z;
+
+        return result;
+    }
+
     /// create a axis rotation mat3
     /// Returns: Mat3
     static Mat3 fromAxis(float rad, Vec3 axis)
@@ -479,27 +497,18 @@ struct Mat3
         return result;
     }
 
-    /// return 'this mat3 rotated by 'rad along the unit 'axis
+    /// return 'this mat3 rotated by 'rad along the 'axis
     /// Returns: Mat3
     Mat3 rotated(float rad, Vec3 axis)
     {
         return multiplied(Mat3.fromAxis(rad, axis));
     }
 
-    /// normalize 'this
-    void normalize()
+    /// return 'this mat3 scaled along its x, y and z axis
+    /// Returns: Mat3
+    Mat3 scaled(float x, float y, float z)
     {
-        auto n = normalized();
-        
-        m00 = n.m00;
-        m01 = n.m01;
-        m02 = n.m02;
-        m10 = n.m10;
-        m11 = n.m11;
-        m12 = n.m12;
-        m20 = n.m20;
-        m21 = n.m21;
-        m22 = n.m22;
+        return multiplied(Mat3.scaler(x, y, z));
     }
 
     float[3][3] toArrayM()

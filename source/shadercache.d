@@ -1,3 +1,4 @@
+/// Shader Cache
 module shadercache;
 
 
@@ -168,7 +169,6 @@ class ShaderCache
 
     ~this()
     {
-        // auto keys = cache.keys;
         foreach(key; cache.byKey)
         {
             cache[key].deleteShader();
@@ -177,106 +177,106 @@ class ShaderCache
     }
 
     /// check if shader is stored within cache
-    public bool has(string name)
+    public bool has(string key)
     {
-        auto pt = name in cache;
+        auto pt = key in cache;
         return pt !is null;
     }
 
     /// add a new shader to the cache if it is not already been added
     /// else remove old and update with new
-    public void add(string name, string vpath, string fpath)
+    public void add(string key, string vpath, string fpath)
     {
-        if(has(name))
+        if(has(key))
         {
-            cache[name].deleteShader();
-            cache[name] = Node.newNode(vpath, fpath);
+            cache[key].deleteShader();
+            cache[key] = Node.newNode(vpath, fpath);
         }
         else
         {
-            cache[name] = Node.newNode(vpath, fpath);
+            cache[key] = Node.newNode(vpath, fpath);
         }
     }
 
     /// use shader
-    public void use(string name)
+    public void use(string key)
     {
-        if(has(name))
+        if(has(key))
         {
-            cache[name].use();
+            cache[key].use();
         }
     }
 
     /// set shaders uniform mat4
-    public void setMat4(string name, string uniform, Mat4 value)
+    public void setMat4(string key, string uniform, Mat4 value)
     {
-        if(has(name))
+        if(has(key))
         {
-            cache[name].setMat4(uniform, value);
+            cache[key].setMat4(uniform, value);
         }
     }
 
     /// set shaders uniform mat3
-    public void setMat3(string name, string uniform, Mat3 value)
+    public void setMat3(string key, string uniform, Mat3 value)
     {
-        if(has(name))
+        if(has(key))
         {
-            cache[name].setMat3(uniform, value);
+            cache[key].setMat3(uniform, value);
         }
     }
 
     /// set shaders uniform vec4
-    public void setVec4(string name, string uniform, Vec4 value)
+    public void setVec4(string key, string uniform, Vec4 value)
     {
-        if(has(name))
+        if(has(key))
         {
-            cache[name].setVec4(uniform, value);
+            cache[key].setVec4(uniform, value);
         }
 
     }
 
     /// set shaders uniform vec3
-    public void setVec3(string name, string uniform, Vec3 value)
+    public void setVec3(string key, string uniform, Vec3 value)
     {
-        if(has(name))
+        if(has(key))
         {
-            cache[name].setVec3(uniform, value);
+            cache[key].setVec3(uniform, value);
         }
     }
 
     /// set shaders uniform float
-    public void setFloat(string name, string uniform, float value)
+    public void setFloat(string key, string uniform, float value)
     {
-        if(has(name))
+        if(has(key))
         {
-            cache[name].setFloat(uniform, value);
+            cache[key].setFloat(uniform, value);
         }
     }
 
     /// set shaders uniform int
-    public void setInt(string name, string uniform, int value)
+    public void setInt(string key, string uniform, int value)
     {
-        if(has(name))
+        if(has(key))
         {
-            cache[name].setInt(uniform, value);
+            cache[key].setInt(uniform, value);
         }
     }
 
     /// set shaders uniform bool
-    public void setBool(string name, string uniform, bool value)
+    public void setBool(string key, string uniform, bool value)
     {
-        if(has(name))
+        if(has(key))
         {
-            cache[name].setBool(uniform, value);
+            cache[key].setBool(uniform, value);
         }
     }
 
     /// remove shader from cache
-    public void remove(string name)
+    public void remove(string key)
     {
-        if(has(name))
+        if(has(key))
         {
-            cache.remove(name);
+            cache.remove(key);
         }
     }
 }

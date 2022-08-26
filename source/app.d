@@ -77,7 +77,7 @@ void main()
     shaderCache.add("default", "shaders\\default.vert", "shaders\\default.frag");
 
     // cube
-    auto size = Vec3(2.0f, 2.0f, 2.0f);
+    auto size = Vec3(1.0f, 1.0f, 1.0f);
     float[144] cubeV = [
         // front
          size.x,  size.y,  size.z, 0.0f, 0.0f, 1.0f,
@@ -134,8 +134,8 @@ void main()
 
         clock.update(glfwGetTime());
 
-        cube.rotate(toRad(15 * clock.dt), Vec3(0.2, 1, 0.5));
-        cube.render(shaderCache, cam.matrix());
+        cube.rotate(toRad(15 * clock.dt), Vec3(0.2f, 1.0f, 0.5f));
+        cube.render(shaderCache, cam);
 
         // ---
 
@@ -172,6 +172,7 @@ void main()
         if(keyb.keyState(GLFW_KEY_R) == KEY_PRESSED)
         {
             cam.reset();
+            cube.resetTransform();
         }
 
         if(mouse.buttonState(GLFW_MOUSE_BUTTON_LEFT) == BUTTON_HELD)
