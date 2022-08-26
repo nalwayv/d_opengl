@@ -1,5 +1,5 @@
 /// Mesh
-module obj;
+module mesh;
 
 
 import bindbc.opengl;
@@ -109,7 +109,7 @@ struct Ebo
 
 // TODO(...)
 
-class Obj
+class Mesh
 {
     private Vbo vbo;
     private Vao vao;

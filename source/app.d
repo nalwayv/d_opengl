@@ -8,10 +8,9 @@ import maths.vec3;
 import clock;
 import keyboard;
 import mouse;
-import obj;
-import shader;
 import camera;
-import transform;
+import model;
+import shadercache;
 
 
 enum WIDTH = 500;
@@ -73,9 +72,13 @@ void main()
 
     bool clicked;
 
+    // shaders
+    auto shaderCache = new ShaderCache();
+    shaderCache.add("default", "shaders\\default.vert", "shaders\\default.frag");
+
     // cube
     auto size = Vec3(2.0f, 2.0f, 2.0f);
-    float[144] objVerts = [
+    float[144] cubeV = [
         // front
          size.x,  size.y,  size.z, 0.0f, 0.0f, 1.0f,
         -size.x,  size.y,  size.z, 0.0f, 0.0f, 1.0f,
@@ -108,7 +111,7 @@ void main()
          size.x,  size.y, -size.z, 1.0f, 0.0f, 0.0f
     ];
 
-    int[36] objInd = [
+    int[36] cubeI = [
         0,  1,  2,  2,  3,  0,
         4,  5,  6,  6,  7,  4,
         8,  9, 10, 10, 11,  8,
@@ -117,9 +120,7 @@ void main()
         20, 21, 22, 22, 23, 20
     ];
 
-    auto objShader = new Shader("shaders\\default.vert", "shaders\\default.frag");
-    auto obj = new Obj(objVerts, objInd);
-    auto objTransform = Transform.newTransform(0.0f, 0.0f, 0.0f);
+    auto cube = new Model(cubeV, cubeI);
 
 	while(!glfwWindowShouldClose(window))
     {
@@ -133,12 +134,8 @@ void main()
 
         clock.update(glfwGetTime());
 
-        objTransform.rotate(toRad(15 * clock.dt), Vec3(0.2, 1, 0.5));
-
-        objShader.use();
-        objShader.setMat4("model_Matrix", objTransform.matrix());
-        objShader.setMat4("cam_Matrix", cam.matrix());
-        obj.render();
+        cube.rotate(toRad(15 * clock.dt), Vec3(0.2, 1, 0.5));
+        cube.render(shaderCache, cam.matrix());
 
         // ---
 
