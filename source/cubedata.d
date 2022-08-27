@@ -21,30 +21,36 @@ struct CubeMesh
         CubeMesh result;
 
         result.verts = [
-            Vertex([ w,  h,  d], [r, g, b]),
-            Vertex([-w,  h,  d], [r, g, b]),
-            Vertex([-w, -h,  d], [r, g, b]),
-            Vertex([ w, -h,  d], [r, g, b]),
-            Vertex([ w,  h,  d], [r, g, b]),
-            Vertex([ w, -h,  d], [r, g, b]),
-            Vertex([ w, -h, -d], [r, g, b]),
-            Vertex([ w,  h, -d], [r, g, b]),
-            Vertex([ w,  h,  d], [r, g, b]),
-            Vertex([ w,  h, -d], [r, g, b]),
-            Vertex([-w,  h, -d], [r, g, b]),
-            Vertex([-w,  h,  d], [r, g, b]),
-            Vertex([-w,  h,  d], [r, g, b]),
-            Vertex([-w,  h, -d], [r, g, b]),
-            Vertex([-w, -h, -d], [r, g, b]),
-            Vertex([-w, -h,  d], [r, g, b]),
-            Vertex([-w, -h, -d], [r, g, b]),
-            Vertex([ w, -h, -d], [r, g, b]),
-            Vertex([ w, -h,  d], [r, g, b]),
-            Vertex([-w, -h,  d], [r, g, b]),
-            Vertex([ w, -h, -d], [r, g, b]),
-            Vertex([-w, -h, -d], [r, g, b]),
-            Vertex([-w,  h, -d], [r, g, b]),
-            Vertex([ w,  h, -d], [r, g, b])
+            // front
+            Vertex([ w,  h,  d], [r, 0.0f, 0.0f]),
+            Vertex([-w,  h,  d], [r, 0.0f, 0.0f]),
+            Vertex([-w, -h,  d], [r, 0.0f, 0.0f]),
+            Vertex([ w, -h,  d], [r, 0.0f, 0.0f]),
+            // right            
+            Vertex([ w,  h,  d], [0.0f, g, 0.0f]),
+            Vertex([ w, -h,  d], [0.0f, g, 0.0f]),
+            Vertex([ w, -h, -d], [0.0f, g, 0.0f]),
+            Vertex([ w,  h, -d], [0.0f, g, 0.0f]),
+            // top
+            Vertex([ w,  h,  d], [0.0f, 0.0f, b]),
+            Vertex([ w,  h, -d], [0.0f, 0.0f, b]),
+            Vertex([-w,  h, -d], [0.0f, 0.0f, b]),
+            Vertex([-w,  h,  d], [0.0f, 0.0f, b]),
+            // left
+            Vertex([-w,  h,  d], [0.0f, g, 0.0f]),
+            Vertex([-w,  h, -d], [0.0f, g, 0.0f]),
+            Vertex([-w, -h, -d], [0.0f, g, 0.0f]),
+            Vertex([-w, -h,  d], [0.0f, g, 0.0f]),
+            // bottom
+            Vertex([-w, -h, -d], [0.0f, 0.0f, b]),
+            Vertex([ w, -h, -d], [0.0f, 0.0f, b]),
+            Vertex([ w, -h,  d], [0.0f, 0.0f, b]),
+            Vertex([-w, -h,  d], [0.0f, 0.0f, b]),
+            // back
+            Vertex([ w, -h, -d], [r, 0.0f, 0.0f]),
+            Vertex([-w, -h, -d], [r, 0.0f, 0.0f]),
+            Vertex([-w,  h, -d], [r, 0.0f, 0.0f]),
+            Vertex([ w,  h, -d], [r, 0.0f, 0.0f])
         ];
 
         result.indicies = [

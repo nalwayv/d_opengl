@@ -114,21 +114,19 @@ class Mesh
 {
     private
     {
-        Vertex[] verticies;
-        int[] indicies;
         Vbo vbo;
         Vao vao;
         Ebo ebo;
+        int ilen;
     }
 
-    this(Vertex[] verts, int[] indis)    
+    this(Vertex[] verticies, int[] indicies)    
     {
-        verticies = verts;
-        indicies = indis;
-
         vbo = Vbo.newVbo();
         vao = Vao.newVao();
         ebo = Ebo.newEbo();
+        
+        ilen = cast(int)indicies.length;
 
         // setup
         vao.bind();
@@ -188,7 +186,7 @@ class Mesh
     {
         vao.bind();
 
-        glDrawElements(GL_TRIANGLES, cast(int)indicies.length, GL_UNSIGNED_INT, null);
+        glDrawElements(GL_TRIANGLES, ilen, GL_UNSIGNED_INT, null);
 
         vao.unbind();
     }
