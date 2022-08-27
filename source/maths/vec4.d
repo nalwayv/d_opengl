@@ -61,9 +61,10 @@ struct Vec4
     }
 
     /// Return value at 0..3
-    float at(size_t idx) const
+    float at(int idx) const
     {
-        assert(idx < 4);
+        assert(isInRangeI(idx, 0, 3));
+
         switch(idx)
         {
             case 0:
@@ -74,6 +75,30 @@ struct Vec4
                 return z;
             case 3:
                 return w;
+            default:
+                assert(0);
+        }
+    }
+
+    /// Set value at 0..3
+    void set(int idx, float value)
+    {
+        assert(isInRangeI(idx, 0, 3));
+
+        switch(idx)
+        {
+            case 0:
+                x = value;
+                return;
+            case 1:
+                y = value;
+                return;
+            case 2:
+                z = value;
+                return;
+            case 3:
+                w = value;
+                return;
             default:
                 assert(0);
         }

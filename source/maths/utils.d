@@ -79,6 +79,18 @@ bool isEquilF(float x, float y) pure
     return absF(x - y) <= EPSILON;
 }
 
+/// check if value if in range between min and max
+bool isInRangeF(float value, float min, float max)
+{
+    return min <= value && value <= max;
+}
+
+/// check if value if in range between min and max
+bool isInRangeI(int value, int min, int max)
+{
+    return min <= value && value <= max;
+}
+
 /// return min float value between 'x and 'y
 float minF(float x, float y)
 {
@@ -112,21 +124,13 @@ float floorF(float value)
 /// clamp 'value between 'min and 'max float values
 float clampF(float value, float min, float max)
 {
-    float result;
-    
-    if(value < min)
-    {
-        result = min;
-    } 
-    else if(value > max)
-    {
-        result = max;
-    } 
-    else 
-    {
-        result = value;
-    }
-    return result;
+    return (value < min) ? min : (value > max) ? max : value;
+}
+
+/// clamp 'value between 'min and 'max int values
+float clampI(int value, int min, int max)
+{
+    return (value < min) ? min : (value > max) ? max : value;
 }
 
 /// lerp value between 'from and 'to by 'weight

@@ -131,7 +131,7 @@ struct AABB
 
         Vec3 result;
 
-        for(size_t i = 0; i < 3; i++)
+        for(auto i = 0; i < 3; i++)
         {
             auto v = pt.at(i);
             v = minF(v, pMin.at(i));

@@ -60,7 +60,7 @@ class Camera
 
         fov = PHI;
         nearZ = 0.1f;
-        farZ = 100.0f;
+        farZ = 1000.0f;
 
         yaw = -90.0f;
         pitch = 0.0f;

@@ -15,26 +15,12 @@ class Model
     private 
     {
         Transform transform;
-        string shader;
-        float[] verticies;
-        int[] indicies;
         Mesh mesh;
+        string shader;
     }
 
-    this(const float[] verts, const int[] indic)
+    this(const float[] verticies, const int[] indicies)
     {
-        verticies = new float[verts.length];
-        for(auto i = 0; i < verts.length; i++)
-        {
-            verticies[i] = verts[i];
-        }
-
-        indicies = new int[indic.length];
-        for(auto i = 0; i < indic.length; i++)
-        {
-            indicies[i] = indic[i];
-        }
-
         transform = Transform.newTransform(0.0f, 0.0f, 0.0f);
         mesh = new Mesh(verticies, indicies);
         shader = "default";

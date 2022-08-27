@@ -60,9 +60,10 @@ struct Vec2
 
     /// Return value at 0..1
     /// Returns: float
-    float at(size_t idx) const
+    float at(int idx) const
     {
-        assert(idx < 2);
+        assert(isInRangeI(idx, 0, 1));
+
         switch(idx)
         {
             case 0:
@@ -74,10 +75,11 @@ struct Vec2
         }
     }
 
-    /// Set vec2 value at 0..1
-    void set(size_t idx, float value)
+    /// Set value at 0..1
+    void set(int idx, float value)
     {
-        assert(idx < 2);
+        assert(isInRangeI(idx, 0, 1));
+
         switch(idx)
         {
             case 0:

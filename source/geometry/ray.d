@@ -41,7 +41,7 @@ struct Ray
         auto tmin = 0.0f;
         auto tmax = MAXFLOAT;
         
-        for(size_t i = 0; i < 3; i++)
+        for(auto i = 0; i < 3; i++)
         {
             auto dirAt = direction.at(i);
             auto minAt = pmin.at(i);
