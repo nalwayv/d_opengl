@@ -31,21 +31,17 @@ class Camera
     private
     {
         Vec3 position;
+        Vec3 resetPos;
         Vec3 up;
         Vec3 front;
         Vec3 right;
-
         float screenWidth;
         float screenHeight;
-
         float fov;
         float nearZ;
         float farZ;
-
         float yaw;
         float pitch;
-
-        float resetZ;
     }
 
     this(float x, float y, float z, float screenW, float screenH)
@@ -54,7 +50,7 @@ class Camera
         up = Vec3(0.0f, 1.0f,  0.0f);
         front = Vec3(0.0f, 0.0f, -1.0f);
         position = Vec3(x, y, z);
-
+        resetPos = position;
         screenWidth = screenW;
         screenHeight = screenH;
 
@@ -65,7 +61,6 @@ class Camera
         yaw = -90.0f;
         pitch = 0.0f;
 
-        resetZ = position.z;
     }
 
     public void transform(int dir, float dt)
@@ -153,7 +148,7 @@ class Camera
         right = Vec3(1.0f, 0.0f,  0.0f);
         up = Vec3(0.0f, 1.0f,  0.0f);
         front = Vec3(0.0f, 0.0f, -1.0f);
-        position = Vec3(0.0f, 0.0f, resetZ);
+        position = resetPos;
 
         fov = PHI;
         nearZ = 0.1f;

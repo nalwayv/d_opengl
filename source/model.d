@@ -1,14 +1,13 @@
 /// Model
 module model;
 
-
 import maths.vec3;
 import maths.mat4;
 import mesh;
+import vertex;
 import transform;
 import shadercache;
 import camera;
-
 
 class Model
 {
@@ -19,7 +18,7 @@ class Model
         string shader;
     }
 
-    this(const float[] verticies, const int[] indicies)
+    this(Vertex[] verticies, int[] indicies)
     {
         transform = Transform.newTransform(0.0f, 0.0f, 0.0f);
         mesh = new Mesh(verticies, indicies);

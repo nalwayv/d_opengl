@@ -24,6 +24,7 @@ struct Clock
         return result;
     }
 
+    /// update clock
     void update(double glfwTime)
     {
         auto currentStep = glfwTime;

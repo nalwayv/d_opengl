@@ -1,15 +1,16 @@
-// APP
+// App
 import std.stdio : writeln;
 import bindbc.opengl;
 import bindbc.glfw;
 import maths.utils;
 import maths.mat4;
 import maths.vec3;
+import model;
+import cubedata;
 import clock;
 import keyboard;
 import mouse;
 import camera;
-import model;
 import shadercache;
 
 
@@ -64,7 +65,6 @@ void main()
     glfwSetWindowSizeCallback(window, windowSizeCB);
 
     // ---
-
     auto clock = Clock.newClock(glfwGetTime());
     auto keyb = Keyboard.newKeyboard(window);
     auto mouse = Mouse.newMouse(window);
@@ -76,51 +76,9 @@ void main()
     auto shaderCache = new ShaderCache();
     shaderCache.add("default", "shaders\\default.vert", "shaders\\default.frag");
 
-    // cube
-    auto size = Vec3(1.0f, 1.0f, 1.0f);
-    float[144] cubeV = [
-        // front
-         size.x,  size.y,  size.z, 0.0f, 0.0f, 1.0f,
-        -size.x,  size.y,  size.z, 0.0f, 0.0f, 1.0f,
-        -size.x, -size.y,  size.z, 0.0f, 0.0f, 1.0f,
-         size.x, -size.y,  size.z, 0.0f, 0.0f, 1.0f,
-        // right
-         size.x,  size.y,  size.z, 1.0f, 0.0f, 0.0f,
-         size.x, -size.y,  size.z, 1.0f, 0.0f, 0.0f,
-         size.x, -size.y, -size.z, 1.0f, 0.0f, 0.0f,
-         size.x,  size.y, -size.z, 1.0f, 0.0f, 0.0f,
-        // top
-         size.x,  size.y,  size.z, 0.0f, 1.0f, 0.0f,
-         size.x,  size.y, -size.z, 0.0f, 1.0f, 0.0f,
-        -size.x,  size.y, -size.z, 0.0f, 1.0f, 0.0f,
-        -size.x,  size.y,  size.z, 0.0f, 1.0f, 0.0f,
-        // left
-        -size.x,  size.y,  size.z, 0.0f, 1.0f, 0.0f,
-        -size.x,  size.y, -size.z, 0.0f, 1.0f, 0.0f,
-        -size.x, -size.y, -size.z, 0.0f, 1.0f, 0.0f,
-        -size.x, -size.y,  size.z, 0.0f, 1.0f, 0.0f,
-        // bottom
-        -size.x, -size.y, -size.z, 0.0f, 0.0f, 1.0f,
-         size.x, -size.y, -size.z, 0.0f, 0.0f, 1.0f,
-         size.x, -size.y,  size.z, 0.0f, 0.0f, 1.0f,
-        -size.x, -size.y,  size.z, 0.0f, 0.0f, 1.0f,
-        // back
-         size.x, -size.y, -size.z, 1.0f, 0.0f, 0.0f,
-        -size.x, -size.y, -size.z, 1.0f, 0.0f, 0.0f,
-        -size.x,  size.y, -size.z, 1.0f, 0.0f, 0.0f,
-         size.x,  size.y, -size.z, 1.0f, 0.0f, 0.0f
-    ];
-
-    int[36] cubeI = [
-        0,  1,  2,  2,  3,  0,
-        4,  5,  6,  6,  7,  4,
-        8,  9, 10, 10, 11,  8,
-        12, 13, 14, 14, 15, 12,
-        16, 17, 18, 18, 19, 16,
-        20, 21, 22, 22, 23, 20
-    ];
-
-    auto cube = new Model(cubeV, cubeI);
+    // model
+    auto cubeMesh = CubeMesh.newCubeMesh(1.0f, 1.0f, 1.0f, 75.0f, 50.0f, 75.0f);
+    auto cube = new Model(cubeMesh.verts, cubeMesh.indicies);
 
 	while(!glfwWindowShouldClose(window))
     {
@@ -129,10 +87,12 @@ void main()
         glEnable(GL_CULL_FACE);
 
         glClearColor(0.5, 0.5, 0.5, 1.0);
-
+        
         // ---
-
+        
         clock.update(glfwGetTime());
+        
+        // ---
 
         cube.rotate(toRad(15 * clock.dt), Vec3(0.2f, 1.0f, 0.5f));
         cube.render(shaderCache, cam);

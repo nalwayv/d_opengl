@@ -1,8 +1,10 @@
 /// Mesh
 module mesh;
 
-import core.memory : GC;
+
 import bindbc.opengl;
+import maths.utils;
+import vertex;
 
 
 enum int COMPONENTS = 3;
@@ -107,37 +109,22 @@ struct Ebo
 
 }
 
-// TODO(...)
 
 class Mesh
 {
     private
     {
-        float* verticies;
-        int* indicies;
+        Vertex[] verticies;
+        int[] indicies;
         Vbo vbo;
         Vao vao;
         Ebo ebo;
-        int vlen;
-        int ilen;
     }
 
-    this(const float[] verts, const int[] indis)    
+    this(Vertex[] verts, int[] indis)    
     {
-        // init
-        verticies = cast(float*)GC.calloc(verts.length);
-        vlen = cast(int)verts.length;
-        for(auto i = 0; i < vlen; i++)
-        {
-            verticies[i] = verts[i];
-        }
-
-        indicies = cast(int*)GC.calloc(indis.length);
-        ilen = cast(int)indis.length;
-        for(auto i = 0; i < ilen; i++)
-        {
-            indicies[i] = indis[i];
-        }
+        verticies = verts;
+        indicies = indis;
 
         vbo = Vbo.newVbo();
         vao = Vao.newVao();
@@ -149,8 +136,8 @@ class Mesh
     
         glBufferData(
             GL_ARRAY_BUFFER,
-            cast(GLsizeiptr)(vlen * float.sizeof),
-            verticies,
+            cast(GLsizeiptr)(verticies.length * Vertex.sizeof),
+            verticies.ptr,
             GL_STATIC_DRAW
         );
 
@@ -159,20 +146,19 @@ class Mesh
         
         glBufferData(
             GL_ELEMENT_ARRAY_BUFFER,
-            cast(GLsizeiptr)(ilen * int.sizeof),
-            indicies,
+            cast(GLsizeiptr)(indicies.length * int.sizeof),
+            indicies.ptr,
             GL_STATIC_DRAW
         );
 
         // vbo link
         glEnableVertexAttribArray(POSITION_IDX);
-
         glVertexAttribPointer(
             POSITION_IDX,
             COMPONENTS,
             GL_FLOAT,
             GL_FALSE,
-            cast(GLsizei)(STRIDE * float.sizeof),
+            cast(GLsizei)(Vertex.sizeof),
             null
         );
 
@@ -182,7 +168,7 @@ class Mesh
             COMPONENTS,
             GL_FLOAT,
             GL_FALSE,
-            cast(GLsizei)(STRIDE * float.sizeof),
+            cast(GLsizei)(Vertex.sizeof),
             cast(void*)(COMPONENTS * float.sizeof)
         );
 
@@ -196,22 +182,13 @@ class Mesh
         vbo.destroy();
         vao.destroy();
         ebo.destroy();
-
-        if(verticies !is null)
-        {
-            GC.free(verticies);
-        }
-        if(indicies !is null)
-        {
-            GC.free(indicies);
-        }
     }
 
     public void render()
     {
         vao.bind();
 
-        glDrawElements(GL_TRIANGLES, ilen, GL_UNSIGNED_INT, null);
+        glDrawElements(GL_TRIANGLES, cast(int)indicies.length, GL_UNSIGNED_INT, null);
 
         vao.unbind();
     }
