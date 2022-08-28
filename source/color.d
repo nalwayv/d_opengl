@@ -1,7 +1,9 @@
 /// Color
 module color;
 
+
 import maths.vec3;
+
 
 struct Color
 {

@@ -1,6 +1,7 @@
 /// Model
 module model;
 
+
 import maths.utils;
 import maths.vec3;
 import maths.mat4;
@@ -10,6 +11,7 @@ import color;
 import transform;
 import shadercache;
 import camera;
+
 
 class Model
 {
@@ -26,7 +28,7 @@ class Model
         transform = Transform.newTransform(0.0f, 0.0f, 0.0f);
         mesh = new Mesh(filePath);
         shader = "default";
-        color = Color(0.5f, 0.5f, 0.5f);
+        color = Color(0.3f, 0.4f, 1.0f);
     }
 
     public void translate(float x, float y, float z)
@@ -48,6 +50,14 @@ class Model
     {
         auto p = transform.position;
         transform.reset(p.x, p.y, p.z);
+    }
+
+    /// set color between 0.0f..1.0f
+    public void setColor(float r, float g, float b)
+    {
+        color.r = clampF(r, 0.0f, 1.0f);
+        color.g = clampF(g, 0.0f, 1.0f);
+        color.b = clampF(b, 0.0f, 1.0f);
     }
 
     public void render(ShaderCache cache, Camera cam)

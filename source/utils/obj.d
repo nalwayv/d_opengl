@@ -1,4 +1,5 @@
-module obj;
+/// Object
+module utils.obj;
 
 
 import std.conv : to;
@@ -66,9 +67,9 @@ class Obj
     {
         try
         {
-            Vertex result;
-
             auto arr = line.split();
+
+            Vertex result;
 
             result.v[0] = to!float(arr[X]);
             result.v[1] = to!float(arr[Y]);

@@ -4,7 +4,7 @@ module mesh;
 
 import bindbc.opengl;
 import maths.utils;
-import obj;
+import utils.obj;
 
 
 enum int COMPONENTS = 3;
@@ -120,7 +120,6 @@ class Mesh
         Obj object;
     }
 
-    // this(Vertex[] verticies, int[] indicies)
     this(string filePath)
     {
         vbo = Vbo.newVbo();

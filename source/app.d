@@ -77,7 +77,8 @@ void main()
 
     // model
     auto cube = new Model("models\\cube");
-
+    cube.setColor(0.3, 0.2, 1.0);
+    
 	while(!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
