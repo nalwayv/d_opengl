@@ -6,7 +6,6 @@ import maths.utils;
 import maths.mat4;
 import maths.vec3;
 import model;
-import cubedata;
 import clock;
 import keyboard;
 import mouse;
@@ -77,8 +76,7 @@ void main()
     shaderCache.add("default", "shaders\\default.vert", "shaders\\default.frag");
 
     // model
-    auto cubeMesh = CubeMesh.newCubeMesh(1.0f, 1.0f, 1.0f, 75.0f, 50.0f, 75.0f);
-    auto cube = new Model(cubeMesh.verts, cubeMesh.indicies);
+    auto cube = new Model("models\\cube");
 
 	while(!glfwWindowShouldClose(window))
     {

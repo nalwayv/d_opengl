@@ -6,6 +6,8 @@ import std.format;
 import utils.bits;
 import maths.utils;
 import maths.vec3;
+import maths.vec4;
+import maths.mat4;
 
 
 struct AABB
@@ -191,6 +193,24 @@ struct AABB
         auto p2 = max().added(by);
 
         return AABB.fromMinMax(p1, p2);
+    }
+
+    AABB transformed(Mat4 m4)
+    {
+        auto pMin = Vec3(MAXFLOAT, MAXFLOAT, MAXFLOAT);
+        auto pMax = Vec3(MINFLOAT, MINFLOAT, MINFLOAT);
+
+        auto c = corners();
+        for(auto i = 0; i < c.length; i++)
+        {   
+            auto v4 = Vec4(c[i].x, c[i].y, c[i].z, 1.0f);
+            v4 = m4.transform(v4);
+
+            pMin = Vec3.fromMin(pMin, Vec3(v4.x, v4.y, v4.z));
+            pMax = Vec3.fromMin(pMax, Vec3(v4.x, v4.y, v4.z));
+        }
+
+        return AABB.fromMinMax(pMin, pMax);
     }
 
     /// return perimeter of 'this aabb

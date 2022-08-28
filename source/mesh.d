@@ -4,11 +4,11 @@ module mesh;
 
 import bindbc.opengl;
 import maths.utils;
-import vertex;
+import obj;
 
 
 enum int COMPONENTS = 3;
-enum int STRIDE = 6;
+enum int STRIDE = 3;
 enum : int
 {
     POSITION_IDX = 0,
@@ -117,16 +117,17 @@ class Mesh
         Vbo vbo;
         Vao vao;
         Ebo ebo;
-        int ilen;
+        Obj object;
     }
 
-    this(Vertex[] verticies, int[] indicies)    
+    // this(Vertex[] verticies, int[] indicies)
+    this(string filePath)
     {
         vbo = Vbo.newVbo();
         vao = Vao.newVao();
         ebo = Ebo.newEbo();
         
-        ilen = cast(int)indicies.length;
+        object = new Obj(filePath);
 
         // setup
         vao.bind();
@@ -134,8 +135,8 @@ class Mesh
     
         glBufferData(
             GL_ARRAY_BUFFER,
-            cast(GLsizeiptr)(verticies.length * Vertex.sizeof),
-            verticies.ptr,
+            cast(GLsizeiptr)(object.verts.length * Vertex.sizeof),
+            object.verts.ptr,
             GL_STATIC_DRAW
         );
 
@@ -144,8 +145,8 @@ class Mesh
         
         glBufferData(
             GL_ELEMENT_ARRAY_BUFFER,
-            cast(GLsizeiptr)(indicies.length * int.sizeof),
-            indicies.ptr,
+            cast(GLsizeiptr)(object.indicies.length * object.indicies[0].sizeof),
+            object.indicies.ptr,
             GL_STATIC_DRAW
         );
 
@@ -160,15 +161,15 @@ class Mesh
             null
         );
 
-        glEnableVertexAttribArray(COLOR_IDX);
-        glVertexAttribPointer(
-            COLOR_IDX,
-            COMPONENTS,
-            GL_FLOAT,
-            GL_FALSE,
-            cast(GLsizei)(Vertex.sizeof),
-            cast(void*)(COMPONENTS * float.sizeof)
-        );
+        // glEnableVertexAttribArray(COLOR_IDX);
+        // glVertexAttribPointer(
+        //     COLOR_IDX,
+        //     COMPONENTS,
+        //     GL_FLOAT,
+        //     GL_FALSE,
+        //     cast(GLsizei)(Vertex.sizeof),
+        //     cast(void*)(COMPONENTS * float.sizeof)
+        // );
 
         vbo.unbind();
         vao.unbind();
@@ -186,7 +187,7 @@ class Mesh
     {
         vao.bind();
 
-        glDrawElements(GL_TRIANGLES, ilen, GL_UNSIGNED_INT, null);
+        glDrawElements(GL_TRIANGLES, cast(int)object.indicies.length, GL_UNSIGNED_INT, null);
 
         vao.unbind();
     }
