@@ -5,6 +5,7 @@ import std.format;
 import utils.bits;
 import maths.utils;
 import maths.vec3;
+import maths.vec4;
 import maths.mat4;
 import maths.mat3;
 
@@ -146,6 +147,19 @@ struct Plane
             result.d = d * inv;
         }
 
+        return result;
+    }
+
+    /// Returns: Plane
+    Plane transformed(Mat4 m4)
+    {
+        Mat4 im4 = m4.inverse().transposed();
+        auto v4 = Vec4(normal.x, normal.y, normal.z, d);
+        v4 = im4.transform(v4);
+
+        Plane result;
+        result.normal = Vec3(v4.x, v4.y, v4.z);
+        result.d = v4.w;
         return result;
     }
 

@@ -21,6 +21,13 @@ struct Transform
         return result;
     }
 
+    void setPosition(float x, float y, float z)
+    {
+        position.x = x;
+        position.y = y;
+        position.z = z;
+    }
+
     /// translate along its x, y and z axis
     void translate(float x, float y, float z)
     {

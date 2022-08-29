@@ -112,7 +112,7 @@ struct Ebo
 
 class Mesh
 {
-    private
+    private 
     {
         Vbo vbo;
         Vao vao;
@@ -128,14 +128,17 @@ class Mesh
         
         object = new Obj(filePath);
 
+        auto verts = object.getVerts();
+        auto indicies = object.getIndicies();
+
         // setup
         vao.bind();
         vbo.bind();
     
         glBufferData(
             GL_ARRAY_BUFFER,
-            cast(GLsizeiptr)(object.verts.length * Vertex.sizeof),
-            object.verts.ptr,
+            cast(GLsizeiptr)(verts.length * Vertex.sizeof),
+            verts.ptr,
             GL_STATIC_DRAW
         );
 
@@ -144,8 +147,8 @@ class Mesh
         
         glBufferData(
             GL_ELEMENT_ARRAY_BUFFER,
-            cast(GLsizeiptr)(object.indicies.length * object.indicies[0].sizeof),
-            object.indicies.ptr,
+            cast(GLsizeiptr)(indicies.length * indicies[0].sizeof),
+            indicies.ptr,
             GL_STATIC_DRAW
         );
 
@@ -182,11 +185,25 @@ class Mesh
         ebo.destroy();
     }
 
-    public void render()
+    /// Returns: Obj
+    public Obj getObj()
     {
-        vao.bind();
+        return object;
+    }
 
-        glDrawElements(GL_TRIANGLES, cast(int)object.indicies.length, GL_UNSIGNED_INT, null);
+    public void render(bool dbg = false)
+    {
+        auto indicies = object.getIndicies();
+
+        vao.bind();
+        if(!dbg)
+        {
+            glDrawElements(GL_TRIANGLES, cast(int)indicies.length, GL_UNSIGNED_INT, null);
+        }
+        else
+        {
+            glDrawElements(GL_LINE_LOOP, cast(int)indicies.length, GL_UNSIGNED_INT, null);
+        } 
 
         vao.unbind();
     }

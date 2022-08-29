@@ -31,6 +31,11 @@ class Model
         color = Color(0.3f, 0.4f, 1.0f);
     }
 
+    public void setPosition(float x, float y, float z)
+    {
+        transform.setPosition(x, y, z);
+    }
+
     public void translate(float x, float y, float z)
     {
         transform.translate(x, y, z);
@@ -69,5 +74,34 @@ class Model
         cache.setMat4(shader, "cam_Mat4", cam.matrix());
         
         mesh.render();
+    }
+
+    AABB computeAABB()
+    {
+        import std.stdio : writeln;
+        const x= 0, y= 1, z = 2;
+
+        Vec3 pMin = Vec3(MAXFLOAT, MAXFLOAT, MAXFLOAT);
+        Vec3 pMax = Vec3(MINFLOAT, MINFLOAT, MINFLOAT);
+
+        auto obj = mesh.getObj();
+        foreach(ref vert; obj.getVerts())
+        {
+            if(vert.v[x] < pMin.x) pMin.x = vert.v[x];
+            if(vert.v[x] > pMax.x) pMax.x = vert.v[x];
+            if(vert.v[y] < pMin.y) pMin.y = vert.v[y];
+            if(vert.v[y] > pMax.y) pMax.y = vert.v[y];
+            if(vert.v[z] < pMin.z) pMin.z = vert.v[z];
+            if(vert.v[z] > pMax.z) pMax.z = vert.v[z];
+        }
+
+        auto ab = AABB.fromMinMax(pMin, pMax).transformed(transform.matrix());
+
+        AABB result;
+
+        result.origin = ab.origin;
+        result.extents = ab.extents;
+
+        return result;
     }
 }

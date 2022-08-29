@@ -380,17 +380,25 @@ struct Mat4
     /// Returns: Vec4
     Vec4 transform(Vec4 v4)
     {
-        auto c0 = col0();
-        auto c1 = col1();
-        auto c2 = col2();
-        auto c3 = col3();
-
         Vec4 result;
 
-        result.x = v4.dot(c0);
-        result.y = v4.dot(c1);
-        result.z = v4.dot(c2);
-        result.w = v4.dot(c3);
+        result.x = (m00 * v4.x) + (m10 * v4.y) + (m20 * v4.z) + (m30 * v4.w);
+        result.y = (m01 * v4.x) + (m11 * v4.y) + (m21 * v4.z) + (m31 * v4.w);
+        result.z = (m02 * v4.x) + (m12 * v4.y) + (m22 * v4.z) + (m32 * v4.w);
+        result.w = (m03 * v4.x) + (m13 * v4.y) + (m23 * v4.z) + (m33 * v4.w);
+
+        return result;
+    }
+
+    /// return a vec3 transformed by this mat4
+    /// Returns: Vec3
+    Vec3 transform(Vec3 v3)
+    {
+        Vec3 result; 
+
+        result.x = (m00 * v3.x) + (m10 * v3.y) + (m20 * v3.z) + m30;
+        result.y = (m01 * v3.x) + (m11 * v3.y) + (m21 * v3.z) + m31;
+        result.z = (m02 * v3.x) + (m12 * v3.y) + (m22 * v3.z) + m32;
 
         return result;
     }

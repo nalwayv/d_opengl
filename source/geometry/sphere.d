@@ -5,6 +5,7 @@ import std.format;
 import utils.bits;
 import maths.utils;
 import maths.vec3;
+import maths.mat4;
 
 
 struct Sphere
@@ -44,6 +45,19 @@ struct Sphere
 
         return result;
     }
+    
+    /// Returns: Sphere
+    Sphere transformed(Mat4 m4)
+    {
+        Sphere result;
+
+        result.origin = m4.transform(origin);
+        result.radius = radius;
+
+        return result;
+    }
+
+    // -- override
 
     size_t toHash() const nothrow @safe
     {

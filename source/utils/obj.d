@@ -1,13 +1,13 @@
 /// Object
 module utils.obj;
 
-
 import std.conv : to;
 import std.stdio : File;
 import std.exception : ErrnoException;
 import std.string;
 
 
+enum size_t KB = 1 << 10;
 enum : int
 {
     X = 1,
@@ -33,20 +33,29 @@ struct Vertex
 
 class Obj
 {
-    public 
+    private 
     {
         Vertex[] verts;
         int[] indicies;
     }
 
+    /// load a model from models file
     this(string filePath)
     {
         try
         {
             auto file = File(filePath, "r");
-            string line;
-            while((line = file.readln()) !is null)
+            
+            char[] buffer = new char[32];
+            char[] line = buffer;
+
+            while(file.readln(line))
             {
+                if(line.length > buffer.length)
+                {
+                    buffer = line;
+                }
+
                 if(indexOf(line, "v") == 0)
                 {
                     readV(line);
@@ -63,7 +72,7 @@ class Obj
         }
     }
 
-    private void readV(string line)
+    private void readV(const char[] line)
     {
         try
         {
@@ -83,7 +92,7 @@ class Obj
         }
     }
 
-    private void readI(string line)
+    private void readI(const char[] line)
     {
         try
         {
@@ -103,5 +112,17 @@ class Obj
         {
             throw new Exception("ERROR: ", e.msg);
         }
+    }
+
+    /// Returns: Vertex[]
+    public Vertex[] getVerts() pure
+    {
+        return verts;
+    }
+
+    /// Returns: int[]
+    public int[] getIndicies() pure
+    {
+        return indicies;
     }
 }

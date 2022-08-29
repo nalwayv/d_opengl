@@ -13,8 +13,8 @@ import camera;
 import shadercache;
 
 
-enum WIDTH = 500;
-enum HEIGHT = 500;
+enum WIDTH = 640;
+enum HEIGHT = 480;
 
 
 GLFWwindowsizefun windowSizeCB()
@@ -78,7 +78,8 @@ void main()
     // model
     auto cube = new Model("models\\cube");
     cube.setColor(0.3, 0.2, 1.0);
-    
+
+
 	while(!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -95,8 +96,15 @@ void main()
 
         cube.rotate(toRad(15 * clock.dt), Vec3(0.2f, 1.0f, 0.5f));
         cube.render(shaderCache, cam);
+        auto ab = cube.computeAABB();
+        writeln(ab);
 
         // ---
+
+        // if(keyb.keyState(GLFW_KEY_UP) == KEY_PRESSED)
+        // {
+        //     cube.setPosition(4, 0, 0);
+        // }
 
         if(keyb.keyState(GLFW_KEY_W) == KEY_HELD)
         {

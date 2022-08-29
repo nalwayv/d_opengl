@@ -281,15 +281,11 @@ struct Mat3
     /// Returns: Vec3
     Vec3 transform(Vec3 v3)
     {
-        auto c0 = col0();
-        auto c1 = col1();
-        auto c2 = col2();
-
         Vec3 result;
 
-        result.x = v3.dot(c0);
-        result.y = v3.dot(c1);
-        result.z = v3.dot(c2);
+        result.x = (m00 * v3.x) + (m10 * v3.y) + (m20 * v3.z);
+        result.y = (m01 * v3.x) + (m11 * v3.y) + (m21 * v3.z);
+        result.z = (m02 * v3.x) + (m12 * v3.y) + (m22 * v3.z);
 
         return result;
     }
