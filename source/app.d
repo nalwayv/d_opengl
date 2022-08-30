@@ -1,5 +1,4 @@
 // App
-import std.stdio : writeln;
 import bindbc.opengl;
 import bindbc.glfw;
 import maths.utils;
@@ -11,6 +10,10 @@ import keyboard;
 import mouse;
 import camera;
 import shadercache;
+
+import geometry.aabb;
+import geometry.sphere;
+import geometry.contains;
 
 
 enum WIDTH = 640;
