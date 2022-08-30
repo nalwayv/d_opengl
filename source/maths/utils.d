@@ -109,10 +109,22 @@ float maxF(float x, float y)
     return (x > y) ? x : y;
 }
 
+/// return max float value between 'x, 'y and 'z
+float maxF(float x, float y, float z)
+{
+    return maxF(x, maxF(y, z));
+}
+
 /// return max int value between 'x and 'y
 int maxI(int x, int y)
 {
     return (x > y) ? x : y;
+}
+
+/// return max int value between 'x, 'y and 'z
+int maxI(int x, int y, int z)
+{
+    return maxI(x, maxI(y, z));
 }
 
 /// return max float value between 'x and 'y

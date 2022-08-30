@@ -96,15 +96,8 @@ void main()
 
         cube.rotate(toRad(15 * clock.dt), Vec3(0.2f, 1.0f, 0.5f));
         cube.render(shaderCache, cam);
-        auto ab = cube.computeAABB();
-        writeln(ab);
 
         // ---
-
-        // if(keyb.keyState(GLFW_KEY_UP) == KEY_PRESSED)
-        // {
-        //     cube.setPosition(4, 0, 0);
-        // }
 
         if(keyb.keyState(GLFW_KEY_W) == KEY_HELD)
         {

@@ -132,15 +132,20 @@ struct AABB
         auto pMin = min();
         auto pMax = max();
 
+        float x, y, z;
+
+        if(pt.x < pMin.x) x = pMin.x;
+        if(pt.x > pMax.x) x = pMax.x;
+        if(pt.y < pMin.y) y = pMin.y;
+        if(pt.y > pMax.y) y = pMax.y;
+        if(pt.z < pMin.z) z = pMin.z;
+        if(pt.z > pMax.z) z = pMax.z;
+
         Vec3 result;
 
-        for(auto i = 0; i < 3; i++)
-        {
-            auto v = pt.at(i);
-            v = minF(v, pMin.at(i));
-            v = maxF(v, pMax.at(i));
-            result.set(i, v);
-        }
+        result.x = x;
+        result.y = y;
+        result.z = z;
 
         return result;
     }    
@@ -222,6 +227,25 @@ struct AABB
         return 2.0f * (xy + yz + zx);
     }
 
+    /// resturn the sqr distance between 'this aabb and 'pt
+    /// Returns: float
+    float sqDistPt(Vec3 pt)
+    {
+        auto pMax = max();
+        auto pMin = min();
+
+        float result = 0.0f;
+
+        if(pt.x < pMin.x) result += sqrF(pMin.x - pt.x);
+        if(pt.x > pMax.x) result += sqrF(pt.x - pMax.x);
+        if(pt.y < pMin.y) result += sqrF(pMin.y - pt.y);
+        if(pt.y > pMax.y) result += sqrF(pt.y - pMax.y);
+        if(pt.z < pMin.z) result += sqrF(pMin.z - pt.z);
+        if(pt.z > pMax.z) result += sqrF(pt.z - pMax.z);
+
+        return result;
+    }
+
     /// check if 'this aabb is isDegenerate
     /// Returns: bool
     bool isDegenerate()
@@ -235,7 +259,7 @@ struct AABB
 
         return cx && cy && cz;
     }
-    
+
     // -- override
 
     size_t toHash() const nothrow @safe

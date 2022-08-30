@@ -49,10 +49,14 @@ struct Sphere
     /// Returns: Sphere
     Sphere transformed(Mat4 m4)
     {
+        auto a = sqrF(m4.m00) + sqrF(m4.m01) + sqrF(m4.m02);
+        auto b = sqrF(m4.m10) + sqrF(m4.m11) + sqrF(m4.m12);
+        auto c = sqrF(m4.m20) + sqrF(m4.m21) + sqrF(m4.m22);
+
         Sphere result;
 
         result.origin = m4.transform(origin);
-        result.radius = radius;
+        result.radius = sqrtF(maxF(a, b, c));
 
         return result;
     }
