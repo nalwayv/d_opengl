@@ -2,14 +2,15 @@
 module geometry.contains;
 
 
-import std.stdio : writeln;
-import maths.utils;
+// import maths.utils;
 import maths.vec3;
 import geometry.aabb;
-import geometry.sphere;
-import geometry.plane;
+// import geometry.sphere;
+// import geometry.plane;
 
 
+/// test if AABB 'a1 contains AABB 'a2
+/// Returns: bool
 bool containsAABBAABB(AABB a1, AABB a2)
 {
     auto aa = a1.min();
@@ -23,4 +24,3 @@ bool containsAABBAABB(AABB a1, AABB a2)
 
     return checkX && checkY && checkZ;
 }
-

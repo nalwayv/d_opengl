@@ -1,5 +1,4 @@
-/// AABB Tree
-module collision.abtree;
+module collision.broad.abtree;
 
 // import utils.stack;
 import maths.utils;

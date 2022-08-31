@@ -1,11 +1,13 @@
 /// Sphere
 module geometry.sphere;
 
+
 import std.format;
 import utils.bits;
 import maths.utils;
 import maths.vec3;
 import maths.mat4;
+import geometry.aabb;
 
 
 struct Sphere
@@ -59,6 +61,14 @@ struct Sphere
         result.radius = sqrtF(maxF(a, b, c));
 
         return result;
+    }
+
+    AABB computeAABB()
+    {
+        auto pMin = Vec3(origin.x - radius, origin.y - radius, origin.z - radius);
+        auto pMax = Vec3(origin.x + radius, origin.y + radius, origin.z + radius);
+
+        return AABB.fromMinMax(pMin, pMax);
     }
 
     // -- override

@@ -76,9 +76,38 @@ class Model
         mesh.render();
     }
 
+    /// get furthest point in given direction
+    /// Returns: Vec3
+    Vec3 furthestPt(Vec3 direction)
+    {
+        if(!direction.isNormal())
+        {
+            direction = direction.normalized();
+        }
+
+        const x = 0, y = 1, z = 2;
+        auto maxDistance = MINFLOAT;
+
+        Vec3 result;
+        auto obj = mesh.getObj();
+        foreach(ref vert; obj.getVerts())
+        {
+            Vec3 pt = Vec3(vert.v[x], vert.v[y], vert.v[z]);
+            auto distance = p.dot(direction);
+            
+            if(distance > maxDistance)
+            {
+                maxDistance = distance;
+                result = pt;
+            }
+        }
+
+        return result;
+    }
+
+    /// Returns: AABB
     AABB computeAABB()
     {
-        import std.stdio : writeln;
         const x= 0, y= 1, z = 2;
 
         Vec3 pMin = Vec3(MAXFLOAT, MAXFLOAT, MAXFLOAT);
