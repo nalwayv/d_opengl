@@ -6,6 +6,7 @@ import maths.utils;
 import maths.vec3;
 import maths.mat4;
 import geometry.aabb;
+import collision.narrow.isupport;
 import mesh;
 import color;
 import transform;
@@ -13,7 +14,7 @@ import shadercache;
 import camera;
 
 
-class Model
+class Model : ISupport
 {
     private 
     {
@@ -89,18 +90,24 @@ class Model
         auto maxDistance = MINFLOAT;
 
         Vec3 result;
+
+        auto m4 = transform.matrix();
+
         auto obj = mesh.getObj();
         foreach(ref vert; obj.getVerts())
         {
             Vec3 pt = Vec3(vert.v[x], vert.v[y], vert.v[z]);
-            auto distance = p.dot(direction);
-            
+            pt = m4.transform(pt);
+            auto distance = pt.dot(direction);
             if(distance > maxDistance)
             {
                 maxDistance = distance;
                 result = pt;
             }
         }
+
+        // auto m4 = transform.matrix();
+        // result = m4.transform(result);
 
         return result;
     }
@@ -124,7 +131,9 @@ class Model
             if(vert.v[z] > pMax.z) pMax.z = vert.v[z];
         }
 
-        auto ab = AABB.fromMinMax(pMin, pMax).transformed(transform.matrix());
+        auto ab = AABB.fromMinMax(pMin, pMax);
+        auto m4 = transform.matrix();
+        ab = ab.transformed(m4);
 
         AABB result;
 

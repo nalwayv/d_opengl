@@ -32,13 +32,6 @@ bool intersectsAabbSphere(AABB a, Sphere s)
     return a.sqDistPt(s.origin) <= sqrF(s.radius);
 }
 
-/// test if sphere intersects aabb
-/// Returns: bool
-bool intersectSphereAabb(Sphere s, AABB a)
-{
-    return intersectsAabbSphere(a, s);
-}
-
 /// test if aabb intersects plane
 /// Returns: bool
 bool intersectsAabbPlane(AABB a, Plane p)
@@ -54,13 +47,6 @@ bool intersectsAabbPlane(AABB a, Plane p)
     auto s = p.normal.dot(c) - p.d;
 
     return absF(s) <= r;
-}
-
-/// test if plane intersects aabb
-/// Returns: bool
-bool intersectPlaneAabb(Plane p, AABB a)
-{
-    return intersectsAabbPlane(a, p);
 }
 
 /// test if sphere intersects sphere
@@ -81,11 +67,4 @@ bool intersectSpherePlane(Sphere s, Plane p)
 {
     auto d = s.origin.dot(p.normal) - p.d;
     return absF(d) <= s.radius;
-}
-
-/// test if plane intersects sphere
-/// Returns: bool
-bool intersectPlaneSphere(Plane p, Sphere s)
-{
-    return intersectSpherePlane(s, p);
 }

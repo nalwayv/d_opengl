@@ -1,4 +1,5 @@
 // App
+import std.stdio : writeln;
 import bindbc.opengl;
 import bindbc.glfw;
 import maths.utils;
@@ -10,10 +11,7 @@ import keyboard;
 import mouse;
 import camera;
 import shadercache;
-
-import geometry.aabb;
-import geometry.sphere;
-import geometry.contains;
+import collision.narrow.gjk;
 
 
 enum WIDTH = 640;
@@ -67,6 +65,7 @@ void main()
     glfwSetWindowSizeCallback(window, windowSizeCB);
 
     // ---
+
     auto clock = Clock.newClock(glfwGetTime());
     auto keyb = Keyboard.newKeyboard(window);
     auto mouse = Mouse.newMouse(window);
@@ -79,9 +78,14 @@ void main()
     shaderCache.add("default", "shaders\\default.vert", "shaders\\default.frag");
 
     // model
-    auto cube = new Model("models\\cube");
-    cube.setColor(0.3, 0.2, 1.0);
+    auto cubeA = new Model("models\\cube");
+    cubeA.setColor(0.3, 0.2, 1.0);
 
+    auto cubeB = new Model("models\\cube");
+    cubeB.setColor(0.7, 0.7, 0.3);
+
+
+    auto gjk = new Gjk(cubeA, cubeB);
 
 	while(!glfwWindowShouldClose(window))
     {
@@ -97,8 +101,23 @@ void main()
         
         // ---
 
-        cube.rotate(toRad(15 * clock.dt), Vec3(0.2f, 1.0f, 0.5f));
-        cube.render(shaderCache, cam);
+        // cube.rotate(toRad(15 * clock.dt), Vec3(0.2f, 1.0f, 0.5f));
+        cubeA.render(shaderCache, cam);
+        cubeB.render(shaderCache, cam);
+
+
+        if(keyb.keyState(GLFW_KEY_UP) == KEY_HELD) cubeA.translate(0.0, 1.0 * clock.dt, 0.0);
+        if(keyb.keyState(GLFW_KEY_DOWN) == KEY_HELD) cubeA.translate(0.0, -1.0 * clock.dt, 0.0);
+        if(keyb.keyState(GLFW_KEY_LEFT) == KEY_HELD) cubeA.translate(-1.0 * clock.dt, 0.0, 0.0);
+        if(keyb.keyState(GLFW_KEY_RIGHT) == KEY_HELD) cubeA.translate(1.0 * clock.dt, 0.0, 0.0);
+        if(keyb.keyState(GLFW_KEY_RIGHT) == KEY_HELD) cubeA.translate(1.0 * clock.dt, 0.0, 0.0);
+        if(keyb.keyState(GLFW_KEY_G) == KEY_PRESSED)
+        {
+            if(gjk.check())
+            {
+                writeln("ok");
+            }
+        }
 
         // ---
 
@@ -135,7 +154,7 @@ void main()
         if(keyb.keyState(GLFW_KEY_R) == KEY_PRESSED)
         {
             cam.reset();
-            cube.resetTransform();
+            cubeA.resetTransform();
         }
 
         if(mouse.buttonState(GLFW_MOUSE_BUTTON_LEFT) == BUTTON_HELD)
