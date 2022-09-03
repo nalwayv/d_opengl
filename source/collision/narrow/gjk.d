@@ -2,10 +2,10 @@
 module collision.narrow.gjk;
 
 // TODO()
-import collision.narrow.isupport;
+import collision.narrow.imeshcollider;
 import maths.vec3;
 
-
+enum float GJK_OPTIMAL = 0.001f;
 enum int GJK_ITERATIONS = 30;
 
 
@@ -15,32 +15,32 @@ class Gjk
     {
         Vec3[] simplex;
         Vec3 direction;
-        ISupport isA;
-        ISupport isB;
+        IMeshCollider mcA;
+        IMeshCollider mcB;
     }
 
-    this(ISupport a, ISupport b)
+    this(IMeshCollider a, IMeshCollider b)
     {
-        isA = a;
-        isB = b;
+        mcA = a;
+        mcB = b;
         direction = Vec3(1.0f, 0.0f, 0.0f);
     }
 
-    public void setSupportA(ISupport a)
+    public void setSupportA(IMeshCollider a)
     {
-        isA = a;
+        mcA = a;
     }
 
-    public void setSupportB(ISupport b)
+    public void setSupportB(IMeshCollider b)
     {
-        isB = b;
+        mcB = b;
     }
 
     /// Returns: Vec3
     private Vec3 getSupport()
     {
-        auto a = isA.furthestPt(direction);
-        auto b = isB.furthestPt(direction.negated());
+        auto a = mcA.furthestPt(direction);
+        auto b = mcB.furthestPt(direction.negated());
 
         return a.subbed(b);
     }

@@ -6,7 +6,7 @@ import maths.utils;
 import maths.vec3;
 import maths.mat4;
 import geometry.aabb;
-import collision.narrow.isupport;
+import collision.narrow.imeshcollider;
 import mesh;
 import color;
 import transform;
@@ -14,7 +14,7 @@ import shadercache;
 import camera;
 
 
-class Model : ISupport
+class Model : IMeshCollider
 {
     private 
     {
@@ -71,6 +71,7 @@ class Model : ISupport
         color.b = clampF(b, 0.0f, 1.0f);
     }
 
+    /// render model
     public void render(ShaderCache cache, Camera cam)
     {
         cache.use(shader);
@@ -103,7 +104,9 @@ class Model : ISupport
         {
             Vec3 pt = Vec3(vert.v[x], vert.v[y], vert.v[z]);
             pt = m4.transform(pt);
+
             auto distance = pt.dot(direction);
+            
             if(distance > maxDistance)
             {
                 maxDistance = distance;
@@ -114,6 +117,7 @@ class Model : ISupport
         return result;
     }
 
+    /// compute an AABB from this model based on its verts
     /// Returns: AABB
     AABB computeAABB()
     {

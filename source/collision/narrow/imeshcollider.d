@@ -1,10 +1,10 @@
-module collision.narrow.isupport;
+module collision.narrow.imeshcollider;
 
 
 import maths.vec3;
 
 
-interface ISupport
+interface IMeshCollider
 {
     Vec3 furthestPt(Vec3 direction);    
 }

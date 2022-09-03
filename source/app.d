@@ -5,7 +5,6 @@ import bindbc.glfw;
 import maths.utils;
 import maths.mat4;
 import maths.vec3;
-import geometry.aabb;
 import collision.broad.abtree;
 import collision.narrow.gjk;
 import model;
@@ -14,6 +13,9 @@ import keyboard;
 import mouse;
 import camera;
 import shadercache;
+
+
+alias Tree = TreeTemplate!(Model).ABTree;
 
 
 enum WIDTH = 640;
@@ -28,10 +30,6 @@ GLFWwindowsizefun windowSizeCB()
     };
 }
 
-
-void foo(ref Model a)
-{
-}
 
 void main()
 {
@@ -88,17 +86,20 @@ void main()
     // model
     auto cubeA = new Model("models\\cube");
     cubeA.setColor(0.2, 0.3, 0.6);
-
+    cubeA.scale(0.9, 0.9, 0.9);
     auto cubeB = new Model("models\\cube");
+    cubeB.translate(5.0f, 0.0f, 0.0f); // cant be same start location as A else tree will fail
     cubeB.setColor(0.7, 0.7, 0.3);
 
+    // collision
     auto gjk = new Gjk(cubeA, cubeB);
+    auto tree = new Tree();
+    auto aID = tree.add(cubeA.computeAABB(), cubeA);
+    auto bID = tree.add(cubeB.computeAABB(), cubeB);
+    tree.valide();
 
-    auto tree = new ABTree();
-    auto tid = tree.add(cubeA.computeAABB(), hashOf(cubeA));
-    auto checkHash = tree.getData(tid) == hashOf(cubeA);
-    writeln(checkHash);
-    
+    // tree.query(cubeA.computeAABB());
+
 	while(!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -145,6 +146,11 @@ void main()
 
         if(keyb.keyState(GLFW_KEY_G) == KEY_PRESSED)
         {
+            // if(tree.move(cubeA.computeAABB(), aID))
+            // {
+            //     writeln("moved");
+            // }
+
             if(gjk.check())
             {
                 writeln("ok");
