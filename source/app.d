@@ -5,13 +5,15 @@ import bindbc.glfw;
 import maths.utils;
 import maths.mat4;
 import maths.vec3;
+import geometry.aabb;
+import collision.broad.abtree;
+import collision.narrow.gjk;
 import model;
 import clock;
 import keyboard;
 import mouse;
 import camera;
 import shadercache;
-import collision.narrow.gjk;
 
 
 enum WIDTH = 640;
@@ -26,6 +28,10 @@ GLFWwindowsizefun windowSizeCB()
     };
 }
 
+
+void foo(ref Model a)
+{
+}
 
 void main()
 {
@@ -66,6 +72,8 @@ void main()
 
     // ---
 
+    const moveSp = 3.0f;
+
     auto clock = Clock.newClock(glfwGetTime());
     auto keyb = Keyboard.newKeyboard(window);
     auto mouse = Mouse.newMouse(window);
@@ -79,14 +87,16 @@ void main()
 
     // model
     auto cubeA = new Model("models\\cube");
-    cubeA.setColor(0.3, 0.2, 1.0);
+    cubeA.setColor(0.2, 0.3, 0.6);
 
     auto cubeB = new Model("models\\cube");
     cubeB.setColor(0.7, 0.7, 0.3);
 
-
     auto gjk = new Gjk(cubeA, cubeB);
 
+    auto tree = new ABTree();
+    auto tid = tree.add(cubeA.computeAABB(), hashOf(cubeA));
+    
 	while(!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -101,16 +111,36 @@ void main()
         
         // ---
 
-        // cube.rotate(toRad(15 * clock.dt), Vec3(0.2f, 1.0f, 0.5f));
+        // cubeA.rotate(toRad(1 * roteSp * clock.dt), Vec3(0.2f, 1.0f, 0.5f));
         cubeA.render(shaderCache, cam);
         cubeB.render(shaderCache, cam);
 
+        if(keyb.keyState(GLFW_KEY_UP) == KEY_HELD) 
+        {
+            cubeA.translate(0.0, 1.0 * moveSp * clock.dt, 0.0);
+        }
 
-        if(keyb.keyState(GLFW_KEY_UP) == KEY_HELD) cubeA.translate(0.0, 1.0 * clock.dt, 0.0);
-        if(keyb.keyState(GLFW_KEY_DOWN) == KEY_HELD) cubeA.translate(0.0, -1.0 * clock.dt, 0.0);
-        if(keyb.keyState(GLFW_KEY_LEFT) == KEY_HELD) cubeA.translate(-1.0 * clock.dt, 0.0, 0.0);
-        if(keyb.keyState(GLFW_KEY_RIGHT) == KEY_HELD) cubeA.translate(1.0 * clock.dt, 0.0, 0.0);
-        if(keyb.keyState(GLFW_KEY_RIGHT) == KEY_HELD) cubeA.translate(1.0 * clock.dt, 0.0, 0.0);
+        if(keyb.keyState(GLFW_KEY_DOWN) == KEY_HELD) 
+        {
+            cubeA.translate(0.0, -1.0 * moveSp * clock.dt, 0.0);
+        }
+
+        if(keyb.keyState(GLFW_KEY_LEFT) == KEY_HELD) 
+        {
+            cubeA.translate(-1.0 * moveSp * clock.dt, 0.0, 0.0);
+        }
+
+        if(keyb.keyState(GLFW_KEY_RIGHT) == KEY_HELD)
+        {
+            cubeA.translate(1.0 * moveSp * clock.dt, 0.0, 0.0);
+        }
+
+        if(keyb.keyState(GLFW_KEY_RIGHT) == KEY_HELD)
+        {
+            cubeA.translate(1.0 * moveSp * clock.dt, 0.0, 0.0);
+        }
+
+
         if(keyb.keyState(GLFW_KEY_G) == KEY_PRESSED)
         {
             if(gjk.check())
@@ -155,6 +185,7 @@ void main()
         {
             cam.reset();
             cubeA.resetTransform();
+            cubeB.resetTransform();
         }
 
         if(mouse.buttonState(GLFW_MOUSE_BUTTON_LEFT) == BUTTON_HELD)

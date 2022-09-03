@@ -1,6 +1,8 @@
 /// Transform
 module transform;
 
+
+import utils.bits;
 import maths.vec3;
 import maths.mat3;
 import maths.mat4;

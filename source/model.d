@@ -29,9 +29,14 @@ class Model : ISupport
         transform = Transform.newTransform(0.0f, 0.0f, 0.0f);
         mesh = new Mesh(filePath);
         shader = "default";
-        color = Color(0.3f, 0.4f, 1.0f);
+        color = Color(0.2f, 0.2f, 0.2f);
     }
 
+    public Vec3 getPosition()
+    {
+        return transform.position;
+    }
+    
     public void setPosition(float x, float y, float z)
     {
         transform.setPosition(x, y, z);
@@ -92,8 +97,8 @@ class Model : ISupport
         Vec3 result;
 
         auto m4 = transform.matrix();
-
         auto obj = mesh.getObj();
+
         foreach(ref vert; obj.getVerts())
         {
             Vec3 pt = Vec3(vert.v[x], vert.v[y], vert.v[z]);
@@ -105,9 +110,6 @@ class Model : ISupport
                 result = pt;
             }
         }
-
-        // auto m4 = transform.matrix();
-        // result = m4.transform(result);
 
         return result;
     }
