@@ -502,13 +502,11 @@ class ABTree
         }
     }
     
-    /// retrive data from a node stored in the tree 
-    /// by using its nodeID retrived from first adding
-    /// a node to the tree
-    /// Returns: T
-    // public T getData(int nodeID)
-    // {
-    //     assert(nodeID >= 0 && nodeID < cap);
-    //     return nodes[nodeID].data;
-    // }
+    /// retrive data from a node stored in the tree by using its nodeID
+    /// Returns: size_t
+    public size_t getData(int nodeID)
+    {
+        assert(nodeID >= 0 && nodeID < cap);
+        return nodes[nodeID].data;
+    }
 }

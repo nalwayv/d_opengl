@@ -96,6 +96,8 @@ void main()
 
     auto tree = new ABTree();
     auto tid = tree.add(cubeA.computeAABB(), hashOf(cubeA));
+    auto checkHash = tree.getData(tid) == hashOf(cubeA);
+    writeln(checkHash);
     
 	while(!glfwWindowShouldClose(window))
     {
