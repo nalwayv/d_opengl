@@ -58,6 +58,21 @@ struct Vec2
         return result;
     }
 
+    /// create a vec2 from an array of floats that is of length 2
+    /// Returns: Vec2
+    static Vec2 fromArray(float[] arr)
+    {
+        assert(arr.length == 2);
+
+        Vec2 result;
+
+        result.x = arr[0];
+        result.y = arr[1];
+
+        return result;
+    }
+
+
     /// Return value at 0..1
     /// Returns: float
     float at(int idx) const

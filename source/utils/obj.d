@@ -27,7 +27,7 @@ enum : int
 
 struct Vertex
 {
-    float[3] v;
+    float[3] vert;
 }
 
 
@@ -35,7 +35,7 @@ class Obj
 {
     private 
     {
-        Vertex[] verts;
+        Vertex[] vertex;
         int[] indicies;
     }
 
@@ -45,7 +45,7 @@ class Obj
         try
         {
             auto file = File(filePath, "r");
-            
+
             char[] buffer = new char[32];
             char[] line = buffer;
 
@@ -80,11 +80,11 @@ class Obj
 
             Vertex result;
 
-            result.v[0] = to!float(arr[X]);
-            result.v[1] = to!float(arr[Y]);
-            result.v[2] = to!float(arr[Z]);
-            
-            verts ~= result;
+            result.vert[0] = to!float(arr[X]);
+            result.vert[1] = to!float(arr[Y]);
+            result.vert[2] = to!float(arr[Z]);
+
+            vertex ~= result;
         }
         catch(ErrnoException e)
         {
@@ -115,9 +115,9 @@ class Obj
     }
 
     /// Returns: Vertex[]
-    public Vertex[] getVerts() pure
+    public Vertex[] getVertex() pure
     {
-        return verts;
+        return vertex;
     }
 
     /// Returns: int[]

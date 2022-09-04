@@ -62,6 +62,21 @@ struct Vec3
         return result;
     }
 
+    /// create a vec3 from an array of floats that is of length 3
+    /// Returns: Vec3
+    static Vec3 fromArray(float[] arr)
+    {
+        assert(arr.length == 3);
+
+        Vec3 result;
+
+        result.x = arr[0];
+        result.y = arr[1];
+        result.z = arr[2];
+
+        return result;
+    }
+
     /// Return value at 0..2
     /// Returns: float
     float at(int idx) const

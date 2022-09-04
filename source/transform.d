@@ -66,7 +66,8 @@ struct Transform
     }
 
     /// return mat4 matrix of position, rotation and scale
-    Mat4 matrix()
+    /// Returns: Mat4
+    Mat4 getMatrix()
     {
         Mat4 result;
 

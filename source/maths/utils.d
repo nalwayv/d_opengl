@@ -5,7 +5,6 @@ module maths.utils;
 import std.math;
 
 
-
 /// small float value near zero
 enum float EPSILON = float.epsilon;
 
@@ -32,7 +31,6 @@ enum float RAD = PI/180.0f;
 
 /// degree value
 enum float DEG = 180.0f/PI;
-
 
 
 /// swap float values 'x and 'y using ref's

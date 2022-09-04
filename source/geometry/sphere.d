@@ -63,6 +63,26 @@ struct Sphere
         return result;
     }
 
+    /// Returns: Vec3
+    Vec3 furthestPt(Vec3 direction, Mat4 m4)
+    {
+        if(!direction.isNormal())
+        {
+            direction = direction.normalized();
+        }
+
+        auto c = m4.transform(origin);
+
+        Vec3 result;
+
+        result.x = c.x += radius * direction.x;
+        result.y = c.y += radius * direction.y;
+        result.z = c.z += radius * direction.z;
+        
+        return result;
+    }
+
+    /// Returns: AABB
     AABB computeAABB()
     {
         auto pMin = Vec3(origin.x - radius, origin.y - radius, origin.z - radius);

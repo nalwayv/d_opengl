@@ -9,8 +9,9 @@ import maths.utils;
 struct Vec4
 {
     float x, y, z, w;
-
+    
     /// create a one vec4
+    /// Returns: Vec4
     static Vec4 one()
     {
         Vec4 result;
@@ -24,6 +25,7 @@ struct Vec4
     }
 
     /// create a zero vec4
+    /// Returns: Vec4
     static Vec4 zero()
     {
         Vec4 result;
@@ -36,6 +38,8 @@ struct Vec4
         return result;
     }
 
+    /// create a vec4 that is the min values of ever 'a or 'b
+    /// Returns: Vec4
     static Vec4 fromMin(Vec4 a, Vec4 b)
     {
         Vec4 result;
@@ -48,6 +52,8 @@ struct Vec4
         return result;
     }
 
+    /// create a vec4 that is the max values of ever 'a or 'b
+    /// Returns: Vec4
     static Vec4 fromMax(Vec4 a, Vec4 b)
     {
         Vec4 result;
@@ -60,7 +66,26 @@ struct Vec4
         return result;
     }
 
+
+    /// create a vec4 from an array of floats that is of length 4
+    /// Returns: Vec4
+    static Vec4 fromArray(float[] arr)
+    {
+        assert(arr.length == 4);
+
+        Vec4 result;
+
+        result.x = arr[0];
+        result.y = arr[1];
+        result.z = arr[2];
+        result.w = arr[3];
+
+        return result;
+    }
+
+
     /// Return value at 0..3
+    /// Returns: float
     float at(int idx) const
     {
         assert(isInRangeI(idx, 0, 3));

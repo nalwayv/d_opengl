@@ -36,7 +36,7 @@ class Model : IMeshCollider
     {
         return transform.position;
     }
-    
+
     public void setPosition(float x, float y, float z)
     {
         transform.setPosition(x, y, z);
@@ -77,36 +77,71 @@ class Model : IMeshCollider
         cache.use(shader);
 
         cache.setVec3(shader, "color_Vec3", color.vec3());
-        cache.setMat4(shader, "model_Mat4", transform.matrix());
-        cache.setMat4(shader, "cam_Mat4", cam.matrix());
-        
+        cache.setMat4(shader, "model_Mat4", transform.getMatrix());
+        cache.setMat4(shader, "cam_Mat4", cam.getMatrix());
+
         mesh.render();
+    }
+
+    /// get face normals
+    /// Returns: Vec3[]
+    public Vec3[] faceNormals()
+    {
+        Vec3[] result;
+
+        auto obj = mesh.getObj();
+        auto vertex = obj.getVertex();
+        auto ind = obj.getIndicies();
+
+        for(auto i = 0;  i < ind.length; i += 3)
+        {
+            auto a = Vec3.fromArray(vertex[ind[i + 0]].vert); 
+            auto b = Vec3.fromArray(vertex[ind[i + 1]].vert); 
+            auto c = Vec3.fromArray(vertex[ind[i + 2]].vert); 
+
+            auto ab = b.subbed(a);
+            auto ac = c.subbed(a);
+
+            auto normal = ab.cross(ac).normalized();
+
+            auto distance = normal.dot(a);
+
+            // flip
+            if(distance < 0.0f)
+            {
+                normal = normal.negated();
+                distance *= -1.0f;
+            }
+
+            result ~= normal;
+        }
+
+        return result;
     }
 
     /// get furthest point in given direction
     /// Returns: Vec3
-    Vec3 furthestPt(Vec3 direction)
+    public Vec3 furthestPt(Vec3 direction)
     {
         if(!direction.isNormal())
         {
             direction = direction.normalized();
         }
 
-        const x = 0, y = 1, z = 2;
         auto maxDistance = MINFLOAT;
 
         Vec3 result;
 
-        auto m4 = transform.matrix();
+        auto m4 = transform.getMatrix();
         auto obj = mesh.getObj();
 
-        foreach(ref vert; obj.getVerts())
+        foreach(ref vertex; obj.getVertex())
         {
-            Vec3 pt = Vec3(vert.v[x], vert.v[y], vert.v[z]);
+            Vec3 pt = Vec3.fromArray(vertex.vert);
             pt = m4.transform(pt);
 
             auto distance = pt.dot(direction);
-            
+
             if(distance > maxDistance)
             {
                 maxDistance = distance;
@@ -119,7 +154,7 @@ class Model : IMeshCollider
 
     /// compute an AABB from this model based on its verts
     /// Returns: AABB
-    AABB computeAABB()
+    public AABB computeAABB()
     {
         const x= 0, y= 1, z = 2;
 
@@ -127,18 +162,36 @@ class Model : IMeshCollider
         Vec3 pMax = Vec3(MINFLOAT, MINFLOAT, MINFLOAT);
 
         auto obj = mesh.getObj();
-        foreach(ref vert; obj.getVerts())
+        foreach(ref vertex; obj.getVertex())
         {
-            if(vert.v[x] < pMin.x) pMin.x = vert.v[x];
-            if(vert.v[x] > pMax.x) pMax.x = vert.v[x];
-            if(vert.v[y] < pMin.y) pMin.y = vert.v[y];
-            if(vert.v[y] > pMax.y) pMax.y = vert.v[y];
-            if(vert.v[z] < pMin.z) pMin.z = vert.v[z];
-            if(vert.v[z] > pMax.z) pMax.z = vert.v[z];
+            if(vertex.vert[x] < pMin.x) 
+            {
+                pMin.x = vertex.vert[x];
+            }
+            if(vertex.vert[x] > pMax.x) 
+            {
+                pMax.x = vertex.vert[x];
+            }
+            if(vertex.vert[y] < pMin.y) 
+            {
+                pMin.y = vertex.vert[y];
+            }
+            if(vertex.vert[y] > pMax.y) 
+            {
+                pMax.y = vertex.vert[y];
+            }
+            if(vertex.vert[z] < pMin.z) 
+            {
+                pMin.z = vertex.vert[z];
+            }
+            if(vertex.vert[z] > pMax.z) 
+            {
+                pMax.z = vertex.vert[z];
+            }
         }
 
         auto ab = AABB.fromMinMax(pMin, pMax);
-        auto m4 = transform.matrix();
+        auto m4 = transform.getMatrix();
         ab = ab.transformed(m4);
 
         AABB result;

@@ -35,7 +35,8 @@ class Gjk
     {
         mcB = b;
     }
-
+    
+    /// return support pt
     /// Returns: Vec3
     private Vec3 getSupport()
     {

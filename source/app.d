@@ -71,13 +71,12 @@ void main()
     // ---
 
     const moveSp = 3.0f;
+    bool clicked;
 
     auto clock = Clock.newClock(glfwGetTime());
     auto keyb = Keyboard.newKeyboard(window);
     auto mouse = Mouse.newMouse(window);
     auto cam = new Camera(0, 0, 5, cast(float)WIDTH, cast(float)HEIGHT);
-
-    bool clicked;
 
     // shaders
     auto shaderCache = new ShaderCache();
@@ -88,17 +87,18 @@ void main()
     cubeA.setColor(0.2, 0.3, 0.6);
     cubeA.scale(0.9, 0.9, 0.9);
     auto cubeB = new Model("models\\cube");
-    cubeB.translate(5.0f, 0.0f, 0.0f); // cant be same start location as A else tree will fail
+    cubeB.translate(5.0f, 0.0f, 0.0f); // cant be same start location as cubeA else 'tree will fail
     cubeB.setColor(0.7, 0.7, 0.3);
 
     // collision
     auto gjk = new Gjk(cubeA, cubeB);
-    auto tree = new Tree();
-    auto aID = tree.add(cubeA.computeAABB(), cubeA);
-    auto bID = tree.add(cubeB.computeAABB(), cubeB);
-    tree.valide();
+    // auto tree = new Tree();
+    // auto aID = tree.add(cubeA.computeAABB(), cubeA);
+    // auto bID = tree.add(cubeB.computeAABB(), cubeB);
+    // tree.valide();
 
     // tree.query(cubeA.computeAABB());
+
 
 	while(!glfwWindowShouldClose(window))
     {
@@ -107,11 +107,11 @@ void main()
         glEnable(GL_CULL_FACE);
 
         glClearColor(0.5, 0.5, 0.5, 1.0);
-        
+
         // ---
-        
+
         clock.update(glfwGetTime());
-        
+
         // ---
 
         // cubeA.rotate(toRad(1 * roteSp * clock.dt), Vec3(0.2f, 1.0f, 0.5f));

@@ -158,7 +158,7 @@ class Camera
         pitch = 0.0f;
     }
 
-    public Mat4 matrix()
+    public Mat4 getMatrix()
     {
         auto view =  Mat4.lookAt(position, position.added(front), up);
         auto projection =  Mat4.perspective(fov, screenWidth/screenHeight, nearZ, farZ);

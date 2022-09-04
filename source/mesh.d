@@ -125,20 +125,20 @@ class Mesh
         vbo = Vbo.newVbo();
         vao = Vao.newVao();
         ebo = Ebo.newEbo();
-        
+
         object = new Obj(filePath);
 
-        auto verts = object.getVerts();
+        auto vertex = object.getVertex();
         auto indicies = object.getIndicies();
 
         // setup
         vao.bind();
         vbo.bind();
-    
+
         glBufferData(
             GL_ARRAY_BUFFER,
-            cast(GLsizeiptr)(verts.length * Vertex.sizeof),
-            verts.ptr,
+            cast(GLsizeiptr)(vertex.length * Vertex.sizeof),
+            vertex.ptr,
             GL_STATIC_DRAW
         );
 
