@@ -74,12 +74,14 @@ struct Vec4
     {
         assert(arr.length == 4);
 
+        const X = 0, Y = 1, Z = 2, W = 3;
+        
         Vec4 result;
 
-        result.x = arr[0];
-        result.y = arr[1];
-        result.z = arr[2];
-        result.w = arr[3];
+        result.x = arr[X];
+        result.y = arr[Y];
+        result.z = arr[Z];
+        result.w = arr[W];
 
         return result;
     }
@@ -358,12 +360,14 @@ struct Vec4
 
     float[4] toArray()
     {
+        const X = 0, Y = 1, Z = 2, W = 3;
+        
         float[4] result;
 
-        result[0] = x;
-        result[1] = y;
-        result[2] = z;
-        result[3] = w;
+        result[X] = x;
+        result[Y] = y;
+        result[Z] = z;
+        result[W] = w;
         
         return result;
     }

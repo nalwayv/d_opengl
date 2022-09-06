@@ -67,17 +67,19 @@ struct Vec3
     static Vec3 fromArray(float[] arr)
     {
         assert(arr.length == 3);
+        
+        const X = 0, Y = 1, Z = 2;
 
         Vec3 result;
 
-        result.x = arr[0];
-        result.y = arr[1];
-        result.z = arr[2];
+        result.x = arr[X];
+        result.y = arr[Y];
+        result.z = arr[Z];
 
         return result;
     }
 
-    /// create a vec3 normal from three points
+    /// create a vec3 normal from three vec3 points
     /// Returns: Vec3
     static Vec3 normalFromPts(Vec3 a, Vec3 b, Vec3 c)
     {
@@ -103,7 +105,7 @@ struct Vec3
         return result;
     }
 
-    /// create a barycenter vec3 from four vec3 pts
+    /// create a barycenter vec3 from four vec3 points
     /// Returns: Vec3
     static Vec3 barycenter(Vec3 a, Vec3 b, Vec3 c, Vec3 d)
     {
@@ -381,6 +383,13 @@ struct Vec3
         return result;
     }
 
+    /// returns a triple cross between 'this,'b and 'c
+    /// Returns: Vec3
+    Vec3 tripleCross(Vec3 b, Vec3 c)
+    {
+        return this.cross(b).cross(c);
+    }
+
     /// return projection vec3 between 'this and 'other
     /// Returns: Vec3
     Vec3 projection(Vec3 other)
@@ -472,13 +481,16 @@ struct Vec3
         return isOneF(lengthSq());
     }
 
+    /// Returns: float[3]
     float[3] toArray()
     {
+        const X = 0, Y = 1, Z= 2;
+
         float[3] result;
 
-        result[0] = x;
-        result[1] = y;
-        result[2] = z;
+        result[X] = x;
+        result[Y] = y;
+        result[Z] = z;
         
         return result;
     }

@@ -64,10 +64,12 @@ struct Vec2
     {
         assert(arr.length == 2);
 
+        const X = 0, Y = 1;
+
         Vec2 result;
 
-        result.x = arr[0];
-        result.y = arr[1];
+        result.x = arr[X];
+        result.y = arr[Y];
 
         return result;
     }
@@ -296,10 +298,12 @@ struct Vec2
     /// Returns: float[2]
     float[2] toArray()
     {
+        const X = 0, Y = 1;
+
         float[2] result;
 
-        result[0] = x;
-        result[1] = y;
+        result[X] = x;
+        result[Y] = y;
         
         return result;
     }
