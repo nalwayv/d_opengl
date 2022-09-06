@@ -4,6 +4,7 @@ module maths.vec4;
 
 import std.format;
 import maths.utils;
+import maths.vec3;
 
 
 struct Vec4
@@ -320,6 +321,19 @@ struct Vec4
         result.z = z - p.z;
         result.w = w - p.w;
         
+        return result;
+    }
+
+    /// return the xyz components of 'this vec4 as a vec3
+    /// Returns: Vec3
+    Vec3 xyz()
+    {
+        Vec3 result;
+
+        result.x = x;
+        result.y = y;
+        result.z = z;
+
         return result;
     }
 

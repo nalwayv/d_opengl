@@ -3,10 +3,27 @@ module collision.narrow.gjk;
 
 // TODO()
 import collision.narrow.imeshcollider;
+import maths.utils;
 import maths.vec3;
 
-enum float GJK_OPTIMAL = 0.001f;
+
+enum float EPA_OPTIMAL = 0.001f;
 enum int GJK_ITERATIONS = 30;
+enum : int
+{
+    A = 0,
+    B = 1,
+    C = 2,
+    D = 3,
+}
+
+
+private struct EdgedData
+{
+    Vec3 normal;
+    float distance;
+    size_t idx;
+}
 
 
 class Gjk
@@ -36,6 +53,8 @@ class Gjk
         mcB = b;
     }
     
+    // --- helpers
+
     /// return support pt
     /// Returns: Vec3
     private Vec3 getSupport()
@@ -44,6 +63,56 @@ class Gjk
         auto b = mcB.furthestPt(direction.negated());
 
         return a.subbed(b);
+    }
+
+
+    /// find nearest edge
+    private EdgedData nearestEdge()
+    {
+        assert(simplex.length == 4);
+
+        auto distance = MAXFLOAT;
+        size_t idx = 0;
+        Vec3 normal;
+
+        for(auto i = 0; i < simplex.length; i++)
+        {
+            size_t j = (i+1) % simplex.length;
+            Vec3 a = simplex[i];
+            Vec3 b = simplex[j];
+            
+            auto edge = b.subbed(a);
+            if(isZeroF(edge.lengthSq()))
+            {
+                continue;
+            }
+
+            auto n = Vec3.normalFromPts(edge, a, edge);
+
+            if(isZeroF(n.lengthSq()))
+            {
+                n.y = -edge.x;
+                n.x = n.y;
+
+                auto center = Vec3.barycenter(simplex[D], simplex[C], simplex[B], simplex[A]);
+                auto ac = a.subbed(center);
+                if(n.dot(ac) < 0.0f)
+                {
+                    n.y = -n.y;
+                    n.x = -n.x;
+                }
+            }
+
+            auto d = absF(n.dot(a));
+            if(d < distance)
+            {
+                distance = d;
+                idx = j;
+                normal = n;
+            }
+        }
+
+        return EdgedData(normal, distance, idx);
     }
 
     /// return a triple cross product between 'a,'b and 'c
@@ -60,11 +129,14 @@ class Gjk
         return a.dot(b) > 0.0f;
     }
 
+    
     /// push a vec3 into simplex while its length is still under 4
     public void push(Vec3 v3)
     {
         simplex ~= v3;
     }
+
+    /// --- simplex
 
     /// check line if length is 2
     /// Returns: bool
@@ -75,8 +147,8 @@ class Gjk
             return false;
         }
 
-        auto a = simplex[1];
-        auto b = simplex[0];
+        auto a = simplex[B];
+        auto b = simplex[A];
 
         auto ab = b.subbed(a);
         auto an = a.negated();        
@@ -103,9 +175,9 @@ class Gjk
             return false;
         }
 
-        auto a = simplex[2];
-        auto b = simplex[1];
-        auto c = simplex[0];
+        auto a = simplex[C];
+        auto b = simplex[B];
+        auto c = simplex[A];
 
         auto ab = b.subbed(a);
         auto ac = c.subbed(a);
@@ -159,10 +231,10 @@ class Gjk
             return false;
         }
 
-        auto a = simplex[3];
-        auto b = simplex[2];
-        auto c = simplex[1];
-        auto d = simplex[0];
+        auto a = simplex[D];
+        auto b = simplex[C];
+        auto c = simplex[B];
+        auto d = simplex[A];
 
         auto ab = b.subbed(a);
         auto ac = c.subbed(a);
@@ -215,6 +287,8 @@ class Gjk
 
         return false;
     }
+    
+    /// --- gjk check
 
     /// check for a collision between two shapes
     /// Returns: bool
@@ -242,10 +316,20 @@ class Gjk
 
             if(evolve())
             {
+                // epa();
+                auto edge = nearestEdge();
+                
+                import std.stdio: writeln;
+
+                writeln(edge.distance);
+                writeln(edge.idx);
+                writeln(edge.normal);
                 return true;
             }
         }
 
         return false;
     }
+    
+    // --- epa
 }   
