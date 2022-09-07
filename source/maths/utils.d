@@ -96,7 +96,7 @@ float minF(float x, float y)
 }
 
 /// return min int value between 'x and 'y
-float minI(int x, int y)
+int minI(int x, int y)
 {
     return (x < y) ? x : y;
 }
