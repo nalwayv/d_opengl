@@ -35,8 +35,8 @@ struct Ray
     /// Returns: float
     float castAABB(AABB ab)
     {
-        auto pmin = ab.min();
-        auto pmax = ab.max();
+        Vec3 pmin = ab.min();
+        Vec3 pmax = ab.max();
 
         auto tmin = 0.0f;
         auto tmax = MAXFLOAT;
@@ -92,7 +92,7 @@ struct Ray
     /// Returns: float
     float castSphere(Sphere sph)
     {
-        auto a = origin.subbed(sph.origin);
+        Vec3 a = origin.subbed(sph.origin);
         auto b = a.dot(direction);
         auto c = a.lengthSq() - sqrF(sph.radius);
 

@@ -7,6 +7,7 @@ import maths.vec3;
 import maths.mat4;
 import geometry.aabb;
 import collision.narrow.imeshcollider;
+import utils.obj;
 import mesh;
 import color;
 import transform;
@@ -37,14 +38,14 @@ class Model : IMeshCollider
         return transform.position;
     }
 
-    public void setPosition(float x, float y, float z)
-    {
-        transform.setPosition(x, y, z);
-    }
-
     public void translate(float x, float y, float z)
     {
         transform.translate(x, y, z);
+    }
+
+    public void translate(Vec3 by)
+    {
+        transform.translate(by.x, by.y, by.z);
     }
 
     public void rotate(float rad, Vec3 axis)
@@ -55,12 +56,6 @@ class Model : IMeshCollider
     public void scale(float x, float y, float z)
     {
         transform.scale(x, y, z);
-    }
-
-    public void resetTransform()
-    {
-        auto p = transform.position;
-        transform.reset(p.x, p.y, p.z);
     }
 
     /// set color between 0.0f..1.0f
@@ -132,8 +127,8 @@ class Model : IMeshCollider
 
         Vec3 result;
 
-        auto m4 = transform.getMatrix();
-        auto obj = mesh.getObj();
+        Mat4 m4 = transform.getMatrix();
+        Obj obj = mesh.getObj();
 
         foreach(ref vertex; obj.getVertex())
         {
@@ -161,7 +156,7 @@ class Model : IMeshCollider
         Vec3 pMin = Vec3(MAXFLOAT, MAXFLOAT, MAXFLOAT);
         Vec3 pMax = Vec3(MINFLOAT, MINFLOAT, MINFLOAT);
 
-        auto obj = mesh.getObj();
+        Obj obj = mesh.getObj();
         foreach(ref vertex; obj.getVertex())
         {
             if(vertex.vert[x] < pMin.x) 
@@ -190,8 +185,8 @@ class Model : IMeshCollider
             }
         }
 
-        auto ab = AABB.fromMinMax(pMin, pMax);
-        auto m4 = transform.getMatrix();
+        AABB ab = AABB.fromMinMax(pMin, pMax);
+        Mat4 m4 = transform.getMatrix();
         ab = ab.transformed(m4);
 
         AABB result;

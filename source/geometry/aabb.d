@@ -37,8 +37,8 @@ struct AABB
     /// Returns: AABB
     static AABB fromMinMax(Vec3 pMin, Vec3 pMax)
     {
-        auto p1 = pMin.added(pMax).scaled(0.5);
-        auto p2 = pMin.subbed(pMax).scaled(0.5);
+        Vec3 p1 = pMin.added(pMax).scaled(0.5);
+        Vec3 p2 = pMin.subbed(pMax).scaled(0.5);
 
         AABB result;
 
@@ -57,8 +57,8 @@ struct AABB
     /// Returns: AABB
     static AABB fromCombined(AABB a, AABB b)
     {
-        auto pMin = Vec3.fromMin(a.min(), b.min());
-        auto pMax = Vec3.fromMax(a.max(), b.max());
+        Vec3 pMin = Vec3.fromMin(a.min(), b.min());
+        Vec3 pMax = Vec3.fromMax(a.max(), b.max());
 
         return AABB.fromMinMax(pMin, pMax);
     }
@@ -67,12 +67,12 @@ struct AABB
     /// Returns: AABB
     static AABB fromArray(const Vec3* arr, int length)
     {
-        auto pMin = Vec3(MAXFLOAT, MAXFLOAT, MAXFLOAT);
-        auto pMax = Vec3(MINFLOAT, MINFLOAT, MINFLOAT);
+        Vec3 pMin = Vec3(MAXFLOAT, MAXFLOAT, MAXFLOAT);
+        Vec3 pMax = Vec3(MINFLOAT, MINFLOAT, MINFLOAT);
     
         for(int i = 0; i < length; i++)
         {
-            auto v3 = arr[i];
+            Vec3 v3 = arr[i];
             
             if(v3.x < pMin.x)
             {
@@ -109,8 +109,8 @@ struct AABB
     /// Returns: Vec3
     Vec3 min()
     {
-        auto p1 = origin.added(extents);
-        auto p2 = origin.subbed(extents);
+        Vec3 p1 = origin.added(extents);
+        Vec3 p2 = origin.subbed(extents);
 
         return Vec3.fromMin(p1, p2);
     }
@@ -119,8 +119,8 @@ struct AABB
     /// Returns: Vec3
     Vec3 max()
     {
-        auto p1 = origin.added(extents);
-        auto p2 = origin.subbed(extents);
+        Vec3 p1 = origin.added(extents);
+        Vec3 p2 = origin.subbed(extents);
 
         return Vec3.fromMax(p1, p2);
     }
@@ -129,8 +129,8 @@ struct AABB
     /// Returns: Vec3
     Vec3 closestPt(Vec3 pt)
     {
-        auto pMin = min();
-        auto pMax = max();
+        Vec3 pMin = min();
+        Vec3 pMax = max();
 
         float x, y, z;
 
@@ -154,8 +154,8 @@ struct AABB
     /// Returns: Vec3[8]
     Vec3[8] corners()
     {
-        auto p1 = min();
-        auto p2 = max();
+        Vec3 p1 = min();
+        Vec3 p2 = max();
 
         Vec3[8] result;
 
@@ -174,8 +174,8 @@ struct AABB
     /// Returns: AABB
     AABB combined(AABB other)
     {
-        auto p1 = Vec3.fromMin(min(), other.min());
-        auto p2 = Vec3.fromMax(max(), other.max());
+        Vec3 p1 = Vec3.fromMin(min(), other.min());
+        Vec3 p2 = Vec3.fromMax(max(), other.max());
 
         return AABB.fromMinMax(p1, p2);
     }
@@ -184,9 +184,9 @@ struct AABB
     /// Returns: AABB
     AABB expanded(float by)
     {
-        auto v3 = Vec3(by, by, by);
-        auto p1 = min().subbed(v3);
-        auto p2 = max().added(v3);
+        Vec3 v3 = Vec3(by, by, by);
+        Vec3 p1 = min().subbed(v3);
+        Vec3 p2 = max().added(v3);
 
         return AABB.fromMinMax(p1, p2);
     }
@@ -195,8 +195,8 @@ struct AABB
     /// Returns: AABB
     AABB shifted(Vec3 by)
     {
-        auto p1 = min().added(by);
-        auto p2 = max().added(by);
+        Vec3 p1 = min().added(by);
+        Vec3 p2 = max().added(by);
 
         return AABB.fromMinMax(p1, p2);
     }
@@ -204,7 +204,7 @@ struct AABB
     /// Returns: AABB
     AABB transformed(Mat4 m4)
     {
-        auto m3 = m4.toMat3();
+        Mat3 m3 = m4.toMat3();
 
         AABB result;
 
@@ -218,12 +218,14 @@ struct AABB
     /// Returns: float
     float perimeter()
     {
-        auto pMin = min();
-        auto pMax = max();
-        auto d = pMax.subbed(pMin);
+        Vec3 pMin = min();
+        Vec3 pMax = max();
+        Vec3 d = pMax.subbed(pMin);
+
         auto xy = d.x * d.y;
         auto yz = d.y * d.z;
         auto zx = d.z * d.x;
+
         return 2.0f * (xy + yz + zx);
     }
 
@@ -231,8 +233,8 @@ struct AABB
     /// Returns: float
     float sqDistPt(Vec3 pt)
     {
-        auto pMax = max();
-        auto pMin = min();
+        Vec3 pMax = max();
+        Vec3 pMin = min();
 
         float result = 0.0f;
 
@@ -250,8 +252,8 @@ struct AABB
     /// Returns: bool
     bool isDegenerate()
     {
-        auto p1 = min();
-        auto p2 = max();
+        Vec3 p1 = min();
+        Vec3 p2 = max();
 
         auto cx = isEquilF(p1.x, p2.x);
         auto cy = isEquilF(p1.y, p2.y);

@@ -160,8 +160,8 @@ class Camera
 
     public Mat4 getMatrix()
     {
-        auto view =  Mat4.lookAt(position, position.added(front), up);
-        auto projection =  Mat4.perspective(fov, screenWidth/screenHeight, nearZ, farZ);
+        Mat4 view =  Mat4.lookAt(position, position.added(front), up);
+        Mat4 projection =  Mat4.perspective(fov, screenWidth/screenHeight, nearZ, farZ);
 
         return view.multiplied(projection);
     }

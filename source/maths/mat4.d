@@ -650,14 +650,14 @@ struct Mat4
     /// Returns: Mat4
     Mat4 multiplied(Mat4 other)
     {
-        auto r0 = row0();
-        auto r1 = row1();
-        auto r2 = row2();
-        auto r3 = row3();
-        auto c0 = other.col0();
-        auto c1 = other.col1();
-        auto c2 = other.col2();
-        auto c3 = other.col3();
+        Vec4 r0 = row0();
+        Vec4 r1 = row1();
+        Vec4 r2 = row2();
+        Vec4 r3 = row3();
+        Vec4 c0 = other.col0();
+        Vec4 c1 = other.col1();
+        Vec4 c2 = other.col2();
+        Vec4 c3 = other.col3();
 
         Mat4 result;
 

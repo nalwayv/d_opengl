@@ -118,6 +118,13 @@ void main()
         cubeA.render(shaderCache, cam);
         cubeB.render(shaderCache, cam);
 
+        if(gjk.check())
+        {
+            auto data = gjk.getContactData();
+            auto by = data.normal.scaled(data.depth);
+            cubeA.translate(by);
+        }
+
         if(keyb.keyState(GLFW_KEY_UP) == KEY_HELD) 
         {
             cubeA.translate(0.0, 1.0 * moveSp * clock.dt, 0.0);
@@ -146,15 +153,6 @@ void main()
 
         if(keyb.keyState(GLFW_KEY_G) == KEY_PRESSED)
         {
-            // if(tree.move(cubeA.computeAABB(), aID))
-            // {
-            //     writeln("moved");
-            // }
-
-            if(gjk.check())
-            {
-                writeln("ok");
-            }
         }
 
         // ---
@@ -192,8 +190,6 @@ void main()
         if(keyb.keyState(GLFW_KEY_R) == KEY_PRESSED)
         {
             cam.reset();
-            cubeA.resetTransform();
-            cubeB.resetTransform();
         }
 
         if(mouse.buttonState(GLFW_MOUSE_BUTTON_LEFT) == BUTTON_HELD)

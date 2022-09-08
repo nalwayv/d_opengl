@@ -33,7 +33,7 @@ struct Sphere
     /// Returns: Vec3
     Vec3 closestPt(Vec3 pt)
     {
-        auto p = pt.subbed(origin);
+        Vec3 p = pt.subbed(origin);
         if(!p.isNormal())
         {
             p = p.normalized();
@@ -71,7 +71,7 @@ struct Sphere
             direction = direction.normalized();
         }
 
-        auto c = m4.transform(origin);
+        Vec3 c = m4.transform(origin);
 
         Vec3 result;
 
@@ -85,8 +85,8 @@ struct Sphere
     /// Returns: AABB
     AABB computeAABB()
     {
-        auto pMin = Vec3(origin.x - radius, origin.y - radius, origin.z - radius);
-        auto pMax = Vec3(origin.x + radius, origin.y + radius, origin.z + radius);
+        Vec3 pMin = Vec3(origin.x - radius, origin.y - radius, origin.z - radius);
+        Vec3 pMax = Vec3(origin.x + radius, origin.y + radius, origin.z + radius);
 
         return AABB.fromMinMax(pMin, pMax);
     }

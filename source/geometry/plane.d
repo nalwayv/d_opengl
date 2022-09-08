@@ -32,9 +32,9 @@ struct Plane
     /// Returns: Plane
     static Plane fromPts(Vec3 a, Vec3 b, Vec3 c)
     {
-        auto ab = b.subbed(a);
-        auto ac = c.subbed(a);
-        auto abc = ab.cross(ac);
+        Vec3 ab = b.subbed(a);
+        Vec3 ac = c.subbed(a);
+        Vec3 abc = ab.cross(ac);
 
         if(!abc.isNormal())
         {
@@ -89,7 +89,7 @@ struct Plane
     Vec3 closestPt(Vec3 pt)
     {
         auto t = (normal.dot(pt) - d) / normal.lengthSq();
-        auto cpt = pt.subbed(normal.scaled(t));
+        Vec3 cpt = pt.subbed(normal.scaled(t));
 
         Vec3 result;
 
@@ -154,7 +154,7 @@ struct Plane
     Plane transformed(Mat4 m4)
     {
         Mat4 im4 = m4.inverse().transposed();
-        auto v4 = Vec4(normal.x, normal.y, normal.z, d);
+        Vec4 v4 = Vec4(normal.x, normal.y, normal.z, d);
         v4 = im4.transform(v4);
 
         Plane result;

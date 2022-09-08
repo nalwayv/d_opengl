@@ -14,71 +14,113 @@ enum int GJK_ITERATIONS = 30;
 enum int EPA_ITERATIONS = 30;
 
 
-private struct SupportPt
+struct ContactData
 {
-    Vec3 pt;
-    Vec3 a;
-    Vec3 b;
+    Vec3 point;
+    Vec3 normal;
+    float depth;
+
+    static ContactData newContactData()
+    {
+        ContactData result;
+
+        result.point = Vec3(0.0f, 0.0f, 0.0f);
+        result.normal = Vec3(0.0f, 0.0f, 0.0f); 
+        result.depth = 0.0f;
+
+        return result;
+    }
+
+    void reset()
+    {
+        point = Vec3(0.0f, 0.0f, 0.0f);
+        normal = Vec3(0.0f, 0.0f, 0.0f); 
+        depth = 0.0f;
+    }
 }
 
 
-private struct ContactData
+private struct SupportPt
 {
-    Vec3 p;
-    Vec3 n;
-    float d;
-    bool valid;
+    Vec3 pt;
+    Vec3 spA;
+    Vec3 spB;
+
+    static SupportPt newSupportPt(Vec3 pt)
+    {
+        SupportPt result;
+
+        result.pt = pt;
+        result.spA = Vec3(0.0f, 0.0f, 0.0f);
+        result.spB = Vec3(0.0f, 0.0f, 0.0f);
+
+        return result;
+    }
+
+    Vec3 subbedPt(SupportPt other)
+    {
+        return pt.subbed(other.pt);
+    }
+
+    Vec3 negatedPt()
+    {
+        return pt.negated();
+    }
+
+    bool isEquilPt(SupportPt other)
+    {
+        return pt.isEquil(other.pt);
+    }
 }
 
 
 private struct Edge
 {
-    Vec3 a;
-    Vec3 b;
+    SupportPt a;
+    SupportPt b;
 
+    /// check for equality between edges support points
+    /// Returns: bool
     bool isEquil(Edge other)
     {
-        return a.isEquil(other.a) && b.isEquil(other.b);
+        return a.isEquilPt(other.a) && b.isEquilPt(other.b);
     }
 }
 
 
 private struct Triangle
 {
-    Vec3 a;
-    Vec3 b;
-    Vec3 c;
+    SupportPt a;
+    SupportPt b;
+    SupportPt c;
 
+    /// return tri normal
     /// Returns: Vec3
     Vec3 n()
     {
-        auto ab = b.subbed(a);
-        auto ac = c.subbed(a);
+        auto ab = b.subbedPt(a);
+        auto ac = c.subbedPt(a);
+        
         auto abc = ab.cross(ac).normalized();
-        return abc;
-    }
 
-    /// Returns: bool
-    bool isEquil(Triangle other)
-    {
-        return a.isEquil(other.a) && b.isEquil(other.b) && c.isEquil(other.c);
+        return abc;
     }
 }
 
 
 private struct Simplex 
 {
-    Vec3[4] pts;
+    SupportPt[4] pts;
     int length;
 
     static Simplex newSimplex()
     {
         Simplex result;
 
-        result.pts[0] = Vec3(0.0f, 0.0f, 0.0f);
-        result.pts[1] = Vec3(0.0f, 0.0f, 0.0f);
-        result.pts[2] = Vec3(0.0f, 0.0f, 0.0f);
-        result.pts[3] = Vec3(0.0f, 0.0f, 0.0f);
+        result.pts[0] = SupportPt.newSupportPt(Vec3.zero());
+        result.pts[1] = SupportPt.newSupportPt(Vec3.zero());
+        result.pts[2] = SupportPt.newSupportPt(Vec3.zero());
+        result.pts[3] = SupportPt.newSupportPt(Vec3.zero());
 
         result.length = 0;
 
@@ -89,25 +131,28 @@ private struct Simplex
     { 
         length = 0; 
     }
-    
-    Vec3 a()
+
+    SupportPt a()
     { 
-        return pts[0]; 
-    }
-    Vec3 b()
-    { 
-        return pts[1]; 
-    }
-    Vec3 c()
-    { 
-        return pts[2]; 
-    }
-    Vec3 d()
-    { 
-        return pts[3]; 
+        return pts[0];
     }
 
-    void set(Vec3 a, Vec3 b, Vec3 c, Vec3 d)
+    SupportPt b()
+    { 
+        return pts[1];
+    }
+
+    SupportPt c()
+    { 
+        return pts[2];
+    }
+
+    SupportPt d()
+    { 
+        return pts[3];
+    }
+
+    void set(SupportPt a, SupportPt b, SupportPt c, SupportPt d)
     {
         length = 4;
 
@@ -117,7 +162,7 @@ private struct Simplex
         pts[3] = d;
     }
 
-    void set(Vec3 a, Vec3 b, Vec3 c)
+    void set(SupportPt a, SupportPt b, SupportPt c)
     {
         length = 3;
 
@@ -126,7 +171,7 @@ private struct Simplex
         pts[2] = c;
     }
 
-    void set(Vec3 a, Vec3 b)
+    void set(SupportPt a, SupportPt b)
     {
         length = 2;
 
@@ -134,14 +179,15 @@ private struct Simplex
         pts[1] = b;
     }
 
-    void set(Vec3 a)
+    void set(SupportPt a)
     {
         length = 1;
 
         pts[0] = a;
     }
 
-    void push(Vec3 p)
+    /// add support point to simplex
+    void push(SupportPt p)
     {
         length = minI(length + 1, 4);
 
@@ -159,6 +205,7 @@ class Gjk
 {
     private 
     {
+        ContactData contactData;
         Simplex simplex;
         Vec3 direction;
         IMeshCollider mcA;
@@ -167,6 +214,7 @@ class Gjk
 
     this(IMeshCollider a, IMeshCollider b)
     {
+        contactData = ContactData.newContactData();
         simplex = Simplex.newSimplex();
         direction = Vec3(1.0f, 0.0f, 0.0f);
         mcA = a;
@@ -183,28 +231,32 @@ class Gjk
         mcB = b;
     }
     
-    // --- helpers
-
-    /// return support pt
-    /// Returns: Vec3
-    private Vec3 getSupport()
+    /// return current contact data stored from last collision
+    /// Returns: ContactData
+    public ContactData getContactData()
     {
-        auto a = mcA.furthestPt(direction);
-        auto b = mcB.furthestPt(direction.negated());
+        return contactData;
+    }
 
-        return a.subbed(b);
-    }    
+    // --- helpers
         
     /// return support pt from direction 'dir
     /// Returns: Vec3
-    private Vec3 getSupport(Vec3 dir)
+    private SupportPt getSupport(Vec3 dir)
     {
         auto a = mcA.furthestPt(dir);
         auto b = mcB.furthestPt(dir.negated());
 
-        return a.subbed(b);
-    }
+        auto ba = a.subbed(b);
 
+        SupportPt result;
+
+        result.pt = ba;
+        result.spA = a;
+        result.spB = b;
+
+        return result;
+    }
 
     /// check for same direction
     /// Returns: bool
@@ -220,7 +272,8 @@ class Gjk
         return a.cross(b).cross(c);
     }
 
-    private void addEdge(Edge[] edges, Vec3 a, Vec3 b)
+    /// add/remove edge data from edges
+    private void addEdge(Edge[] edges, SupportPt a, SupportPt b)
     {
         auto edge = Edge(a, b);
 
@@ -236,6 +289,42 @@ class Gjk
         edges ~= edge;
     }
 
+    /// update contact information
+    /// Returns: bool
+    private bool updateContactData(Triangle tri)
+    {
+        contactData.reset();
+        
+        Vec3 tnormal = tri.n();
+        auto dis = tnormal.dot(tri.a.pt);
+        
+        Vec3 a = tnormal.scaled(dis);
+        Vec3 b = tri.a.pt;
+        Vec3 c = tri.b.pt;
+        Vec3 d = tri.c.pt;
+
+        Vec3 bc = Vec3.barycenter(a, b, c, d);
+
+        if(!isValidF(bc.x) || !isValidF(bc.y) || !isValidF(bc.z))
+        {
+            return false;
+        }
+
+        Vec3 pu = tri.a.spA.scaled(bc.x);
+        Vec3 pv = tri.b.spA.scaled(bc.y);
+        Vec3 pw = tri.c.spA.scaled(bc.z);
+
+        Vec3 point = pu.added(pv).added(pw);
+        Vec3 normal = tnormal.negated();
+        auto depth = dis;
+
+        contactData.point = point;
+        contactData.normal = normal;
+        contactData.depth = depth;
+
+        return true;
+    }
+
     /// --- simplex
 
     /// check line if length is 2
@@ -247,11 +336,11 @@ class Gjk
             return false;
         }
 
-        auto a = simplex.a();
-        auto b = simplex.b();
+        SupportPt a = simplex.a();
+        SupportPt b = simplex.b();
 
-        auto ab = b.subbed(a);
-        auto an = a.negated();        
+        Vec3 ab = b.subbedPt(a);
+        Vec3 an = a.negatedPt();        
         
         if(sameDirection(ab, an))
         {
@@ -259,8 +348,8 @@ class Gjk
         }
         else
         {
-            // simplex = [a];
             simplex.set(a);
+
             direction = an;
         }
 
@@ -276,28 +365,28 @@ class Gjk
             return false;
         }
 
-        auto a = simplex.a();
-        auto b = simplex.b();
-        auto c = simplex.c();
+        SupportPt a = simplex.a();
+        SupportPt b = simplex.b();
+        SupportPt c = simplex.c();
 
-        auto ab = b.subbed(a);
-        auto ac = c.subbed(a);
-        auto an = a.negated();
+        Vec3 ab = b.subbedPt(a);
+        Vec3 ac = c.subbedPt(a);
+        Vec3 an = a.negatedPt();
 
-        auto abc = ab.cross(ac);
+        Vec3 abc = ab.cross(ac);
 
         if(sameDirection(abc.cross(ac), an))
         {
             if(sameDirection(ac, an))
             {
-                // simplex = [c, a];
                 simplex.set(a, c);
+
                 direction = tripleCross(ac, an, ac);
             }
             else
             {
-                // simplex = [b, a];
                 simplex.set(a, b);
+
                 return line();
             }
         }
@@ -305,8 +394,8 @@ class Gjk
         {
             if(sameDirection(ab.cross(abc), an))
             {
-                // simplex = [b, a];
                 simplex.set(a, b);
+
                 return line();
             }
             else
@@ -317,8 +406,8 @@ class Gjk
                 }
                 else
                 {
-                    // simplex = [b, c, a];
                     simplex.set(a, c, b);
+
                     direction = abc.negated();
                 }
             }
@@ -336,38 +425,38 @@ class Gjk
             return false;
         }
 
-        auto a = simplex.a();
-        auto b = simplex.b();
-        auto c = simplex.c();
-        auto d = simplex.d();
+        SupportPt a = simplex.a();
+        SupportPt b = simplex.b();
+        SupportPt c = simplex.c();
+        SupportPt d = simplex.d();
 
-        auto ab = b.subbed(a);
-        auto ac = c.subbed(a);
-        auto ad = d.subbed(a);
-        auto an = a.negated();
+        Vec3 ab = b.subbedPt(a);
+        Vec3 ac = c.subbedPt(a);
+        Vec3 ad = d.subbedPt(a);
+        Vec3 an = a.negatedPt();
 
-        auto abc = ab.cross(ac);
-        auto acd = ac.cross(ad);
-        auto adb = ad.cross(ab);
+        Vec3 abc = ab.cross(ac);
+        Vec3 acd = ac.cross(ad);
+        Vec3 adb = ad.cross(ab);
 
         if(sameDirection(abc, an))
         {
-            // simplex = [c, b, a];
             simplex.set(a, b, c);
+
             return triangle(); 
         }
 
         if(sameDirection(acd, an))
         {
-            // simplex = [d, c, a];
             simplex.set(a, c, d);
+
             return triangle();
         }
 
         if(sameDirection(adb, an))
         {
-            // simplex = [b, d, a];
             simplex.set(a, d, b);
+
             return triangle();
         }
 
@@ -398,44 +487,11 @@ class Gjk
     
     /// --- epa
 
-    private ContactData getContactData(Triangle minTriangle)
-    {
-        ContactData result;
-        
-        auto tn = minTriangle.n();
-        auto dis = tn.dot(minTriangle.a);
-        
-        auto a = tn.scaled(dis);
-        auto b = minTriangle.a;
-        auto c = minTriangle.b;
-        auto d = minTriangle.c;
-
-        auto bc = Vec3.barycenter(a, b, c, d);
-
-        if(!isValidF(bc.x) || !isValidF(bc.y) || !isValidF(bc.z))
-        {
-            result.valid = false;
-            return;
-        }
-
-        if(absF(bc.x) > 1.0f || absF(bc.y) > 1.0f || absF(bc.z) > 1.0f)
-        {
-            result.valid = false;
-            return;
-        }
-
-
-        // auto pt = Vec3(
-
-        // )
-
-
-    }
-
-    private bool tmp()
+    /// collect information bassed on gjk simplex
+    /// Returns: bool
+    private bool epa()
     {
         assert(simplex.length == 4);
-        // import std.stdio : writeln;
         
         Triangle[] tris = [
             Triangle(simplex.a(), simplex.b(), simplex.c()),
@@ -453,10 +509,10 @@ class Gjk
 
             for(auto j = 0; j < tris.length; j++)
             {
-                auto current = tris[j];
-                auto cn = current.n();
+                Triangle current = tris[j];
+                Vec3 cn = current.n();
 
-                auto dis = cn.dot(current.a);
+                auto dis = cn.dot(current.a.pt);
                 if(dis < minDis)
                 {
                     minDis = dis;
@@ -464,15 +520,13 @@ class Gjk
                 }
             }
 
-            auto tn = minTri.n();
-            auto support = getSupport(tn);
-            auto newDis = tn.dot(support);
+            Vec3 tnormal = minTri.n();
+            SupportPt support = getSupport(tnormal);
+            auto newDis = tnormal.dot(support.pt);
 
             if((newDis - minDis) < EPA_OPTIMAL)
             {
-                // writeln("A");
-                getContactData(minTri);
-                return true;
+                return updateContactData(minTri);
             }
 
             auto idx = 0;
@@ -480,9 +534,9 @@ class Gjk
             auto end = tris.ptr + tris.length;
             while(begin != end)
             {
-                auto current = *begin;
-                auto cn = current.n();
-                auto sa = support.subbed(current.a);
+                Triangle current = *begin;
+                Vec3 cn = current.n();
+                Vec3 sa = support.subbedPt(current.a);
 
                 if(sameDirection(cn, sa))
                 {
@@ -491,7 +545,6 @@ class Gjk
                     addEdge(edges, current.c, current.a);
 
                     tris = remove(tris, idx);
-                    // tris = remove!(x => x.isEquil(current))(tris);
 
                     begin = tris.ptr;
                     end = tris.ptr + tris.length;
@@ -504,29 +557,6 @@ class Gjk
                 begin++;
             }
 
-            // auto s = 0;
-            // auto e = tris.length;
-            // while(s != e)
-            // {
-            //     auto current = tris[s];
-            //     auto cn = current.n();
-            //     auto sa = support.subbed(current.a);
-
-            //     if(sameDirection(cn, sa))
-            //     {
-            //         addEdge(edges, current.a, current.b);
-            //         addEdge(edges, current.b, current.c);
-            //         addEdge(edges, current.c, current.a);
-
-            //         tris = remove(tris, s);
-            //         s = 0;
-            //         e = tris.length;
-            //         continue;
-            //     }
-
-            //     s++;
-            // }
-
             for(auto j = 0; j < edges.length; j++)
             {
                 auto current = edges[j];
@@ -536,31 +566,30 @@ class Gjk
             edges = [];
         }
 
-        // writeln("B");
-
         return false;
     }
 
-    /// --- gjk check
+    /// --- gjk
 
     /// check for a collision between two shapes
     /// Returns: bool
     public bool check()
     {
         simplex.clear();
-        direction= Vec3(1.0f, 0.0f, 0.0f);
 
-        auto support = getSupport();
+        direction = Vec3(1.0f, 0.0f, 0.0f);
+
+        SupportPt support = getSupport(direction);
 
         simplex.push(support);
 
-        direction = support.negated();
+        direction = support.pt.negated();
 
         for(auto i = 0; i < GJK_ITERATIONS; i++)
         {
-            support = getSupport();
+            support = getSupport(direction);
 
-            if(support.dot(direction) <= 0.0f)
+            if(support.pt.dot(direction) <= 0.0f)
             {
                 return false;
             }
@@ -569,8 +598,10 @@ class Gjk
 
             if(evolve())
             {
-                tmp();
-                return true;
+                if(epa())
+                {
+                    return true;
+                }
             }
         }
 

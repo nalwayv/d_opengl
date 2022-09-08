@@ -435,12 +435,12 @@ struct Mat3
     /// Returns: Mat3
     Mat3 multiplied(Mat3 other)
     {
-        auto r0 = row0();
-        auto r1 = row1();
-        auto r2 = row2();
-        auto c0 = other.col0();
-        auto c1 = other.col1();
-        auto c2 = other.col2();
+        Vec3 r0 = row0();
+        Vec3 r1 = row1();
+        Vec3 r2 = row2();
+        Vec3 c0 = other.col0();
+        Vec3 c1 = other.col1();
+        Vec3 c2 = other.col2();
 
         Mat3 result;
 

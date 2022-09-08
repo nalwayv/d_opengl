@@ -18,28 +18,18 @@ struct Transform
         Transform result;
 
         result.position = Vec3(x, y, z);
+
         result.basis = Mat3.identity();
 
         return result;
     }
 
-    void setPosition(float x, float y, float z)
-    {
-        position.x = x;
-        position.y = y;
-        position.z = z;
-    }
-
     /// translate along its x, y and z axis
     void translate(float x, float y, float z)
     {
-        Vec3 p;
-        
-        p.x = x;
-        p.y = y;
-        p.z = z;
+        Vec3 p = Vec3(x, y, z);
 
-        auto tr = basis.transform(p);
+        Vec3 tr = basis.transform(p);
 
         position = position.added(tr);
     }
@@ -54,15 +44,6 @@ struct Transform
     void scale(float x, float y, float z)
     {
         basis = basis.scaled(x, y, z);
-    }
-
-    /// reset basis
-    void reset(float x, float y, float z)
-    {
-        position.x = x;
-        position.y = y;
-        position.z = z;
-        basis = Mat3.identity();
     }
 
     /// return mat4 matrix of position, rotation and scale
