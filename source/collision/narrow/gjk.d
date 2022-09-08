@@ -2,6 +2,7 @@
 // TODO()
 module collision.narrow.gjk;
 
+
 import std.algorithm.mutation : remove;
 import collision.narrow.imeshcollider;
 import maths.utils;
@@ -11,12 +12,13 @@ import maths.vec3;
 enum float EPA_OPTIMAL = 0.002f;
 enum int GJK_ITERATIONS = 30;
 enum int EPA_ITERATIONS = 30;
-enum : int
+
+
+private struct SupportPt
 {
-    A = 0,
-    B = 1,
-    C = 2,
-    D = 3,
+    Vec3 pt;
+    Vec3 a;
+    Vec3 b;
 }
 
 
@@ -25,6 +27,7 @@ private struct ContactData
     Vec3 p;
     Vec3 n;
     float d;
+    bool valid;
 }
 
 
@@ -72,10 +75,10 @@ private struct Simplex
     {
         Simplex result;
 
-        result.pts[0] = Vec3.zero();
-        result.pts[1] = Vec3.zero();
-        result.pts[2] = Vec3.zero();
-        result.pts[3] = Vec3.zero();
+        result.pts[0] = Vec3(0.0f, 0.0f, 0.0f);
+        result.pts[1] = Vec3(0.0f, 0.0f, 0.0f);
+        result.pts[2] = Vec3(0.0f, 0.0f, 0.0f);
+        result.pts[3] = Vec3(0.0f, 0.0f, 0.0f);
 
         result.length = 0;
 
@@ -217,6 +220,21 @@ class Gjk
         return a.cross(b).cross(c);
     }
 
+    private void addEdge(Edge[] edges, Vec3 a, Vec3 b)
+    {
+        auto edge = Edge(a, b);
+
+        for (auto i = 0; i < edges.length; i++)
+        {
+            if(edges[i].isEquil(edge))
+            {
+                edges = remove(edges, i);
+                return;
+            }
+        }
+
+        edges ~= edge;
+    }
 
     /// --- simplex
 
@@ -378,62 +396,46 @@ class Gjk
         return false;
     }
     
-    /// --- gjk check
+    /// --- epa
 
-    /// check for a collision between two shapes
-    /// Returns: bool
-    public bool check()
+    private ContactData getContactData(Triangle minTriangle)
     {
-        simplex.clear();
-        direction= Vec3(1.0f, 0.0f, 0.0f);
+        ContactData result;
+        
+        auto tn = minTriangle.n();
+        auto dis = tn.dot(minTriangle.a);
+        
+        auto a = tn.scaled(dis);
+        auto b = minTriangle.a;
+        auto c = minTriangle.b;
+        auto d = minTriangle.c;
 
-        auto support = getSupport();
+        auto bc = Vec3.barycenter(a, b, c, d);
 
-        simplex.push(support);
-
-        direction = support.negated();
-
-        for(auto i = 0; i < GJK_ITERATIONS; i++)
+        if(!isValidF(bc.x) || !isValidF(bc.y) || !isValidF(bc.z))
         {
-            support = getSupport();
-
-            if(support.dot(direction) <= 0.0f)
-            {
-                return false;
-            }
-    
-            simplex.push(support);
-
-            if(evolve())
-            {
-                tmp();
-                return true;
-            }
+            result.valid = false;
+            return;
         }
 
-        return false;
-    }
-
-    private void addEdge(Edge[] edges, Vec3 a, Vec3 b)
-    {
-        auto edge = Edge(a, b);
-
-        for (auto i = 0; i < edges.length; i++)
+        if(absF(bc.x) > 1.0f || absF(bc.y) > 1.0f || absF(bc.z) > 1.0f)
         {
-            if(edges[i].isEquil(edge))
-            {
-                edges = remove(edges, i);
-                return;
-            }
+            result.valid = false;
+            return;
         }
 
-        edges ~= edge;
+
+        // auto pt = Vec3(
+
+        // )
+
+
     }
 
     private bool tmp()
     {
         assert(simplex.length == 4);
-        import std.stdio : writeln;
+        // import std.stdio : writeln;
         
         Triangle[] tris = [
             Triangle(simplex.a(), simplex.b(), simplex.c()),
@@ -468,10 +470,12 @@ class Gjk
 
             if((newDis - minDis) < EPA_OPTIMAL)
             {
-                writeln("A");
+                // writeln("A");
+                getContactData(minTri);
                 return true;
             }
 
+            auto idx = 0;
             auto begin = tris.ptr;
             auto end = tris.ptr + tris.length;
             while(begin != end)
@@ -486,13 +490,17 @@ class Gjk
                     addEdge(edges, current.b, current.c);
                     addEdge(edges, current.c, current.a);
 
-                    tris = remove!(x => x.isEquil(current))(tris);
+                    tris = remove(tris, idx);
+                    // tris = remove!(x => x.isEquil(current))(tris);
 
                     begin = tris.ptr;
                     end = tris.ptr + tris.length;
+                    idx = 0;
+
                     continue;
                 }
 
+                idx++;
                 begin++;
             }
 
@@ -528,7 +536,43 @@ class Gjk
             edges = [];
         }
 
-        writeln("B");
+        // writeln("B");
+
+        return false;
+    }
+
+    /// --- gjk check
+
+    /// check for a collision between two shapes
+    /// Returns: bool
+    public bool check()
+    {
+        simplex.clear();
+        direction= Vec3(1.0f, 0.0f, 0.0f);
+
+        auto support = getSupport();
+
+        simplex.push(support);
+
+        direction = support.negated();
+
+        for(auto i = 0; i < GJK_ITERATIONS; i++)
+        {
+            support = getSupport();
+
+            if(support.dot(direction) <= 0.0f)
+            {
+                return false;
+            }
+    
+            simplex.push(support);
+
+            if(evolve())
+            {
+                tmp();
+                return true;
+            }
+        }
 
         return false;
     }

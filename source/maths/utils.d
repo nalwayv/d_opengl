@@ -59,6 +59,24 @@ float absF(float value) pure
     return abs!float(value);
 }
 
+/// check if float value is INFINITE
+bool isInfiniteF(float value)
+{
+    return isInfinity(value);
+}
+
+/// check if float 'value is NAN
+bool isNanF(float value)
+{
+    return isNaN(value);
+}
+
+/// check if float 'value is valid
+bool isValidF(float value)
+{
+    return !isInfiniteF(value) && !isNanF(value);
+}
+
 /// check if float 'value is zero
 bool isZeroF(float value)
 {
