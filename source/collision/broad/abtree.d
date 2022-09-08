@@ -12,7 +12,6 @@ import geometry.intersection;
 
 alias Stk = Stack!int;
 
-
 enum float EXPAND = 0.1f;
 enum float MULTIPLIER = 4.0f;
 enum size_t TREECAP = 16;
@@ -21,6 +20,8 @@ enum int NULLNODE = -1;
 
 template TreeTemplate( T )
 {
+    alias Callback = void function(T, T);
+
     struct Node
     {
         AABB aabb;
@@ -549,10 +550,15 @@ template TreeTemplate( T )
 
         /// TODO() ...
         /// query tree
-        public void query(AABB ab)
+        public void query(int nodeID, Callback fn)
         {
+            assert(nodeID >= 0 && nodeID < cap);
+            assert(nodes[nodeID].isLeaf());
+
             auto stk = new Stk();
             stk.push(root);
+
+            auto ab = nodes[nodeID].aabb;
 
             while(!stk.isEmpty())
             {
@@ -566,7 +572,8 @@ template TreeTemplate( T )
                 {
                     if(currentNode.isLeaf())
                     {
-
+                        fn(nodes[nodeID].data, currentNode.data);
+                        return;
                     }
                     else
                     {

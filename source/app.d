@@ -5,8 +5,8 @@ import bindbc.glfw;
 import maths.utils;
 import maths.mat4;
 import maths.vec3;
-import collision.broad.abtree;
 import collision.narrow.gjk;
+import collision.broad.abtree;
 import model;
 import clock;
 import keyboard;
@@ -91,13 +91,11 @@ void main()
     cubeB.setColor(0.7, 0.7, 0.3);
 
     // collision
-    auto gjk = new Gjk(cubeA, cubeB);
-    // auto tree = new Tree();
-    // auto aID = tree.add(cubeA.computeAABB(), cubeA);
-    // auto bID = tree.add(cubeB.computeAABB(), cubeB);
-    // tree.valide();
+    auto tree = new Tree();
+    auto cubeAID = tree.add(cubeA.computeAABB(), cubeA);
+    auto cubeBID = tree.add(cubeB.computeAABB(), cubeB);
 
-    // tree.query(cubeA.computeAABB());
+    tree.valide();
 
 
 	while(!glfwWindowShouldClose(window))
@@ -114,16 +112,22 @@ void main()
 
         // ---
 
-        // cubeA.rotate(toRad(1 * roteSp * clock.dt), Vec3(0.2f, 1.0f, 0.5f));
+        // cubeA.rotate(toRad(1 * 15.0f * clock.dt), Vec3(0.2f, 1.0f, 0.5f));
         cubeA.render(shaderCache, cam);
         cubeB.render(shaderCache, cam);
 
-        if(gjk.check())
-        {
-            auto data = gjk.getContactData();
-            auto by = data.normal.scaled(data.depth);
-            cubeA.translate(by);
-        }
+        // TODO()...
+        tree.move(cubeA.computeAABB(), cubeAID);
+
+        tree.query(cubeAID, (Model a, Model b) {
+            auto gjk = new Gjk(a, b);
+            if(gjk.check())
+            {
+                auto data = gjk.getContactData();
+                Vec3 by = data.normal.scaled(data.depth);
+                a.translate(by);
+            }
+        });
 
         if(keyb.keyState(GLFW_KEY_UP) == KEY_HELD) 
         {
