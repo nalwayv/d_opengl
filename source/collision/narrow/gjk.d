@@ -6,38 +6,13 @@ module collision.narrow.gjk;
 import std.algorithm.mutation : remove;
 import collision.narrow.imeshcollider;
 import maths.utils;
+import maths.vec4;
 import maths.vec3;
 
 
 enum float EPA_OPTIMAL = 0.002f;
 enum int GJK_ITERATIONS = 30;
 enum int EPA_ITERATIONS = 30;
-
-
-struct ContactData
-{
-    Vec3 point;
-    Vec3 normal;
-    float depth;
-
-    static ContactData newContactData()
-    {
-        ContactData result;
-
-        result.point = Vec3(0.0f, 0.0f, 0.0f);
-        result.normal = Vec3(0.0f, 0.0f, 0.0f); 
-        result.depth = 0.0f;
-
-        return result;
-    }
-
-    void reset()
-    {
-        point = Vec3(0.0f, 0.0f, 0.0f);
-        normal = Vec3(0.0f, 0.0f, 0.0f); 
-        depth = 0.0f;
-    }
-}
 
 
 private struct SupportPt
@@ -201,20 +176,206 @@ private struct Simplex
 }
 
 
+struct CollisionData
+{
+    Vec3 normal;
+    Vec3 point;
+    float depth;
+}
+
+
+private class Epa
+{
+    private
+    {
+        CollisionData collisionData;
+        IMeshCollider mcA;
+        IMeshCollider mcB;
+        Simplex simplex;
+    }
+
+    this(IMeshCollider a, IMeshCollider b, Simplex simplex)
+    {
+        mcA = a;
+        mcB = b;
+        this.simplex = simplex;
+    }
+
+    public CollisionData getCollisionData()
+    {
+        return collisionData;
+    }
+
+    private SupportPt getSupport(Vec3 dir)
+    {
+        auto a = mcA.furthestPt(dir);
+        auto b = mcB.furthestPt(dir.negated());
+
+        auto ba = a.subbed(b);
+
+        SupportPt result;
+
+        result.pt = ba;
+        result.spA = a;
+        result.spB = b;
+
+        return result;
+    }
+
+    /// check for same direction
+    /// Returns: bool
+    private bool sameDirection(Vec3 a, Vec3 b)
+    {
+        return a.dot(b) > 0.0f;
+    }
+
+    /// add/remove edge data from edges
+    private void addEdge(Edge[] edges, SupportPt a, SupportPt b)
+    {
+        auto edge = Edge(a, b);
+
+        for (auto i = 0; i < edges.length; i++)
+        {
+            if(edges[i].isEquil(edge))
+            {
+                edges = remove(edges, i);
+                return;
+            }
+        }
+
+        edges ~= edge;
+    }
+
+    /// update contact information
+    /// Returns: bool
+    private bool updateContactData(Triangle tri)
+    {
+        Vec3 tnormal = tri.n();
+        auto dis = tnormal.dot(tri.a.pt);
+        
+        Vec3 a = tnormal.scaled(dis);
+        Vec3 b = tri.a.pt;
+        Vec3 c = tri.b.pt;
+        Vec3 d = tri.c.pt;
+
+        Vec3 bc = Vec3.barycenter(a, b, c, d);
+
+        if(!isValidF(bc.x) || !isValidF(bc.y) || !isValidF(bc.z))
+        {
+            return false;
+        }
+
+        Vec3 pu = tri.a.spA.scaled(bc.x);
+        Vec3 pv = tri.b.spA.scaled(bc.y);
+        Vec3 pw = tri.c.spA.scaled(bc.z);
+
+        Vec3 point = pu.added(pv).added(pw);
+        Vec3 normal = tnormal.negated();
+        auto depth = dis;
+
+        collisionData.normal = normal;
+        collisionData.point = point;
+        collisionData.depth = depth + 0.001f;
+
+        return true;
+    }
+
+    /// collect information bassed on gjk simplex
+    /// Returns: bool
+    private bool check()
+    {
+        assert(simplex.length == 4);
+        
+        Triangle[] tris = [
+            Triangle(simplex.a(), simplex.b(), simplex.c()),
+            Triangle(simplex.a(), simplex.c(), simplex.d()),
+            Triangle(simplex.a(), simplex.d(), simplex.b()),
+            Triangle(simplex.b(), simplex.d(), simplex.c()),
+        ];
+
+        Edge[] edges;
+
+        for(auto i = 0; i < EPA_ITERATIONS; i++)
+        {
+            auto minDis = MAXFLOAT;
+            Triangle minTri;
+
+            for(auto j = 0; j < tris.length; j++)
+            {
+                Triangle current = tris[j];
+
+                auto dis = current.n().dot(current.a.pt);
+                if(dis < minDis)
+                {
+                    minDis = dis;
+                    minTri = current;
+                }
+            }
+
+            Vec3 tnormal = minTri.n();
+            SupportPt support = getSupport(tnormal);
+            auto newDis = tnormal.dot(support.pt);
+
+            if((newDis - minDis) < EPA_OPTIMAL)
+            {
+                return updateContactData(minTri);
+            }
+
+            auto idx = 0;
+            auto begin = tris.ptr;
+            auto end = tris.ptr + tris.length;
+            while(begin != end)
+            {
+                Triangle current = *begin;
+                Vec3 cn = current.n();
+                Vec3 sa = support.subbedPt(current.a);
+
+                if(sameDirection(cn, sa))
+                {
+                    addEdge(edges, current.a, current.b);
+                    addEdge(edges, current.b, current.c);
+                    addEdge(edges, current.c, current.a);
+
+                    tris = remove(tris, idx);
+
+                    begin = tris.ptr;
+                    end = tris.ptr + tris.length;
+                    idx = 0;
+
+                    continue;
+                }
+
+                idx++;
+                begin++;
+            }
+
+            for(auto j = 0; j < edges.length; j++)
+            {
+                auto current = edges[j];
+                tris ~= Triangle(support, current.a, current.b);
+            }
+
+            edges = [];
+        }
+
+        return false;
+    }
+}
+
+
 class Gjk
 {
     private 
     {
-        ContactData contactData;
         Simplex simplex;
         Vec3 direction;
+        CollisionData collisionData;
         IMeshCollider mcA;
         IMeshCollider mcB;
     }
 
     this(IMeshCollider a, IMeshCollider b)
     {
-        contactData = ContactData.newContactData();
         simplex = Simplex.newSimplex();
         direction = Vec3(1.0f, 0.0f, 0.0f);
         mcA = a;
@@ -230,12 +391,10 @@ class Gjk
     {
         mcB = b;
     }
-    
-    /// return current contact data stored from last collision
-    /// Returns: ContactData
-    public ContactData getContactData()
+
+    public CollisionData getCollisionData()
     {
-        return contactData;
+        return collisionData;
     }
 
     // --- helpers
@@ -270,59 +429,6 @@ class Gjk
     public Vec3 tripleCross(Vec3 a, Vec3 b, Vec3 c)
     {
         return a.cross(b).cross(c);
-    }
-
-    /// add/remove edge data from edges
-    private void addEdge(Edge[] edges, SupportPt a, SupportPt b)
-    {
-        auto edge = Edge(a, b);
-
-        for (auto i = 0; i < edges.length; i++)
-        {
-            if(edges[i].isEquil(edge))
-            {
-                edges = remove(edges, i);
-                return;
-            }
-        }
-
-        edges ~= edge;
-    }
-
-    /// update contact information
-    /// Returns: bool
-    private bool updateContactData(Triangle tri)
-    {
-        contactData.reset();
-        
-        Vec3 tnormal = tri.n();
-        auto dis = tnormal.dot(tri.a.pt);
-        
-        Vec3 a = tnormal.scaled(dis);
-        Vec3 b = tri.a.pt;
-        Vec3 c = tri.b.pt;
-        Vec3 d = tri.c.pt;
-
-        Vec3 bc = Vec3.barycenter(a, b, c, d);
-
-        if(!isValidF(bc.x) || !isValidF(bc.y) || !isValidF(bc.z))
-        {
-            return false;
-        }
-
-        Vec3 pu = tri.a.spA.scaled(bc.x);
-        Vec3 pv = tri.b.spA.scaled(bc.y);
-        Vec3 pw = tri.c.spA.scaled(bc.z);
-
-        Vec3 point = pu.added(pv).added(pw);
-        Vec3 normal = tnormal.negated();
-        auto depth = dis;
-
-        contactData.point = point;
-        contactData.normal = normal;
-        contactData.depth = depth;
-
-        return true;
     }
 
     /// --- simplex
@@ -484,90 +590,6 @@ class Gjk
 
         return false;
     }
-    
-    /// --- epa
-
-    /// collect information bassed on gjk simplex
-    /// Returns: bool
-    private bool epa()
-    {
-        assert(simplex.length == 4);
-        
-        Triangle[] tris = [
-            Triangle(simplex.a(), simplex.b(), simplex.c()),
-            Triangle(simplex.a(), simplex.c(), simplex.d()),
-            Triangle(simplex.a(), simplex.d(), simplex.b()),
-            Triangle(simplex.b(), simplex.d(), simplex.c()),
-        ];
-
-        Edge[] edges;
-
-        for(auto i = 0; i < EPA_ITERATIONS; i++)
-        {
-            auto minDis = MAXFLOAT;
-            Triangle minTri;
-
-            for(auto j = 0; j < tris.length; j++)
-            {
-                Triangle current = tris[j];
-                Vec3 cn = current.n();
-
-                auto dis = cn.dot(current.a.pt);
-                if(dis < minDis)
-                {
-                    minDis = dis;
-                    minTri = current;
-                }
-            }
-
-            Vec3 tnormal = minTri.n();
-            SupportPt support = getSupport(tnormal);
-            auto newDis = tnormal.dot(support.pt);
-
-            if((newDis - minDis) < EPA_OPTIMAL)
-            {
-                return updateContactData(minTri);
-            }
-
-            auto idx = 0;
-            auto begin = tris.ptr;
-            auto end = tris.ptr + tris.length;
-            while(begin != end)
-            {
-                Triangle current = *begin;
-                Vec3 cn = current.n();
-                Vec3 sa = support.subbedPt(current.a);
-
-                if(sameDirection(cn, sa))
-                {
-                    addEdge(edges, current.a, current.b);
-                    addEdge(edges, current.b, current.c);
-                    addEdge(edges, current.c, current.a);
-
-                    tris = remove(tris, idx);
-
-                    begin = tris.ptr;
-                    end = tris.ptr + tris.length;
-                    idx = 0;
-
-                    continue;
-                }
-
-                idx++;
-                begin++;
-            }
-
-            for(auto j = 0; j < edges.length; j++)
-            {
-                auto current = edges[j];
-                tris ~= Triangle(support, current.a, current.b);
-            }
-
-            edges = [];
-        }
-
-        return false;
-    }
 
     /// --- gjk
 
@@ -598,8 +620,10 @@ class Gjk
 
             if(evolve())
             {
-                if(epa())
+                Epa epa = new Epa(mcA, mcB, simplex);
+                if(epa.check())
                 {
+                    collisionData = epa.getCollisionData();
                     return true;
                 }
             }
@@ -607,4 +631,4 @@ class Gjk
 
         return false;
     }
-}   
+}

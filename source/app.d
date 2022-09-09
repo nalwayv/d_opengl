@@ -89,13 +89,14 @@ void main()
     auto cubeB = new Model("models\\cube");
     cubeB.translate(5.0f, 0.0f, 0.0f); // cant be same start location as cubeA else 'tree will fail
     cubeB.setColor(0.7, 0.7, 0.3);
+    
+    auto gjk = new Gjk(cubeA, cubeB);
 
     // collision
-    auto tree = new Tree();
-    auto cubeAID = tree.add(cubeA.computeAABB(), cubeA);
-    auto cubeBID = tree.add(cubeB.computeAABB(), cubeB);
-
-    tree.valide();
+    // auto tree = new Tree();
+    // auto cubeAID = tree.add(cubeA.computeAABB(), cubeA);
+    // auto cubeBID = tree.add(cubeB.computeAABB(), cubeB);
+    // tree.valide();
 
 
 	while(!glfwWindowShouldClose(window))
@@ -116,18 +117,16 @@ void main()
         cubeA.render(shaderCache, cam);
         cubeB.render(shaderCache, cam);
 
-        // TODO()...
-        tree.move(cubeA.computeAABB(), cubeAID);
-
-        tree.query(cubeAID, (Model a, Model b) {
-            auto gjk = new Gjk(a, b);
-            if(gjk.check())
-            {
-                auto data = gjk.getContactData();
-                Vec3 by = data.normal.scaled(data.depth);
-                a.translate(by);
-            }
-        });
+        // // TODO()...
+        // tree.query(cubeAID, (Model a, Model b) {
+        //     auto gjk = new Gjk(a, b);
+        if(gjk.check())
+        {
+            auto cd = gjk.getCollisionData();
+            auto by = cd.normal.scaled(cd.depth);
+            cubeA.translate(by);
+        }
+        // });
 
         if(keyb.keyState(GLFW_KEY_UP) == KEY_HELD) 
         {
