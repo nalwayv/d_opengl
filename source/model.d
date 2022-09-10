@@ -129,10 +129,12 @@ class Model : IMeshCollider
 
         Mat4 m4 = transform.getMatrix();
         Obj obj = mesh.getObj();
+        Vertex[] vertex = obj.getVertex();
 
-        foreach(ref vertex; obj.getVertex())
+        for(auto i = 0; i < vertex.length; i++)
         {
-            Vec3 pt = Vec3.fromArray(vertex.vert);
+            auto vert = vertex[i].vert;
+            Vec3 pt = Vec3.fromArray(vert);
             pt = m4.transform(pt);
 
             auto distance = pt.dot(direction);

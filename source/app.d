@@ -87,7 +87,7 @@ void main()
     cubeA.setColor(0.2, 0.3, 0.6);
     cubeA.scale(0.9, 0.9, 0.9);
     auto cubeB = new Model("models\\cube");
-    cubeB.translate(5.0f, 0.0f, 0.0f); // cant be same start location as cubeA else 'tree will fail
+    cubeB.translate(3.0f, 0.0f, 0.0f); // cant be same start location as cubeA else 'tree will fail
     cubeB.setColor(0.7, 0.7, 0.3);
     
     auto gjk = new Gjk(cubeA, cubeB);
@@ -122,9 +122,9 @@ void main()
         //     auto gjk = new Gjk(a, b);
         if(gjk.check())
         {
+            writeln("ok");
             auto cd = gjk.getCollisionData();
-            auto by = cd.normal.scaled(cd.depth);
-            cubeA.translate(by);
+            cubeA.translate(cd.normal.scaled(cd.depth));
         }
         // });
 
@@ -151,11 +151,6 @@ void main()
         if(keyb.keyState(GLFW_KEY_RIGHT) == KEY_HELD)
         {
             cubeA.translate(1.0 * moveSp * clock.dt, 0.0, 0.0);
-        }
-
-
-        if(keyb.keyState(GLFW_KEY_G) == KEY_PRESSED)
-        {
         }
 
         // ---

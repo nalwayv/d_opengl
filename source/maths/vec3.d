@@ -105,34 +105,6 @@ struct Vec3
         return result;
     }
 
-    /// create a barycenter vec3 from four vec3 points
-    /// Returns: Vec3
-    static Vec3 barycenter(Vec3 a, Vec3 b, Vec3 c, Vec3 d)
-    {
-        auto ab = b.subbed(a);
-        auto ac = c.subbed(a);
-        auto ad = d.subbed(a);
-
-        auto abb = ab.dot(ab);
-        auto abc = ab.dot(ac);
-        auto acc = ac.dot(ac);
-        auto adb = ad.dot(ab);
-        auto adc = ad.dot(ac);
-
-        auto inv = 1.0f / (abb * acc - abc * abc);
-        auto v = (acc * adb - abc * adc) * inv;
-        auto w = (abb * adc - abc * adb) * inv;
-        auto u = 1.0f - v - w;
-
-        Vec3 result;
-        
-        result.x = u;
-        result.y = v;
-        result.z = w;
-
-        return result;
-    }
-
     /// Return value at 0..2
     /// Returns: float
     float at(int idx) const

@@ -152,7 +152,7 @@ struct AABB
     
     /// returns array of vec3's of all corners of 'this aabb
     /// Returns: Vec3[8]
-    Vec3[8] corners()
+    Vec3[8] getCorners()
     {
         Vec3 p1 = min();
         Vec3 p2 = max();
@@ -204,14 +204,21 @@ struct AABB
     /// Returns: AABB
     AABB transformed(Mat4 m4)
     {
-        Mat3 m3 = m4.toMat3();
+        Vec3 pMin = min();
+        Vec3 pMax = max();
+        auto corners = getCorners();
 
-        AABB result;
+        for(auto i = 0; i < corners.length; i++)
+        {
+            Vec3 corner = corners[i];
 
-        result.origin = m4.transform(origin);
-        result.extents = m3.transform(extents);
+            Vec3 pTr = m4.transform(corner);
+            
+            pMin = Vec3.fromMin(pMin, pTr);
+            pMax = Vec3.fromMax(pMax, pTr);
+        }
 
-        return result;
+        return AABB.fromMinMax(pMin, pMax);
     }
 
     /// return perimeter of 'this aabb

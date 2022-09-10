@@ -2,7 +2,7 @@
 // TODO()
 module collision.narrow.gjk;
 
-
+import std.stdio : writeln;
 import std.algorithm.mutation : remove;
 import collision.narrow.imeshcollider;
 import maths.utils;
@@ -11,6 +11,7 @@ import maths.vec3;
 
 
 enum float EPA_OPTIMAL = 0.002f;
+enum float EPA_BUFFER = 0.001f;
 enum int GJK_ITERATIONS = 30;
 enum int EPA_ITERATIONS = 30;
 
@@ -68,17 +69,15 @@ private struct Triangle
     SupportPt a;
     SupportPt b;
     SupportPt c;
+    Vec3 n;
 
-    /// return tri normal
-    /// Returns: Vec3
-    Vec3 n()
+    this(SupportPt a, SupportPt b, SupportPt c)
     {
-        auto ab = b.subbedPt(a);
-        auto ac = c.subbedPt(a);
-        
-        auto abc = ab.cross(ac).normalized();
+        this.a = a;
+        this.b = b;
+        this.c = c;
 
-        return abc;
+        this.n = b.subbedPt(this.a).cross(this.c.subbedPt(this.a)).normalized();
     }
 }
 
@@ -201,11 +200,13 @@ private class Epa
         this.simplex = simplex;
     }
 
+    /// Returns: CollisionData
     public CollisionData getCollisionData()
     {
         return collisionData;
     }
 
+    /// Returns: SupportPt
     private SupportPt getSupport(Vec3 dir)
     {
         auto a = mcA.furthestPt(dir);
@@ -219,6 +220,39 @@ private class Epa
         result.spA = a;
         result.spB = b;
 
+        return result;
+    }
+
+    private float dot(Vec3 a, Vec3 b)
+    {
+        return a.dot(b);
+    }
+
+    /// compute barycentric
+    /// Returns: Vec3
+    private Vec3 barycentric(Vec3 p, Vec3 a, Vec3 b, Vec3 c)
+    {
+        Vec3 v0 = b.subbed(a);
+        Vec3 v1 = c.subbed(a);
+        Vec3 v2 = p.subbed(a);
+
+        auto d00 = dot(v0, v0);
+        auto d01 = dot(v0, v1);
+        auto d11 = dot(v1, v1);
+        auto d20 = dot(v2, v0);
+        auto d21 = dot(v2, v1);
+
+        auto denom = d00 * d11  - d01 * d01;
+        auto v = (d11 * d20 - d01 * d21) / denom;
+        auto w = (d00 * d21 - d01 * d20) / denom;
+        auto u = 1.0f - v - w;
+
+        Vec3 result;
+
+        result.x = u;
+        result.y = v;
+        result.z = w;
+        
         return result;
     }
 
@@ -246,36 +280,41 @@ private class Epa
         edges ~= edge;
     }
 
+
     /// update contact information
     /// Returns: bool
     private bool updateContactData(Triangle tri)
     {
-        Vec3 tnormal = tri.n();
-        auto dis = tnormal.dot(tri.a.pt);
+        auto dis = dot(tri.n, tri.a.pt);
         
-        Vec3 a = tnormal.scaled(dis);
+        Vec3 a = tri.n.scaled(dis);
         Vec3 b = tri.a.pt;
         Vec3 c = tri.b.pt;
         Vec3 d = tri.c.pt;
 
-        Vec3 bc = Vec3.barycenter(a, b, c, d);
+        Vec3 bary = barycentric(a, b, c, d);
 
-        if(!isValidF(bc.x) || !isValidF(bc.y) || !isValidF(bc.z))
+        // if bary fails
+        if(!isValidF(bary.x) || !isValidF(bary.y) || !isValidF(bary.z))
+        {
+            return false;
+        }
+        if(absF(bary.x) > 1.0f || absF(bary.y) > 1.0f || absF(bary.z) > 1.0f)
         {
             return false;
         }
 
-        Vec3 pu = tri.a.spA.scaled(bc.x);
-        Vec3 pv = tri.b.spA.scaled(bc.y);
-        Vec3 pw = tri.c.spA.scaled(bc.z);
+        Vec3 u = tri.a.spA.scaled(bary.x);
+        Vec3 v = tri.b.spA.scaled(bary.y);
+        Vec3 w = tri.c.spA.scaled(bary.z);
 
-        Vec3 point = pu.added(pv).added(pw);
-        Vec3 normal = tnormal.negated();
+        Vec3 point = u.added(v).added(w);
+        Vec3 normal = tri.n.negated();
         auto depth = dis;
 
         collisionData.normal = normal;
         collisionData.point = point;
-        collisionData.depth = depth + 0.001f;
+        collisionData.depth = depth + EPA_BUFFER;
 
         return true;
     }
@@ -297,14 +336,14 @@ private class Epa
 
         for(auto i = 0; i < EPA_ITERATIONS; i++)
         {
+            // closest tri
             auto minDis = MAXFLOAT;
             Triangle minTri;
-
             for(auto j = 0; j < tris.length; j++)
             {
                 Triangle current = tris[j];
 
-                auto dis = current.n().dot(current.a.pt);
+                auto dis = dot(current.n, current.a.pt);
                 if(dis < minDis)
                 {
                     minDis = dis;
@@ -312,55 +351,47 @@ private class Epa
                 }
             }
 
-            Vec3 tnormal = minTri.n();
-            SupportPt support = getSupport(tnormal);
-            auto newDis = tnormal.dot(support.pt);
+            SupportPt support = getSupport(minTri.n);
+            auto newDis = dot(minTri.n, support.pt);
 
             if((newDis - minDis) < EPA_OPTIMAL)
             {
                 return updateContactData(minTri);
             }
-
-            auto idx = 0;
-            auto begin = tris.ptr;
-            auto end = tris.ptr + tris.length;
-            while(begin != end)
+    
+            for(auto it = 0; it < tris.length;)
             {
-                Triangle current = *begin;
-                Vec3 cn = current.n();
-                Vec3 sa = support.subbedPt(current.a);
+                Triangle current = tris[it];
+                Vec3 sp = support.subbedPt(current.a);
 
-                if(sameDirection(cn, sa))
+                if(sameDirection(current.n, sp))
                 {
                     addEdge(edges, current.a, current.b);
                     addEdge(edges, current.b, current.c);
                     addEdge(edges, current.c, current.a);
 
-                    tris = remove(tris, idx);
-
-                    begin = tris.ptr;
-                    end = tris.ptr + tris.length;
-                    idx = 0;
-
+                    tris = remove(tris, it);
                     continue;
                 }
-
-                idx++;
-                begin++;
+                
+                it++;
             }
 
+            // add new tris from edges
             for(auto j = 0; j < edges.length; j++)
             {
-                auto current = edges[j];
+                Edge current = edges[j];
                 tris ~= Triangle(support, current.a, current.b);
             }
 
+            // clear old edges
             edges = [];
         }
 
         return false;
     }
 }
+
 
 
 class Gjk
@@ -398,7 +429,19 @@ class Gjk
     }
 
     // --- helpers
-        
+
+    private float dot(Vec3 a, Vec3 b)
+    {
+        return a.dot(b);
+    }
+
+    /// return triple cross product
+    /// Returns: Vec3
+    public Vec3 tripleCross(Vec3 a, Vec3 b, Vec3 c)
+    {
+        return a.cross(b).cross(c);
+    }
+
     /// return support pt from direction 'dir
     /// Returns: Vec3
     private SupportPt getSupport(Vec3 dir)
@@ -421,14 +464,7 @@ class Gjk
     /// Returns: bool
     private bool sameDirection(Vec3 a, Vec3 b)
     {
-        return a.dot(b) > 0.0f;
-    }
-
-    /// return triple cross product
-    /// Returns: Vec3
-    public Vec3 tripleCross(Vec3 a, Vec3 b, Vec3 c)
-    {
-        return a.cross(b).cross(c);
+        return dot(a, b) > 0.0f;
     }
 
     /// --- simplex
@@ -611,7 +647,7 @@ class Gjk
         {
             support = getSupport(direction);
 
-            if(support.pt.dot(direction) <= 0.0f)
+            if(dot(support.pt, direction) <= 0.0f)
             {
                 return false;
             }
