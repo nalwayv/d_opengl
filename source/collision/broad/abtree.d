@@ -2,6 +2,7 @@
 module collision.broad.abtree;
 
 
+import std.stdio : writeln;
 import utils.stack;
 import maths.utils;
 import maths.vec3;
@@ -9,8 +10,6 @@ import geometry.aabb;
 import geometry.contains;
 import geometry.intersection;
 
-
-alias Stk = Stack!int;
 
 enum float EXPAND = 0.1f;
 enum float MULTIPLIER = 4.0f;
@@ -20,22 +19,24 @@ enum int NULLNODE = -1;
 
 template TreeTemplate( T )
 {
-    struct Node
+    class Node
     {
+
         AABB aabb;
-        bool moved;
-        int left;
-        int right;
+        Node left;
+        Node right;
+        Node parent;
         int height;
-        union { 
-            int parent;
-            int next; 
-        }
         T data;
+        // bool moved;
+
+        this()
+        {
+        }
 
         bool isLeaf() const
         {
-            return left == NULLNODE;
+            return left is null;
         }
     }
 
@@ -43,115 +44,51 @@ template TreeTemplate( T )
     {
         private 
         {
-            Node[] nodes;
-            int cap;
-            int count;
-            int free;
-            int root;
+            Node root;
+            Node[T] database;
         }
         
         this()
         {
-            nodes = new Node[TREECAP];
-
-            cap = TREECAP;
-            count = 0;
-            root = 0;
-            free = 0;
-
-            for(auto i = 0; i < cap - 1; i++)
-            {
-                nodes[i].parent = i + 1;
-                nodes[i].height = -1;
-            }
-
-            nodes[cap - 1].parent = NULLNODE;
-            nodes[cap - 1].height = -1;
         }
 
-        private int allocNewNode()
+        /// balance trees nodes
+        /// Returns: Node
+        private Node balanceNode(Node leafNode)
         {
-            if(free == NULLNODE)
+            assert(leafNode !is null);
+
+            if(leafNode.isLeaf() || leafNode.height < 2)
             {
-                cap *= 2;
-                nodes.length = cap;
-
-                for(auto i = count; i < cap - 1; i++)
-                {
-                    nodes[i].next = i + 1;
-                    nodes[i].height = -1;
-                }
-
-                nodes[cap - 1].next = NULLNODE;
-                nodes[cap - 1].height = -1;
-
-                free = count;
+                return leafNode;
             }
 
-            auto id = free;
-            free = nodes[id].next;
-
-            nodes[id].parent = NULLNODE;
-            nodes[id].left = NULLNODE;
-            nodes[id].right = NULLNODE;
-            nodes[id].height = 0;
-            nodes[id].moved = false;
-
-            count += 1;
-
-            return id;
-        }
-
-        private void freeNode(int nodeID)
-        {
-            assert(nodeID >= 0 && nodeID < cap);
-            assert(count > 0);
-
-            nodes[nodeID].next = free;
-            nodes[nodeID].height = -1;
-            free = nodeID;
-
-            count -= 1;
-        }
-
-        private int balanceNode(int nodeID)
-        {
-            assert(nodeID != NULLNODE);
-
-            auto a = nodeID;
-            if(nodes[a].isLeaf() || nodes[a].height < 2)
-            {
-                return a;
-            }
-
-            auto b = nodes[a].left;
-            auto c = nodes[a].right;
-
-            auto balance = nodes[c].height - nodes[b].height;
+            Node a = leafNode;
+            Node b = a.left;
+            Node c = a.right;
+            
+            auto balance = c.height - b.height;
 
             // rotate c up
             if(balance > 1)
             {                   
-                auto f = nodes[c].left;
-                auto g = nodes[c].right;
+                Node f = c.left;
+                Node g = c.right;
 
-                assert(b >= 0 && b < cap);
-                assert(c >= 0 && c < cap);
+                c.left = a;
+                c.parent = a.parent;
+                a.parent = c;
 
-                nodes[c].left = a;
-                nodes[c].parent = nodes[a].parent;
-                nodes[a].parent = c;
-
-                if(nodes[c].parent != NULLNODE)
+                if(c.parent !is null)
                 {
-                    auto cp = nodes[c].parent;
-                    if(nodes[cp].left == a)
+                    auto cp = c.parent;
+                    if(cp.left is a)
                     {
-                        nodes[cp].left = c;
+                        cp.left = c;
                     }
                     else
                     {
-                        nodes[cp].right = c;
+                        cp.right = c;
                     }
                 }
                 else
@@ -160,29 +97,29 @@ template TreeTemplate( T )
                 }
 
                 // rotate
-                if(nodes[f].height > nodes[g].height)
+                if(f.height > g.height)
                 {
-                    nodes[c].right = f;
-                    nodes[a].right = g;
-                    nodes[g].parent = a;
+                    c.right = f;
+                    a.right = g;
+                    g.parent = a;
 
-                    nodes[a].aabb = AABB.fromCombined(nodes[b].aabb, nodes[g].aabb);
-                    nodes[c].aabb = AABB.fromCombined(nodes[a].aabb, nodes[f].aabb);
+                    a.aabb = AABB.fromCombined(b.aabb, g.aabb);
+                    c.aabb = AABB.fromCombined(a.aabb, f.aabb);
 
-                    nodes[a].height = 1 + maxI(nodes[b].height, nodes[g].height);
-                    nodes[c].height = 1 + maxI(nodes[a].height, nodes[f].height);
+                    a.height = 1 + maxI(b.height, g.height);
+                    c.height = 1 + maxI(a.height, f.height);
                 }
                 else
                 {
-                    nodes[c].right = g;
-                    nodes[a].right = f;
-                    nodes[f].parent = a;
+                    c.right = g;
+                    a.right = f;
+                    f.parent = a;
 
-                    nodes[a].aabb = AABB.fromCombined(nodes[b].aabb, nodes[f].aabb);
-                    nodes[c].aabb = AABB.fromCombined(nodes[a].aabb, nodes[g].aabb);
+                    a.aabb = AABB.fromCombined(b.aabb, f.aabb);
+                    c.aabb = AABB.fromCombined(a.aabb, g.aabb);
 
-                    nodes[a].height = 1 + maxI(nodes[b].height, nodes[f].height);
-                    nodes[c].height = 1 + maxI(nodes[a].height, nodes[g].height);
+                    a.height = 1 + maxI(b.height, f.height);
+                    c.height = 1 + maxI(a.height, g.height);
                 }
 
                 return c;
@@ -191,26 +128,23 @@ template TreeTemplate( T )
             // rotate b up
             if(balance < -1)
             {
-                int d = nodes[b].left;
-                int e = nodes[b].right;
+                Node d = b.left;
+                Node e = b.right;
 
-                assert(d >= 0 && d < cap);
-                assert(e >= 0 && e < cap);
+                b.left = a;
+                b.parent = a.parent;
+                a.parent = b;
 
-                nodes[b].left = a;
-                nodes[b].parent = nodes[a].parent;
-                nodes[a].parent = b;
-
-                if(nodes[b].parent != NULLNODE)
+                if(b.parent !is null)
                 {
-                    auto bp = nodes[b].parent;
-                    if(nodes[bp].left == a)
+                    auto bp = b.parent;
+                    if(bp.left is a)
                     {
-                        nodes[bp].left = b;
+                        bp.left = b;
                     }
                     else
                     {
-                        nodes[bp].right = b;
+                        bp.right = b;
                     }
                 }
                 else
@@ -219,29 +153,29 @@ template TreeTemplate( T )
                 }
 
                 // rotate
-                if(nodes[d].height > nodes[e].height)
+                if(d.height > e.height)
                 {
-                    nodes[b].right = d;
-                    nodes[a].left = e;
-                    nodes[e].parent = a;
+                    b.right = d;
+                    a.left = e;
+                    e.parent = a;
 
-                    nodes[a].aabb = AABB.fromCombined(nodes[c].aabb, nodes[e].aabb);
-                    nodes[b].aabb = AABB.fromCombined(nodes[a].aabb, nodes[d].aabb);
+                    a.aabb = AABB.fromCombined(c.aabb, e.aabb);
+                    b.aabb = AABB.fromCombined(a.aabb, d.aabb);
 
-                    nodes[a].height = 1 + maxI(nodes[c].height, nodes[e].height);
-                    nodes[b].height = 1 + maxI(nodes[a].height, nodes[d].height);
+                    a.height = 1 + maxI(c.height, e.height);
+                    b.height = 1 + maxI(a.height, d.height);
                 }
                 else
                 {                
-                    nodes[b].right = e;
-                    nodes[a].left = d;
-                    nodes[d].parent = a;
+                    b.right = e;
+                    a.left = d;
+                    d.parent = a;
 
-                    nodes[a].aabb = AABB.fromCombined(nodes[c].aabb, nodes[d].aabb);
-                    nodes[b].aabb = AABB.fromCombined(nodes[a].aabb, nodes[e].aabb);
+                    a.aabb = AABB.fromCombined(c.aabb, d.aabb);
+                    b.aabb = AABB.fromCombined(a.aabb, e.aabb);
 
-                    nodes[a].height = 1 + maxI(nodes[c].height, nodes[d].height);
-                    nodes[b].height = 1 + maxI(nodes[a].height, nodes[e].height);
+                    a.height = 1 + maxI(c.height, d.height);
+                    b.height = 1 + maxI(a.height, e.height);
                 }
 
                 return b;
@@ -250,55 +184,55 @@ template TreeTemplate( T )
             return a;
         }
 
-        private void insertNode(int nodeID)
+        /// add node to tree
+        private void insertNode(Node leafNode)
         {
-            if(root == NULLNODE)
+            if(root is null)
             {
-                root = nodeID;
-                nodes[root].parent = NULLNODE;
+                root = leafNode;
                 return;
             }
 
             // find best sibling for node
             auto current = root;
-            while(nodes[current].isLeaf() == false)
+            while(current.isLeaf() == false)
             {
-                auto left = nodes[current].left;
-                auto right = nodes[current].right;
+                Node left = current.left;
+                Node right = current.right;
 
-                auto area = nodes[current].aabb.perimeter();
-                auto combinedArea = AABB.fromCombined(nodes[current].aabb, nodes[nodeID].aabb).perimeter();
+                auto area = current.aabb.perimeter();
+                auto combinedArea = AABB.fromCombined(current.aabb, leafNode.aabb).perimeter();
                 auto cost = 2.0f * combinedArea;
                 auto inheritCost = 2.0 * (combinedArea - area);
 
                 // cost to decend ever left or right
                 float leftCost;
-                if(nodes[left].isLeaf())
+                if(left.isLeaf())
                 {
-                    auto aabb = AABB.fromCombined(nodes[nodeID].aabb, nodes[left].aabb);
+                    AABB aabb = AABB.fromCombined(leafNode.aabb, left.aabb);
                     leftCost = aabb.perimeter() + inheritCost;
                 }
                 else
                 {
-                    auto aabb = AABB.fromCombined(nodes[nodeID].aabb, nodes[left].aabb);
+                    auto aabb = AABB.fromCombined(leafNode.aabb, left.aabb);
 
-                    auto oldP = nodes[left].aabb.perimeter();
+                    auto oldP = left.aabb.perimeter();
                     auto newP = aabb.perimeter();
 
                     leftCost = (newP - oldP) + inheritCost;
                 }
 
                 float rightCost;
-                if(nodes[right].isLeaf())
+                if(right.isLeaf())
                 {
-                    auto aabb = AABB.fromCombined(nodes[nodeID].aabb, nodes[right].aabb);
+                    auto aabb = AABB.fromCombined(leafNode.aabb, right.aabb);
                     rightCost = aabb.perimeter() + inheritCost;
                 }
                 else
                 {
-                    auto aabb = AABB.fromCombined(nodes[nodeID].aabb, nodes[right].aabb);
+                    auto aabb = AABB.fromCombined(leafNode.aabb, right.aabb);
 
-                    auto oldP = nodes[right].aabb.perimeter();
+                    auto oldP = right.aabb.perimeter();
                     auto newP = aabb.perimeter();
 
                     rightCost = (newP - oldP) + inheritCost;
@@ -320,265 +254,248 @@ template TreeTemplate( T )
             }
 
             // new node
-            auto sibling = current;
-            auto oldParent = nodes[sibling].parent;
-            auto newParent = allocNewNode();
-            nodes[newParent].parent = oldParent;
-            nodes[newParent].aabb = AABB.fromCombined(nodes[nodeID].aabb, nodes[sibling].aabb);
-            nodes[newParent].height = nodes[sibling].height + 1;
+            Node sibling = current;
+            Node oldParent = sibling.parent;
+            Node newParent = new Node();
+            newParent.parent = oldParent;
+            newParent.aabb = AABB.fromCombined(leafNode.aabb, sibling.aabb);
+            newParent.height = sibling.height + 1;
 
-            if(oldParent != NULLNODE)
+            if(oldParent !is null)
             {
-                if(nodes[oldParent].left == sibling)
+                if(oldParent.left is sibling)
                 {
-                    nodes[oldParent].left = newParent;
+                    oldParent.left = newParent;
                 }
                 else
                 {
-                    nodes[oldParent].right = newParent;
+                    oldParent.right = newParent;
                 }
 
-                nodes[newParent].left = sibling;
-                nodes[newParent].right = nodeID;
-                nodes[sibling].parent = newParent;
-                nodes[nodeID].parent = newParent;
+                newParent.left = sibling;
+                newParent.right = leafNode;
+                sibling.parent = newParent;
+                leafNode.parent = newParent;
             }
             else
             {
-                nodes[newParent].left = sibling;
-                nodes[newParent].right = nodeID;
-                nodes[sibling].parent = newParent;
-                nodes[nodeID].parent = newParent;
+                newParent.left = sibling;
+                newParent.right = leafNode;
+                sibling.parent = newParent;
+                leafNode.parent = newParent;
                 root = newParent;
             }
 
-            current = nodes[nodeID].parent;
-            while(current != NULLNODE)
+            current = leafNode.parent;
+            while(current !is null)
             {
                 current = balanceNode(current);
-                
-                auto left = nodes[current].left;
-                auto right = nodes[current].right;
 
-                nodes[current].aabb = AABB.fromCombined(nodes[left].aabb, nodes[right].aabb);
-                nodes[current].height = 1 + maxI(nodes[left].height, nodes[right].height);
+                current.aabb = AABB.fromCombined(current.left.aabb, current.right.aabb);
+                current.height = 1 + maxI(current.left.height, current.right.height);
 
-                current = nodes[current].parent;
+                current = current.parent;
             }
         }
 
-        private void removeNode(int nodeID)
+        /// remove node from tree
+        private void removeNode(Node leafNode)
         {
-            if(nodeID == root)
+            if(leafNode is root)
             {
-                root = NULLNODE;
+                root = null;
                 return;
             }
 
-            auto parent = nodes[nodeID].parent;
-            auto gParent = nodes[parent].parent;
+            Node parent = leafNode.parent;
+            Node gParent = parent.parent;
             
-            int sibling;
-            if(nodes[parent].left == nodeID)
-            {
-                sibling = nodes[parent].right;
-            }
-            else
-            {
-                sibling = nodes[parent].left;
-            }
+            Node sibling = (parent.left is leafNode) ? parent.right : parent.left;
 
-            if(gParent != NULLNODE)
+            if(gParent !is null)
             {
-                if(nodes[gParent].left == parent)
+                if(gParent.left is parent)
                 {
-                    nodes[gParent].left = sibling;
+                    gParent.left = sibling;
                 }
                 else
                 {
-                    nodes[gParent].right = sibling;
+                    gParent.right = sibling;
                 }
 
-                nodes[sibling].parent = gParent;
-                freeNode(parent);
+                sibling.parent = gParent;
 
-                auto current = gParent;
-                while(current != NULLNODE)
+                Node current = gParent;
+                while(current !is null)
                 {
                     current = balanceNode(current);
 
-                    auto left = nodes[current].left;
-                    auto right = nodes[current].right;
+                    current.aabb = AABB.fromCombined(current.left.aabb, current.right.aabb);
+                    current.height= 1 + maxI(current.left.height, current.right.height);
 
-                    nodes[current].aabb = AABB.fromCombined(nodes[left].aabb, nodes[right].aabb);
-                    nodes[current].height= 1 + maxI(nodes[left].height, nodes[right].height);
-
-                    current = nodes[current].parent;
+                    current = current.parent;
                 }
             }
             else 
             {
                 root = sibling;
-                nodes[sibling].parent = NULLNODE;
-                freeNode(parent);
+                sibling.parent = null;
             }
         }
 
-        private void validateTree(int nodeID)
+        /// validate tree
+        /// Returns: bool
+        private bool validate(Node leafNode)
         {
-            if(nodeID == NULLNODE) 
+            if(leafNode is null)
             {
-                return;
+                return true;
             }
 
-            if(nodeID == root)
+            if (leafNode is root)
             {
-                assert(nodes[nodeID].parent == NULLNODE);
-            }
-
-            auto node = cast(const Node*)(nodes.ptr + nodeID);
-
-            auto left = node.left;
-            auto right = node.right;
-            
-            if(node.isLeaf())
-            {
-                assert(left == NULLNODE);
-                assert(right == NULLNODE);
-                assert(node.height == 0);
-                return;
-            }
-
-            assert(left >= 0 && left < cap);
-            assert(right >= 0 && right < cap);
-
-            assert(nodes[left].parent == nodeID);
-            assert(nodes[right].parent == nodeID);
-
-            validateTree(left);
-            validateTree(right);
-        }
-
-        /// add a node to the tree
-        /// 
-        /// use the int to index into tree
-        ///
-        /// Returns: int
-        public int add(AABB ab, T data)
-        {
-            auto id = allocNewNode();
-            nodes[id].aabb = ab.expanded(EXPAND);
-            nodes[id].height = 0;
-            nodes[id].data = data;
-            nodes[id].moved = true;
-
-            insertNode(id);
-
-            return id;
-        }
-
-        /// remove a node from the tree
-        /// 
-        /// use the int retrived from adding a node to remove
-        ///
-        /// Returns: int
-        public void remove(int nodeID)
-        {
-            assert(nodeID >= 0 && nodeID < cap);
-            assert(nodes[nodeID].isLeaf());
-
-            removeNode(nodeID);
-            freeNode(nodeID);
-        }
-
-        /// move node
-        public bool move(AABB ab, int nodeID)
-        {
-            assert(nodeID >= 0 && nodeID < cap);
-            assert(nodes[nodeID].isLeaf());
-
-            auto aabb = nodes[nodeID].aabb;
-            if(containsAABBAABB(aabb, ab))
-            {
-                auto p0 = ab.perimeter();
-                auto p1 = aabb.perimeter();
-                if((p0 / p1) <= 2.0f)
+                if(leafNode.parent !is null)
                 {
                     return false;
                 }
             }
 
-            auto fat = ab.expanded(EXPAND);
+            Node left = leafNode.left;
+            Node right = leafNode.right;
 
-            removeNode(nodeID);
+            if(leafNode.isLeaf())
+            {
+                if(left !is null) return false;
+                if(right !is null) return false;
+                if(leafNode.height != 0) return false;
+                return true;
+            }
 
-            nodes[nodeID].aabb = fat;
-            
-            insertNode(nodeID);
-            
-            nodes[nodeID].moved = true;
+            if(left.parent !is leafNode) return false;
+            if(right.parent !is leafNode) return false;
 
-            return true;
+            return validate(left) && validate(right);
         }
 
-        /// check validation of tree
-        ///
-        /// will fail if invalid
-        public void valide()
+        // ---
+
+        /// check if tree is valid
+        /// Returns: bool
+        public bool validateTree()
         {
-            validateTree(root);
+            return validate(root);
         }
 
+        /// add a node to the tree
+        public void add(AABB ab, T data)
+        {
+            Node node = new Node();
+            node.data = data;
+            node.height = 0;
+            node.aabb = ab.expanded(EXPAND);
+
+            auto check = data in database;
+            if(check is null)
+            {
+                writeln("added");
+                database[data] = node;
+                insertNode(node);
+            }
+        }
+
+        /// remove a node from the tree
+        public void remove(T data)
+        {
+            auto checkDB = data in database;
+            if(checkDB !is null)
+            {
+                removeNode(*checkDB);
+
+                database.remove(data);
+            }
+        }
+
+        /// update and move nodes aabb
+        public void move(AABB ab, T data)
+        {
+            auto checkDB = data in database;
+            if(checkDB is null) return;
+
+            Node node = *checkDB;
+            if(!node.isLeaf()) return;
+
+            if(containsAABBAABB(node.aabb, ab))
+            {
+                auto p0 = ab.perimeter();
+                auto p1 = node.aabb.perimeter();
+
+                if((p0 / p1) < 2.0f)
+                {
+                    return;
+                }
+
+                removeNode(node);
+                node.aabb = ab.expanded(EXPAND);
+                insertNode(node);
+            }
+        }
+
+        // ---
+        
         /// shift the origin of the tree
         public void shiftOrigin(Vec3 origin)
         {
-            for(int i = 0; i < cap; i++)
-            {
-                nodes[i].aabb = nodes[i].aabb.shifted(origin);
-            }
-        }
-        
-        /// retrive data from a node stored in the tree by using its nodeID
-        /// Returns: size_t
-        public T getData(int nodeID)
-        {
-            assert(nodeID >= 0 && nodeID < cap);
-            return nodes[nodeID].data;
-        }
-
-        public void query(AABB ab, bool delegate(T) cb)
-        {
-            auto stk = new Stk();
-            stk.push(root);
-
+            auto stk = new Stack!Node();
             while(!stk.isEmpty())
             {
-                auto current = stk.pop();
-                if(current == NULLNODE)  
+                Node current = stk.pop();
+                if(current is null)  
                 {
                     continue;
                 }
 
-                auto currentNode = nodes[current];
+                current.aabb = current.aabb.shifted(origin);
 
-                if(intersectsAabbAabb(ab, currentNode.aabb))
+                stk.push(current.left);
+                stk.push(current.right);
+            }
+        }
+
+        // ---
+
+        /// query tree if ab intersects any nodes aabb
+        /// 
+        /// delegate will use that nodes stored data as its paramiter
+        public void query(AABB ab, bool delegate(T) cb)
+        {
+            auto stk = new Stack!Node();
+            stk.push(root);
+
+            while(!stk.isEmpty())
+            {
+                Node current = stk.pop();
+                if(current is null)
                 {
-                    if(currentNode.isLeaf())
+                    writeln("pass");
+                    continue;
+                }
+
+                if(intersectsAabbAabb(ab, current.aabb))
+                {
+                    if(current.isLeaf())
                     {
-                        if(!cb(currentNode.data))
+                        if(!cb(current.data))
                         {
                             return;
                         }
                     }
                     else
                     {
-                        stk.push(currentNode.left);
-                        stk.push(currentNode.right);
+                        stk.push(current.left);
+                        stk.push(current.right);
                     }
                 }
             }
         }
-
-
     }
 }
