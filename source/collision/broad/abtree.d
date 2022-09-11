@@ -2,7 +2,6 @@
 module collision.broad.abtree;
 
 
-import std.stdio : writeln;
 import utils.stack;
 import maths.utils;
 import maths.vec3;
@@ -397,7 +396,6 @@ template TreeTemplate( T )
             auto check = data in database;
             if(check is null)
             {
-                writeln("added");
                 database[data] = node;
                 insertNode(node);
             }
@@ -476,7 +474,6 @@ template TreeTemplate( T )
                 Node current = stk.pop();
                 if(current is null)
                 {
-                    writeln("pass");
                     continue;
                 }
 
