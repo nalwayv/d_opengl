@@ -20,8 +20,6 @@ enum int NULLNODE = -1;
 
 template TreeTemplate( T )
 {
-    alias Callback = void function(T, T);
-
     struct Node
     {
         AABB aabb;
@@ -548,32 +546,29 @@ template TreeTemplate( T )
             return nodes[nodeID].data;
         }
 
-        /// TODO() ...
-        /// query tree
-        public void query(int nodeID, Callback fn)
+        public void query(AABB ab, bool delegate(T) cb)
         {
-            assert(nodeID >= 0 && nodeID < cap);
-            assert(nodes[nodeID].isLeaf());
-
             auto stk = new Stk();
             stk.push(root);
-
-            auto ab = nodes[nodeID].aabb;
 
             while(!stk.isEmpty())
             {
                 auto current = stk.pop();
-                if(current == NULLNODE) continue;
+                if(current == NULLNODE)  
+                {
+                    continue;
+                }
 
                 auto currentNode = nodes[current];
-                auto aabb = currentNode.aabb;
 
-                if(intersectsAabbAabb(aabb, ab))
+                if(intersectsAabbAabb(ab, currentNode.aabb))
                 {
                     if(currentNode.isLeaf())
                     {
-                        fn(nodes[nodeID].data, currentNode.data);
-                        return;
+                        if(!cb(currentNode.data))
+                        {
+                            return;
+                        }
                     }
                     else
                     {
@@ -583,5 +578,7 @@ template TreeTemplate( T )
                 }
             }
         }
+
+
     }
 }

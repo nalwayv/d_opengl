@@ -2,6 +2,7 @@
 // TODO()
 module collision.narrow.gjk;
 
+
 import std.stdio : writeln;
 import std.algorithm.mutation : remove;
 import collision.narrow.imeshcollider;
@@ -206,6 +207,9 @@ private class Epa
         return collisionData;
     }
 
+    // --- helpers
+
+    /// return current support point based on models furest point in direction
     /// Returns: SupportPt
     private SupportPt getSupport(Vec3 dir)
     {
@@ -223,6 +227,7 @@ private class Epa
         return result;
     }
 
+    /// dot procust just to make to code look cleaner
     private float dot(Vec3 a, Vec3 b)
     {
         return a.dot(b);
@@ -279,7 +284,6 @@ private class Epa
 
         edges ~= edge;
     }
-
 
     /// update contact information
     /// Returns: bool
@@ -391,7 +395,6 @@ private class Epa
         return false;
     }
 }
-
 
 
 class Gjk

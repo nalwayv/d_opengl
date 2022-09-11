@@ -135,7 +135,6 @@ class Model : IMeshCollider
         {
             auto vert = vertex[i].vert;
             Vec3 pt = Vec3.fromArray(vert);
-            pt = m4.transform(pt);
 
             auto distance = pt.dot(direction);
 
@@ -146,7 +145,7 @@ class Model : IMeshCollider
             }
         }
 
-        return result;
+        return m4.transform(result);
     }
 
     /// compute an AABB from this model based on its verts
@@ -189,13 +188,7 @@ class Model : IMeshCollider
 
         AABB ab = AABB.fromMinMax(pMin, pMax);
         Mat4 m4 = transform.getMatrix();
-        ab = ab.transformed(m4);
-
-        AABB result;
-
-        result.origin = ab.origin;
-        result.extents = ab.extents;
-
-        return result;
+        
+        return ab.transformed(m4);
     }
 }

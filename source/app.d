@@ -5,6 +5,8 @@ import bindbc.glfw;
 import maths.utils;
 import maths.mat4;
 import maths.vec3;
+import geometry.aabb;
+import geometry.intersection;
 import collision.narrow.gjk;
 import collision.broad.abtree;
 import model;
@@ -87,16 +89,17 @@ void main()
     cubeA.setColor(0.2, 0.3, 0.6);
     cubeA.scale(0.9, 0.9, 0.9);
     auto cubeB = new Model("models\\cube");
-    cubeB.translate(3.0f, 0.0f, 0.0f); // cant be same start location as cubeA else 'tree will fail
+    cubeB.translate(4.0f, 0.0f, 0.0f); // cant be same start location as cubeA else 'tree will fail
     cubeB.setColor(0.7, 0.7, 0.3);
+    // cubeB.rotate(toRad(15.0f), Vec3(0.2f, 1.0f, 0.5f));
     
-    auto gjk = new Gjk(cubeA, cubeB);
-
+    // TODO() ... tree
     // collision
     // auto tree = new Tree();
     // auto cubeAID = tree.add(cubeA.computeAABB(), cubeA);
     // auto cubeBID = tree.add(cubeB.computeAABB(), cubeB);
     // tree.valide();
+    auto gjk = new Gjk(cubeA, cubeB);
 
 
 	while(!glfwWindowShouldClose(window))
@@ -113,20 +116,26 @@ void main()
 
         // ---
 
-        // cubeA.rotate(toRad(1 * 15.0f * clock.dt), Vec3(0.2f, 1.0f, 0.5f));
         cubeA.render(shaderCache, cam);
         cubeB.render(shaderCache, cam);
 
-        // // TODO()...
-        // tree.query(cubeAID, (Model a, Model b) {
-        //     auto gjk = new Gjk(a, b);
+        // tree.query(cubeA.computeAABB(), (Model a) {
+        //     auto gjk = new Gjk(cubeA, a);
+        //     if(gjk.check())
+        //     {
+        //         auto cData = gjk.getCollisionData();
+        //         cubeA.translate(cData.normal.scaled(cData.depth));
+        //         return true;
+        //     }
+        //     return false;
+        // });
+        // tree.move(cubeA.computeAABB(), cubeAID);
+
         if(gjk.check())
         {
-            writeln("ok");
-            auto cd = gjk.getCollisionData();
-            cubeA.translate(cd.normal.scaled(cd.depth));
+            auto epaData = gjk.getCollisionData();
+            cubeA.translate(epaData.normal.scaled(epaData.depth));
         }
-        // });
 
         if(keyb.keyState(GLFW_KEY_UP) == KEY_HELD) 
         {

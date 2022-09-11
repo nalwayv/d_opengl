@@ -13,16 +13,16 @@ import geometry.plane;
 /// Returns: bool
 bool intersectsAabbAabb(AABB a1, AABB a2)
 {
-    Vec3 aa = a1.min();
-    Vec3 ab = a1.max();
-    Vec3 ba = a2.min();
-    Vec3 bb = a2.max();
+    Vec3 amin = a1.min();
+    Vec3 amax = a1.max();
+    Vec3 bmin = a2.min();
+    Vec3 bmax = a2.max();
 
-    auto checkX = aa.x <= bb.x && ab.x >= ba.x;
-    auto checkY = aa.y <= bb.y && ab.y >= ba.y;
-    auto checkZ = aa.z <= bb.z && ab.z >= ba.z;
+    if(amax.x < bmin.x || amin.x > bmax.x) return false;
+    if(amax.y < bmin.y || amin.y > bmax.y) return false;
+    if(amax.z < bmin.z || amin.z > bmax.z) return false;
 
-    return checkX && checkY && checkZ;
+    return true;
 }
 
 /// test if aabb intersects sphere
