@@ -130,14 +130,6 @@ void main()
             return false;
         });
 
-        // tree.move(cubeA.computeAABB(), cubeA);
-
-        // if(gjk.check())
-        // {
-        //     auto epaData = gjk.getCollisionData();
-        //     cubeA.translate(epaData.normal.scaled(epaData.depth));
-        // }
-
         if(keyb.keyState(GLFW_KEY_UP) == KEY_HELD) 
         {
             cubeA.translate(0.0, 1.0 * moveSp * clock.dt, 0.0);

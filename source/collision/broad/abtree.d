@@ -242,14 +242,7 @@ template TreeTemplate( T )
                     break;
                 }
 
-                if(leftCost < rightCost)
-                {
-                    current = left;
-                }
-                else
-                {
-                    current = right;
-                }
+                current = (leftCost < rightCost) ? left : right;
             }
 
             // new node
@@ -300,6 +293,8 @@ template TreeTemplate( T )
         /// remove node from tree
         private void removeNode(Node leafNode)
         {
+            assert(leafNode !is null);
+
             if(leafNode is root)
             {
                 root = null;
@@ -364,14 +359,33 @@ template TreeTemplate( T )
 
             if(leafNode.isLeaf())
             {
-                if(left !is null) return false;
-                if(right !is null) return false;
-                if(leafNode.height != 0) return false;
+                if(left !is null)
+                {
+                    return false;
+                }
+
+                if(right !is null)
+                {
+                    return false;
+                }
+
+                if(leafNode.height != 0)
+                {
+                    return false;
+                }
+            
                 return true;
             }
 
-            if(left.parent !is leafNode) return false;
-            if(right.parent !is leafNode) return false;
+            if(left.parent !is leafNode)
+            {
+                return false;
+            }
+
+            if(right.parent !is leafNode)
+            {
+                return false;
+            }
 
             return validate(left) && validate(right);
         }
@@ -417,10 +431,16 @@ template TreeTemplate( T )
         public void move(AABB ab, T data)
         {
             auto checkDB = data in database;
-            if(checkDB is null) return;
+            if(checkDB is null) 
+            {
+                return;
+            }
 
             Node node = *checkDB;
-            if(!node.isLeaf()) return;
+            if(!node.isLeaf()) 
+            {
+                return;
+            }
 
             if(containsAABBAABB(node.aabb, ab))
             {
@@ -437,8 +457,6 @@ template TreeTemplate( T )
                 insertNode(node);
             }
         }
-
-        // ---
         
         /// shift the origin of the tree
         public void shiftOrigin(Vec3 origin)
