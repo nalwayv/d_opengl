@@ -91,16 +91,10 @@ void main()
     cubeB.translate(5.0f, 0.0f, 0.0f);
     cubeB.setColor(0, 1, 0);
 
-    auto cubeC = new Model("models\\cube");
-    cubeC.scale(0.9f, 0.9f, 0.9f);
-    cubeC.translate(-5.0f, 1.0f, 0.0f);
-    cubeC.setColor(0, 0, 1);
-
     // TODO() ... tree
     // collision
     auto tree = new Tree();
     auto bID = tree.add(cubeB.computeAABB(), cubeB);
-    auto cID = tree.add(cubeC.computeAABB(), cubeC);
     tree.valide();
 
 
@@ -120,7 +114,6 @@ void main()
 
         cubeA.render(shaderCache, cam);
         cubeB.render(shaderCache, cam);
-        cubeC.render(shaderCache, cam);
 
         tree.query(cubeA.computeAABB(), (Model b) {
             auto gjk = new Gjk(cubeA, b);
