@@ -84,22 +84,24 @@ void main()
 
     // model
     auto cubeA = new Model("models\\cube");
-    cubeA.setColor(0.2, 0.3, 0.6);
+    cubeA.setColor(1, 0, 0);
 
     auto cubeB = new Model("models\\cube");
     cubeB.scale(1.1f, 1.1f, 1.1f);
-    cubeB.translate(4.0f, 0.0f, 0.0f);
-    cubeB.setColor(0.7, 0.7, 0.3);
-    
+    cubeB.translate(5.0f, 0.0f, 0.0f);
+    cubeB.setColor(0, 1, 0);
+
+    auto cubeC = new Model("models\\cube");
+    cubeC.scale(0.9f, 0.9f, 0.9f);
+    cubeC.translate(-5.0f, 1.0f, 0.0f);
+    cubeC.setColor(0, 0, 1);
+
     // TODO() ... tree
     // collision
     auto tree = new Tree();
-    // tree.add(cubeA.computeAABB(), cubeA);
-    tree.add(cubeB.computeAABB(), cubeB);
-    if(tree.validateTree())
-    {
-        writeln("tree valid");
-    }
+    auto bID = tree.add(cubeB.computeAABB(), cubeB);
+    auto cID = tree.add(cubeC.computeAABB(), cubeC);
+    tree.valide();
 
 	while(!glfwWindowShouldClose(window))
     {
@@ -117,6 +119,7 @@ void main()
 
         cubeA.render(shaderCache, cam);
         cubeB.render(shaderCache, cam);
+        cubeC.render(shaderCache, cam);
 
         tree.query(cubeA.computeAABB(), (Model b) {
             auto gjk = new Gjk(cubeA, b);
@@ -129,6 +132,7 @@ void main()
             }
             return false;
         });
+
 
         if(keyb.keyState(GLFW_KEY_UP) == KEY_HELD) 
         {
