@@ -14,28 +14,11 @@ struct Line
     Vec3 start;
     Vec3 end;
 
-    /// Returns: float
-    float lengthSq()
+    /// return end - start
+    /// Returns: Vec3
+    Vec3 delta()
     {
-        auto ab = end.subbed(start);
-
-        auto x2 = sqrF(ab.x);
-        auto y2 = sqrF(ab.y);
-        auto z2 = sqrF(ab.z);
-        
-        return x2 + y2 + z2;
-    }
-
-    /// Returns: float
-    float length()
-    {
-        auto ab = end.subbed(start);
-
-        auto x2 = sqrF(ab.x);
-        auto y2 = sqrF(ab.y);
-        auto z2 = sqrF(ab.z);
-
-        return sqrtF(x2 + y2 + z2);
+        return end.subbed(start);
     }
 
     /// Returns: Vec3
@@ -48,30 +31,13 @@ struct Line
     /// Returns: Vec3
     Vec3 closestPt(Vec3 pt)
     {
-        Vec3 sp = pt.subbed(start);
-        Vec3 se = end.subbed(start);
+        Vec3 ab = delta();
+        auto t= pt.subbed(start).dot(ab) / ab.lengthSq();
 
-        auto d00 = se.lengthSq();
-        auto d01 = se.dot(sp);
+        if(t < 0.0f) t = 0.0f;
+        if(t > 1.0f) t = 1.0f;
 
-        auto t = d01 / d00;
-
-        Vec3 result;
-
-        if(t < 0.0f)
-        {
-           result = start; 
-        }
-        else if(t > 1)
-        {
-            result = end;
-        }
-        else
-        {
-            result = start.added(se).scaled(t);
-        }
-
-        return result;
+        return start.added(ab.scaled(t));
     }
 
     /// Returns: Line
@@ -83,6 +49,30 @@ struct Line
         result.end = m4.transform(end);
         
         return result;
+    }
+
+    /// Returns: float
+    float lengthSq()
+    {
+        auto ab = delta();
+
+        auto x2 = sqrF(ab.x);
+        auto y2 = sqrF(ab.y);
+        auto z2 = sqrF(ab.z);
+        
+        return x2 + y2 + z2;
+    }
+
+    /// Returns: float
+    float length()
+    {
+        auto ab = delta();
+
+        auto x2 = sqrF(ab.x);
+        auto y2 = sqrF(ab.y);
+        auto z2 = sqrF(ab.z);
+
+        return sqrtF(x2 + y2 + z2);
     }
 
     // -- override

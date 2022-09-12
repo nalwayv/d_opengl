@@ -6,6 +6,7 @@ import maths.utils;
 import maths.vec3;
 import geometry.aabb;
 import geometry.sphere;
+import geometry.line;
 import geometry.plane;
 
 
@@ -67,4 +68,19 @@ bool intersectSpherePlane(Sphere s, Plane p)
 {
     auto d = s.origin.dot(p.normal) - p.d;
     return absF(d) <= s.radius;
+}
+
+/// test if line segment intersects plane
+/// Returns: bool
+bool intersectLinePlane(Line l, Plane p)
+{
+    Vec3 a = l.start;
+    Vec3 ab = l.delta();
+
+    auto da = p.normal.dot(a);
+    auto db = p.normal.dot(ab);
+
+    auto t = (p.d - da) / db;
+
+    return t >= 0.0f && t <= 1.0f;
 }
