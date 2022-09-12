@@ -15,6 +15,7 @@ enum float MULTIPLIER = 4.0f;
 enum size_t TREECAP = 16;
 enum int NULLNODE = -1;
 
+
 template TreeTemplate( T )
 {
     struct Node
