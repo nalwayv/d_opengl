@@ -6,10 +6,12 @@ import maths.utils;
 import maths.vec3;
 import geometry.aabb;
 import geometry.sphere;
+import geometry.line;
 import geometry.plane;
+import geometry.ray;
 
 
-/// test if aabb intersects aabb
+/// test if aabb and aabb intersect
 /// Returns: bool
 bool intersectsAabbAabb(AABB a1, AABB a2)
 {
@@ -25,14 +27,24 @@ bool intersectsAabbAabb(AABB a1, AABB a2)
     return true;
 }
 
-/// test if aabb intersects sphere
+/// test if aabb and sphere intersect
 /// Returns: bool
 bool intersectsAabbSphere(AABB a, Sphere s)
 {
     return a.sqDistPt(s.origin) <= sqrF(s.radius);
 }
 
-/// test if aabb intersects plane
+/// test if aabb and line intersect
+///Returns: bool
+bool intersectAABBLine(AABB a, Line l)
+{
+    Ray r = Ray(l.start, l.end.normalized());
+    auto t = r.castAABB(a);
+
+    return t >= 0.0f && sqrF(t) <= l.lengthSq();
+}
+
+/// test if aabb and plane intersect
 /// Returns: bool
 bool intersectsAabbPlane(AABB a, Plane p)
 {
@@ -50,7 +62,7 @@ bool intersectsAabbPlane(AABB a, Plane p)
 }
 
 
-/// test if sphere intersects sphere
+/// test if sphere and sphere intersect
 /// Returns: bool
 bool intersectSphereSphere(Sphere s1, Sphere s2)
 {
@@ -62,10 +74,32 @@ bool intersectSphereSphere(Sphere s1, Sphere s2)
     return d <= sqrF(s1.radius + s2.radius);
 }
 
-/// test if sphere intersects plane
+/// test if sphere and plane intersect
 /// Returns: bool
 bool intersectSpherePlane(Sphere s, Plane p)
 {
     auto d = s.origin.dot(p.normal) - p.d;
     return absF(d) <= s.radius;
+}
+
+/// test if line and sphere are intersecting
+/// Returns: bool
+bool intersectSphereLine(Sphere s, Line l)
+{
+    Vec3 cp = l.closestPt(s.origin);
+    auto disSq = s.origin.subbed(cp).lengthSq();
+
+    return disSq <= sqrF(s.radius);
+}
+
+/// test if line and plane intersect
+bool intersectLinePlane(Line l, Plane p)
+{   
+    auto ab = l.segment();
+    auto na = p.normal.dot(l.start);
+    auto nb = p.normal.dot(ab);
+
+    auto t = (p.d - na) / nb;
+    
+    return t >= 0.0f && t <= 1.0f;
 }

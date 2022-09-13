@@ -16,7 +16,7 @@ struct Line
 
     /// return end - start
     /// Returns: Vec3
-    Vec3 delta()
+    Vec3 segment()
     {
         return end.subbed(start);
     }
@@ -31,13 +31,14 @@ struct Line
     /// Returns: Vec3
     Vec3 closestPt(Vec3 pt)
     {
-        Vec3 ab = delta();
-        auto t= pt.subbed(start).dot(ab) / ab.lengthSq();
+        Vec3 s = segment();
+        
+        auto t = pt.subbed(start).dot(s) / s.lengthSq();
+        
+        t = maxF(t, 0.0f);
+        t = minF(t, 1.0f);
 
-        if(t < 0.0f) t = 0.0f;
-        if(t > 1.0f) t = 1.0f;
-
-        return start.added(ab.scaled(t));
+        return start.added(s.scaled(t));
     }
 
     /// Returns: Line
@@ -54,7 +55,7 @@ struct Line
     /// Returns: float
     float lengthSq()
     {
-        auto ab = delta();
+        auto ab = segment();
 
         auto x2 = sqrF(ab.x);
         auto y2 = sqrF(ab.y);
@@ -66,7 +67,7 @@ struct Line
     /// Returns: float
     float length()
     {
-        auto ab = delta();
+        auto ab = segment();
 
         auto x2 = sqrF(ab.x);
         auto y2 = sqrF(ab.y);
@@ -106,7 +107,7 @@ struct Line
 
     bool opEquals(ref const Line other) const pure
     {
-        auto checkO = isEquilF(start.x, other.start.x) &&
+        auto checkS = isEquilF(start.x, other.start.x) &&
                 isEquilF(start.y, other.start.y) &&
                 isEquilF(start.z, other.start.z);
 
@@ -114,7 +115,7 @@ struct Line
                 isEquilF(end.y, other.end.y) &&
                 isEquilF(end.z, other.end.z);
 
-        return checkO && checkE;
+        return checkS && checkE;
     }
 
     string toString() const pure
