@@ -63,6 +63,23 @@ struct Ray
         return result;
     }
 
+    /// returns point on ray that is closest to given point
+    /// Returns: Vec3
+    Vec3 closestPt(Vec3 pt)
+    {
+        Vec3 op = pt.subbed(origin);
+        auto dis = op.dot(direction);
+        auto t = maxF(dis, 0.0f);
+
+        Vec3 result;
+
+        result.x = origin.x + direction.x * t;
+        result.y = origin.y + direction.y * t;
+        result.z = origin.z + direction.z * t;
+
+        return result;
+    }
+
     /// cast 'this ray onto an aabb to check for collision.
     /// if value > 0 then a hit occurred
     /// Returns: float

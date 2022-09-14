@@ -103,3 +103,11 @@ bool intersectLinePlane(Line l, Plane p)
     
     return t >= 0.0f && t <= 1.0f;
 }
+
+/// test if plane and plane intersect
+/// Returns: bool
+bool intersectPlanePlane(Plane pl1, Plane pl2)
+{
+    Vec3 dir = pl1.normal.cross(pl2.normal);
+    return dir.lengthSq() > EPSILON;
+}

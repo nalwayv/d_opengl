@@ -88,14 +88,14 @@ struct Plane
     /// Returns: Vec3
     Vec3 closestPt(Vec3 pt)
     {
-        auto t = (normal.dot(pt) - d) / normal.lengthSq();
-        Vec3 cpt = pt.subbed(normal.scaled(t));
+        auto dis = (normal.dot(pt) - d) / normal.lengthSq();
+        Vec3 cp = pt.subbed(normal.scaled(dis));
 
         Vec3 result;
 
-        result.x = cpt.x;
-        result.y = cpt.y;
-        result.z = cpt.z;
+        result.x = cp.x;
+        result.y = cp.y;
+        result.z = cp.z;
 
         return result;
     }
