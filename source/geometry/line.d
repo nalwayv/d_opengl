@@ -107,15 +107,16 @@ struct Line
 
     bool opEquals(ref const Line other) const pure
     {
-        auto checkS = isEquilF(start.x, other.start.x) &&
-                isEquilF(start.y, other.start.y) &&
-                isEquilF(start.z, other.start.z);
 
-        auto checkE = isEquilF(end.x, other.end.x) &&
-                isEquilF(end.y, other.end.y) &&
-                isEquilF(end.z, other.end.z);
+        if(!isEquilF(start.x, other.start.x)) return false;
+        if(!isEquilF(start.y, other.start.y)) return false;
+        if(!isEquilF(start.z, other.start.z)) return false;
 
-        return checkS && checkE;
+        if(!isEquilF(end.x, other.end.x)) return false;
+        if(!isEquilF(end.y, other.end.y)) return false;
+        if(!isEquilF(end.z, other.end.z)) return false;
+
+        return true;
     }
 
     string toString() const pure

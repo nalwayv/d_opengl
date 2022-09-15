@@ -227,7 +227,9 @@ private class Epa
         return result;
     }
 
-    /// dot procust just to make to code look cleaner
+    /// just to make to code look cleaner
+    ///
+    /// tri.n.dot(tri.a.pt) => dot(tri.n, tri.a.pt)
     private float dot(Vec3 a, Vec3 b)
     {
         return a.dot(b);
@@ -265,7 +267,7 @@ private class Epa
     /// Returns: bool
     private bool sameDirection(Vec3 a, Vec3 b)
     {
-        return a.dot(b) > 0.0f;
+        return dot(a, b) > 0.0f;
     }
 
     /// add/remove edge data from edges

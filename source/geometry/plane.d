@@ -188,13 +188,12 @@ struct Plane
 
     bool opEquals(ref const Plane other) const pure
     {
-        auto checkN = isEquilF(normal.x, other.normal.x) &&
-                isEquilF(normal.y, other.normal.y) &&
-                isEquilF(normal.z, other.normal.z);
-
-        auto checkD = isEquilF(d, other.d);
-
-        return checkN && checkD;
+        if(!isEquilF(normal.x, other.normal.x)) return false;
+        if(!isEquilF(normal.y, other.normal.y)) return false;
+        if(!isEquilF(normal.z, other.normal.z)) return false;
+        if(!isEquilF(d, other.d)) return false;
+        
+        return true;
     }
 
     /// Returns: string
@@ -202,9 +201,7 @@ struct Plane
     {
         return format(
             "Plain [[%.2f, %.2f, %.2f], %.2f]",
-            normal.x,
-            normal.y,
-            normal.z,
+            normal.x, normal.y, normal.z,
             d
         );
     }

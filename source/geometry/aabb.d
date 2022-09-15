@@ -300,15 +300,15 @@ struct AABB
 
     bool opEquals(ref const AABB other) const pure
     {
-        auto checkO = isEquilF(origin.x, other.origin.x) &&
-                isEquilF(origin.y, other.origin.y) &&
-                isEquilF(origin.z, other.origin.z);
+        if(!isEquilF(origin.x, other.origin.x)) return false;
+        if(!isEquilF(origin.y, other.origin.y)) return false;
+        if(!isEquilF(origin.z, other.origin.z)) return false;
 
-        auto checkE = isEquilF(extents.x, other.extents.x) &&
-                isEquilF(extents.y, other.extents.y) &&
-                isEquilF(extents.z, other.extents.z);
+        if(!isEquilF(extents.x, other.extents.x)) return false;
+        if(!isEquilF(extents.y, other.extents.y)) return false;
+        if(!isEquilF(extents.z, other.extents.z)) return false;
 
-        return checkO && checkE;
+        return true;
     }
 
     string toString() const pure

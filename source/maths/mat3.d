@@ -290,6 +290,56 @@ struct Mat3
         return result;
     }
 
+    /// get row at index
+    /// Returns: Vec3
+    Vec3 rowAt(size_t i)
+    {
+        assert(i < 3);
+        if(i == 0)
+        {
+            return Vec3(m00, m01, m02);
+        }
+
+        if(i == 1)
+        {
+            return Vec3(m10, m11, m12);
+
+        }
+
+        if(i == 2)
+        {
+            return Vec3(m20, m21, m22);
+        }
+
+        assert(0);
+    }
+
+
+    /// get col at index
+    /// Returns: Vec3
+    Vec3 colAt(size_t i)
+    {
+        assert(i < 3);
+        if(i == 0)
+        {
+            return Vec3(m00, m10, m20);
+        }
+
+        if(i == 1)
+        {
+            return Vec3(m01, m11, m21);
+
+        }
+
+        if(i == 2)
+        {
+            return Vec3(m02, m12, m22);
+        }
+
+        assert(0);
+    }
+
+
     /// get the float value at coords 'row and 'col
     /// Returns: float
     float at(size_t row, size_t col) const

@@ -1,13 +1,15 @@
 /// Ray
 module geometry.ray;
 
+
 import std.format;
+import utils.bits;
 import maths.utils;
 import maths.vec3;
 import geometry.aabb;
 import geometry.sphere;
-import geometry.capsule;
 import geometry.plane;
+
 
 struct Ray
 {
@@ -167,79 +169,79 @@ struct Ray
     }
 
     /// Returns: float
-    float castCapsule(Capsule cap)
-    {
-        Vec3 ab = cap.b.subbed(cap.a);
-        Vec3 ao = origin.subbed(cap.a);
-        auto abLen = ab.lengthSq();
+    // float castCapsule(Capsule cap)
+    // {
+    //     Vec3 ab = cap.b.subbed(cap.a);
+    //     Vec3 ao = origin.subbed(cap.a);
+    //     auto abLen = ab.lengthSq();
 
-        if(isZeroF(abLen))
-        {
-            return castSphere(Sphere(cap.radius, cap.a));
-        }
+    //     if(isZeroF(abLen))
+    //     {
+    //         return castSphere(Sphere(cap.radius, cap.a));
+    //     }
 
-        auto inv = 1.0f / abLen;
-        auto m = ab.dot(direction) * inv;
-        auto n = ab.dot(ao) * inv;
+    //     auto inv = 1.0f / abLen;
+    //     auto m = ab.dot(direction) * inv;
+    //     auto n = ab.dot(ao) * inv;
 
-        auto q = direction.subbed(ab.scaled(m));
-        auto r = ao.subbed(ab.scaled(n));
+    //     auto q = direction.subbed(ab.scaled(m));
+    //     auto r = ao.subbed(ab.scaled(n));
 
-        auto ca = q.lengthSq();
-        auto cb = 2 * q.dot(r);
-        auto cc = r.lengthSq() * sqrF(cap.radius);
+    //     auto ca = q.lengthSq();
+    //     auto cb = 2 * q.dot(r);
+    //     auto cc = r.lengthSq() * sqrF(cap.radius);
 
-        if(isZeroF(ca))
-        {
-            auto castA = castSphere(Sphere(cap.radius, cap.a));
-            auto castB = castSphere(Sphere(cap.radius, cap.b));
+    //     if(isZeroF(ca))
+    //     {
+    //         auto castA = castSphere(Sphere(cap.radius, cap.a));
+    //         auto castB = castSphere(Sphere(cap.radius, cap.b));
 
-            if(castA <= 0 && castB <= 0)
-            {
-                return 0.0f;
-            }
+    //         if(castA <= 0 && castB <= 0)
+    //         {
+    //             return 0.0f;
+    //         }
 
-            if(castB < castA)
-            {
-                return castB;
-            }
+    //         if(castB < castA)
+    //         {
+    //             return castB;
+    //         }
 
-            if(castA < castB)
-            {
-                return castA;
-            }
-        }
+    //         if(castA < castB)
+    //         {
+    //             return castA;
+    //         }
+    //     }
 
-        auto d = cb * cb - 4.0f * ca * cc;
+    //     auto d = cb * cb - 4.0f * ca * cc;
 
-        if(d < 0.0f)
-        {
-            return -1.0f;
-        }
+    //     if(d < 0.0f)
+    //     {
+    //         return -1.0f;
+    //     }
 
-        auto dSq = sqrtF(d);
+    //     auto dSq = sqrtF(d);
 
-        auto t1 = (-cb - dSq) / (2.0f * ca);
-        auto t2 = (-cb + dSq) / (2.0f * ca);
+    //     auto t1 = (-cb - dSq) / (2.0f * ca);
+    //     auto t2 = (-cb + dSq) / (2.0f * ca);
 
-        auto tMin = minF(t1, t2);
+    //     auto tMin = minF(t1, t2);
 
-        auto tp = tMin * m + n;
+    //     auto tp = tMin * m + n;
 
-        if(tp < 0.0f)
-        {
-            return castSphere(Sphere(cap.radius, cap.a));
-        }
-        else if(tp > 1.0f)
-        {
-            return castSphere(Sphere(cap.radius, cap.b));
-        }
-        else
-        {
-            auto i = origin.added(direction.scaled(tMin));
-            return i.length();
-        }
-    }
+    //     if(tp < 0.0f)
+    //     {
+    //         return castSphere(Sphere(cap.radius, cap.a));
+    //     }
+    //     else if(tp > 1.0f)
+    //     {
+    //         return castSphere(Sphere(cap.radius, cap.b));
+    //     }
+    //     else
+    //     {
+    //         auto i = origin.added(direction.scaled(tMin));
+    //         return i.length();
+    //     }
+    // }
 
     /// Returns: float
     float castPlane(Plane pla)
@@ -269,6 +271,51 @@ struct Ray
         result.z = origin.z + direction.z * t;
 
         return result;
+    }
+
+    // -- override
+
+    size_t toHash() const nothrow @safe
+    {
+        const prime = 31;
+        size_t result = 1;
+        size_t tmp;
+
+
+        tmp = floatToBits(origin.x);
+        result = prime * result + (tmp ^ (tmp >>> 32));
+
+        tmp = floatToBits(origin.y);
+        result = prime * result + (tmp ^ (tmp >>> 32));
+
+        tmp = floatToBits(origin.z);
+        result = prime * result + (tmp ^ (tmp >>> 32));
+
+
+        tmp = floatToBits(direction.x);
+        result = prime * result + (tmp ^ (tmp >>> 32));
+
+        tmp = floatToBits(direction.y);
+        result = prime * result + (tmp ^ (tmp >>> 32));
+
+        tmp = floatToBits(direction.z);
+        result = prime * result + (tmp ^ (tmp >>> 32));
+
+
+        return result;
+    }
+
+    bool opEquals(ref const Ray other) const pure
+    {
+        if(!isEquilF(origin.x, other.origin.x)) return false;
+        if(!isEquilF(origin.y, other.origin.y)) return false;
+        if(!isEquilF(origin.z, other.origin.z)) return false;
+
+        if(!isEquilF(direction.x, other.direction.x)) return false;
+        if(!isEquilF(direction.y, other.direction.y)) return false;
+        if(!isEquilF(direction.z, other.direction.z)) return false;
+
+        return true;
     }
 
     /// Returns: string
