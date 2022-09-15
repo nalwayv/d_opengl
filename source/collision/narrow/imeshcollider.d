@@ -6,5 +6,5 @@ import maths.vec3;
 
 interface IMeshCollider
 {
-    Vec3 furthestPt(Vec3 direction);
+    Vec3 farthestPoint(Vec3 direction);
 }

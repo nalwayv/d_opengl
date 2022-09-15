@@ -127,7 +127,7 @@ struct AABB
 
     /// returns point on aabb that is closest to given point
     /// Returns: Vec3
-    Vec3 closestPt(Vec3 pt)
+    Vec3 closestPoint(Vec3 pt)
     {
         Vec3 pMin = min();
         Vec3 pMax = max();
@@ -238,7 +238,7 @@ struct AABB
 
     /// resturn the sqr distance between 'this aabb and 'pt
     /// Returns: float
-    float sqDistPt(Vec3 pt)
+    float sqDistPoint(Vec3 pt)
     {
         Vec3 pMax = max();
         Vec3 pMin = min();

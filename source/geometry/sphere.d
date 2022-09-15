@@ -31,7 +31,7 @@ struct Sphere
 
     /// returns point on sphere that is closest to given point
     /// Returns: Vec3
-    Vec3 closestPt(Vec3 pt)
+    Vec3 closestPoint(Vec3 pt)
     {
         Vec3 p = pt.subbed(origin);
         if(!p.isNormal())
@@ -64,7 +64,7 @@ struct Sphere
     }
 
     /// Returns: Vec3
-    Vec3 furthestPt(Vec3 direction, Mat4 m4)
+    Vec3 farthestPoint(Vec3 direction, Mat4 m4)
     {
         if(!direction.isNormal())
         {

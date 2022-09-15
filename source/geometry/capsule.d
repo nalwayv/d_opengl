@@ -14,6 +14,33 @@ struct Capsule
     Vec3 b;
     float radius;
 
+    static Capsule fromHeight(float radius, float height)
+    {
+
+        auto hh = height * 0.5;
+
+        Capsule result;
+
+        result.a = Vec3(0, hh, 0);
+        result.b = Vec3(0, -hh, 0);
+        result.radius = radius;
+
+        return result;
+
+    }
+
+    Vec3 getOrigin()
+    {
+        // a + ((b - a) * 0.5)
+        return a.added(b.subbed(a).scaled(0.5f));
+
+    }
+
+    
+    float getHeight()
+    {
+        return b.subbed(a).length();
+    }
 
     // -- override
 

@@ -60,7 +60,7 @@ bool onPlanePoint(Plane pl, Vec3 pt)
 /// Returns: bool
 bool onLinePoint(Line ln, Vec3 pt)
 {
-    Vec3 close = ln.closestPt(pt);
+    Vec3 close = ln.closestPoint(pt);
     auto disSq = close.subbed(pt).lengthSq();
     return isZeroF(disSq);
 }

@@ -31,7 +31,7 @@ struct Ray
         this.direction.z = direction.z;
     }
 
-    static Ray fromPts(Vec3 a, Vec3 b)
+    static Ray fromPoints(Vec3 a, Vec3 b)
     {
         Vec3 o = a;
         Vec3 d = b.subbed(a).normalized();
@@ -65,7 +65,7 @@ struct Ray
 
     /// returns point on ray that is closest to given point
     /// Returns: Vec3
-    Vec3 closestPt(Vec3 pt)
+    Vec3 closestPoint(Vec3 pt)
     {
         Vec3 op = pt.subbed(origin);
         auto dis = op.dot(direction);

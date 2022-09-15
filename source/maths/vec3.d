@@ -81,7 +81,7 @@ struct Vec3
 
     /// create a vec3 normal from three vec3 points
     /// Returns: Vec3
-    static Vec3 normalFromPts(Vec3 a, Vec3 b, Vec3 c)
+    static Vec3 normalFromPoints(Vec3 a, Vec3 b, Vec3 c)
     {
         auto ac = a.dot(c);
         auto bc = b.dot(c);

@@ -17,15 +17,15 @@ enum int GJK_ITERATIONS = 30;
 enum int EPA_ITERATIONS = 30;
 
 
-private struct SupportPt
+private struct SupportPoint
 {
     Vec3 pt;
     Vec3 spA;
     Vec3 spB;
 
-    static SupportPt newSupportPt(Vec3 pt)
+    static SupportPoint newSupportPoint(Vec3 pt)
     {
-        SupportPt result;
+        SupportPoint result;
 
         result.pt = pt;
         result.spA = Vec3(0.0f, 0.0f, 0.0f);
@@ -34,17 +34,17 @@ private struct SupportPt
         return result;
     }
 
-    Vec3 subbedPt(SupportPt other)
+    Vec3 subbedPoint(SupportPoint other)
     {
         return pt.subbed(other.pt);
     }
 
-    Vec3 negatedPt()
+    Vec3 negatedPoint()
     {
         return pt.negated();
     }
 
-    bool isEquilPt(SupportPt other)
+    bool isEquilPoint(SupportPoint other)
     {
         return pt.isEquil(other.pt);
     }
@@ -53,49 +53,49 @@ private struct SupportPt
 
 private struct Edge
 {
-    SupportPt a;
-    SupportPt b;
+    SupportPoint a;
+    SupportPoint b;
 
     /// check for equality between edges support points
     /// Returns: bool
     bool isEquil(Edge other)
     {
-        return a.isEquilPt(other.a) && b.isEquilPt(other.b);
+        return a.isEquilPoint(other.a) && b.isEquilPoint(other.b);
     }
 }
 
 
 private struct Triangle
 {
-    SupportPt a;
-    SupportPt b;
-    SupportPt c;
+    SupportPoint a;
+    SupportPoint b;
+    SupportPoint c;
     Vec3 n;
 
-    this(SupportPt a, SupportPt b, SupportPt c)
+    this(SupportPoint a, SupportPoint b, SupportPoint c)
     {
         this.a = a;
         this.b = b;
         this.c = c;
 
-        this.n = b.subbedPt(this.a).cross(this.c.subbedPt(this.a)).normalized();
+        this.n = b.subbedPoint(this.a).cross(this.c.subbedPoint(this.a)).normalized();
     }
 }
 
 
 private struct Simplex 
 {
-    SupportPt[4] pts;
+    SupportPoint[4] pts;
     int length;
 
     static Simplex newSimplex()
     {
         Simplex result;
 
-        result.pts[0] = SupportPt.newSupportPt(Vec3.zero());
-        result.pts[1] = SupportPt.newSupportPt(Vec3.zero());
-        result.pts[2] = SupportPt.newSupportPt(Vec3.zero());
-        result.pts[3] = SupportPt.newSupportPt(Vec3.zero());
+        result.pts[0] = SupportPoint.newSupportPoint(Vec3.zero());
+        result.pts[1] = SupportPoint.newSupportPoint(Vec3.zero());
+        result.pts[2] = SupportPoint.newSupportPoint(Vec3.zero());
+        result.pts[3] = SupportPoint.newSupportPoint(Vec3.zero());
 
         result.length = 0;
 
@@ -107,27 +107,27 @@ private struct Simplex
         length = 0; 
     }
 
-    SupportPt a()
+    SupportPoint a()
     { 
         return pts[0];
     }
 
-    SupportPt b()
+    SupportPoint b()
     { 
         return pts[1];
     }
 
-    SupportPt c()
+    SupportPoint c()
     { 
         return pts[2];
     }
 
-    SupportPt d()
+    SupportPoint d()
     { 
         return pts[3];
     }
 
-    void set(SupportPt a, SupportPt b, SupportPt c, SupportPt d)
+    void set(SupportPoint a, SupportPoint b, SupportPoint c, SupportPoint d)
     {
         length = 4;
 
@@ -137,7 +137,7 @@ private struct Simplex
         pts[3] = d;
     }
 
-    void set(SupportPt a, SupportPt b, SupportPt c)
+    void set(SupportPoint a, SupportPoint b, SupportPoint c)
     {
         length = 3;
 
@@ -146,7 +146,7 @@ private struct Simplex
         pts[2] = c;
     }
 
-    void set(SupportPt a, SupportPt b)
+    void set(SupportPoint a, SupportPoint b)
     {
         length = 2;
 
@@ -154,7 +154,7 @@ private struct Simplex
         pts[1] = b;
     }
 
-    void set(SupportPt a)
+    void set(SupportPoint a)
     {
         length = 1;
 
@@ -162,7 +162,7 @@ private struct Simplex
     }
 
     /// add support point to simplex
-    void push(SupportPt p)
+    void push(SupportPoint p)
     {
         length = minI(length + 1, 4);
 
@@ -210,15 +210,15 @@ private class Epa
     // --- helpers
 
     /// return current support point based on models furest point in direction
-    /// Returns: SupportPt
-    private SupportPt getSupport(Vec3 dir)
+    /// Returns: SupportPoint
+    private SupportPoint getSupport(Vec3 dir)
     {
-        auto a = mcA.furthestPt(dir);
-        auto b = mcB.furthestPt(dir.negated());
+        auto a = mcA.farthestPoint(dir);
+        auto b = mcB.farthestPoint(dir.negated());
 
         auto ba = a.subbed(b);
 
-        SupportPt result;
+        SupportPoint result;
 
         result.pt = ba;
         result.spA = a;
@@ -269,7 +269,7 @@ private class Epa
     }
 
     /// add/remove edge data from edges
-    private void addEdge(Edge[] edges, SupportPt a, SupportPt b)
+    private void addEdge(Edge[] edges, SupportPoint a, SupportPoint b)
     {
         auto edge = Edge(a, b);
 
@@ -355,7 +355,7 @@ private class Epa
                 }
             }
 
-            SupportPt support = getSupport(minTri.n);
+            SupportPoint support = getSupport(minTri.n);
             auto newDis = dot(minTri.n, support.pt);
 
             if((newDis - minDis) < EPA_OPTIMAL)
@@ -366,7 +366,7 @@ private class Epa
             for(auto it = 0; it < tris.length;)
             {
                 Triangle current = tris[it];
-                Vec3 sp = support.subbedPt(current.a);
+                Vec3 sp = support.subbedPoint(current.a);
 
                 if(sameDirection(current.n, sp))
                 {
@@ -447,14 +447,14 @@ class Gjk
 
     /// return support pt from direction 'dir
     /// Returns: Vec3
-    private SupportPt getSupport(Vec3 dir)
+    private SupportPoint getSupport(Vec3 dir)
     {
-        auto a = mcA.furthestPt(dir);
-        auto b = mcB.furthestPt(dir.negated());
+        auto a = mcA.farthestPoint(dir);
+        auto b = mcB.farthestPoint(dir.negated());
 
         auto ba = a.subbed(b);
 
-        SupportPt result;
+        SupportPoint result;
 
         result.pt = ba;
         result.spA = a;
@@ -481,11 +481,11 @@ class Gjk
             return false;
         }
 
-        SupportPt a = simplex.a();
-        SupportPt b = simplex.b();
+        SupportPoint a = simplex.a();
+        SupportPoint b = simplex.b();
 
-        Vec3 ab = b.subbedPt(a);
-        Vec3 an = a.negatedPt();        
+        Vec3 ab = b.subbedPoint(a);
+        Vec3 an = a.negatedPoint();        
         
         if(sameDirection(ab, an))
         {
@@ -510,13 +510,13 @@ class Gjk
             return false;
         }
 
-        SupportPt a = simplex.a();
-        SupportPt b = simplex.b();
-        SupportPt c = simplex.c();
+        SupportPoint a = simplex.a();
+        SupportPoint b = simplex.b();
+        SupportPoint c = simplex.c();
 
-        Vec3 ab = b.subbedPt(a);
-        Vec3 ac = c.subbedPt(a);
-        Vec3 an = a.negatedPt();
+        Vec3 ab = b.subbedPoint(a);
+        Vec3 ac = c.subbedPoint(a);
+        Vec3 an = a.negatedPoint();
 
         Vec3 abc = ab.cross(ac);
 
@@ -570,15 +570,15 @@ class Gjk
             return false;
         }
 
-        SupportPt a = simplex.a();
-        SupportPt b = simplex.b();
-        SupportPt c = simplex.c();
-        SupportPt d = simplex.d();
+        SupportPoint a = simplex.a();
+        SupportPoint b = simplex.b();
+        SupportPoint c = simplex.c();
+        SupportPoint d = simplex.d();
 
-        Vec3 ab = b.subbedPt(a);
-        Vec3 ac = c.subbedPt(a);
-        Vec3 ad = d.subbedPt(a);
-        Vec3 an = a.negatedPt();
+        Vec3 ab = b.subbedPoint(a);
+        Vec3 ac = c.subbedPoint(a);
+        Vec3 ad = d.subbedPoint(a);
+        Vec3 an = a.negatedPoint();
 
         Vec3 abc = ab.cross(ac);
         Vec3 acd = ac.cross(ad);
@@ -640,7 +640,7 @@ class Gjk
 
         direction = Vec3(1.0f, 0.0f, 0.0f);
 
-        SupportPt support = getSupport(direction);
+        SupportPoint support = getSupport(direction);
 
         simplex.push(support);
 

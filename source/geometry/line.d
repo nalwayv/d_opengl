@@ -29,7 +29,7 @@ struct Line
 
     /// returns closest point on line
     /// Returns: Vec3
-    Vec3 closestPt(Vec3 pt)
+    Vec3 closestPoint(Vec3 pt)
     {
         Vec3 s = segment();
         

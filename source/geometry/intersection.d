@@ -31,7 +31,7 @@ bool intersectsAabbAabb(AABB a1, AABB a2)
 /// Returns: bool
 bool intersectsAabbSphere(AABB a, Sphere s)
 {
-    return a.sqDistPt(s.origin) <= sqrF(s.radius);
+    return a.sqDistPoint(s.origin) <= sqrF(s.radius);
 }
 
 /// test if aabb and line intersect
@@ -86,7 +86,7 @@ bool intersectSpherePlane(Sphere s, Plane p)
 /// Returns: bool
 bool intersectSphereLine(Sphere s, Line l)
 {
-    Vec3 cp = l.closestPt(s.origin);
+    Vec3 cp = l.closestPoint(s.origin);
     auto disSq = s.origin.subbed(cp).lengthSq();
 
     return disSq <= sqrF(s.radius);

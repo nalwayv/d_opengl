@@ -30,7 +30,7 @@ struct Plane
 
     /// create a plane from three points
     /// Returns: Plane
-    static Plane fromPts(Vec3 a, Vec3 b, Vec3 c)
+    static Plane fromPointints(Vec3 a, Vec3 b, Vec3 c)
     {
         Vec3 ab = b.subbed(a);
         Vec3 ac = c.subbed(a);
@@ -86,7 +86,7 @@ struct Plane
 
     /// returns point on plane that is closest to given point
     /// Returns: Vec3
-    Vec3 closestPt(Vec3 pt)
+    Vec3 closestPoint(Vec3 pt)
     {
         auto dis = (normal.dot(pt) - d) / normal.lengthSq();
         Vec3 cp = pt.subbed(normal.scaled(dis));

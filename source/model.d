@@ -116,7 +116,7 @@ class Model : IMeshCollider
 
     /// get furthest point in given direction
     /// Returns: Vec3
-    public Vec3 furthestPt(Vec3 direction)
+    public Vec3 farthestPoint(Vec3 direction)
     {
         if(!direction.isNormal())
         {
