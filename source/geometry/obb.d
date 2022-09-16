@@ -1,4 +1,6 @@
+/// Obb
 module geometry.obb;
+
 
 import std.format;
 import utils.bits;

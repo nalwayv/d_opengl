@@ -92,15 +92,22 @@ float raycastSphere(Ray ray, Sphere sph)
     return dis - f;
 }
 
+// TODO
 /// raycast against an obb
 /// Returns: float
 float raycastObb(Ray ray, Obb ob)
 {
+
+    import std.stdio : writeln;
+
     Vec3 rx = ob.axis.row0();
     Vec3 ry = ob.axis.row1();
     Vec3 rz = ob.axis.row2();
 
-    auto ext = ob.extents.toArray();
+    float[3] ext;
+    ext[0] = ob.extents.x;
+    ext[1] = ob.extents.y;
+    ext[2] = ob.extents.z;
 
     Vec3 dir = ob.origin.subbed(ray.origin);
 
@@ -119,8 +126,9 @@ float raycastObb(Ray ray, Obb ob)
     {
         if(isZeroF(f[i]))
         {
-            if(-e[i] - ext[i] > 0.0f || -e[i] + ext[i] < 0.0f)
+            if((-e[i] - ext[i]) > 0.0f || (-e[i] + ext[i]) < 0.0f)
             {
+                writeln("A");
                 return -1.0f;
             }
             f[i] = EPSILON;
@@ -130,30 +138,22 @@ float raycastObb(Ray ray, Obb ob)
         t[i * 2 + 1] = (e[i] - ext[i]) / f[i];
     }
 
-    auto fnMax = (float a, float b, float c, float d, float e, float f) {
-        auto t1 = minF(a, b);
-        auto t2 = minF(c, f);
-        auto t3 = minF(e, f);
+    auto tMax = maxF(maxF(minF(t[0], t[1]), minF(t[2], t[3])), minF(t[4], t[5]));
+    auto tMin = minF(minF(maxF(t[0], t[1]), maxF(t[2], t[3])), maxF(t[4], t[5]));
 
-        return maxF(t1, t2, t3);
-    };
+    if(tMax < 0.0f)
+    {
+        writeln("B");
+        return -1.0f;
+    }
 
-    auto fnMin = (float a, float b, float c, float d, float e, float f) {
-        auto t1 = maxF(a, b);
-        auto t2 = maxF(c, f);
-        auto t3 = maxF(e, f);
+    if(tMin > tMax) 
+    {
+        writeln("C");
+        return -1.0f;
+    }
 
-        return minF(t1, t2, t3);
-    };
-
-    auto tMax = fnMax(t[0], t[1], t[2], t[3], t[4], t[5]);
-    auto tMin = fnMin(t[0], t[1], t[2], t[3], t[4], t[5]);
-
-    if(tMax < 0.0f) return -1.0f;
-
-    if(tMin > tMax) return -1.0f;
-
-    return (tMax < 0.0f) ? tMax : tMin;
+    return (tMin < 0.0f) ? tMax : tMin;
 }
 
 /// raycast against a plane
@@ -171,4 +171,11 @@ float raycastPlane(Ray ray, Plane pl)
     auto t = (pl.d - disB) / disA;
 
     return (t >= 0.0f) ? t : -1.0f;
+}
+
+/// check if value from raycast if valid
+/// Returns: bool
+bool raycastCheck(float castValue)
+{
+    return castValue != -1.0f;
 }
