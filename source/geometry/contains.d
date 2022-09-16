@@ -7,6 +7,7 @@ import maths.vec3;
 import geometry.aabb;
 import geometry.sphere;
 import geometry.line;
+import geometry.obb;
 import geometry.plane;
 import geometry.ray;
 
@@ -48,6 +49,31 @@ bool containsSpherePoint(Sphere sph, Vec3 pt)
     return disSq < sqrF(sph.radius);
 }
 
+/// test if obb contains point
+/// Returns: bool
+bool containsObbPoint(Obb ob, Vec3 pt)
+{
+    Vec3 dir = pt.subbed(ob.origin);
+
+    for(auto i = 0; i < 3; i++)
+    {
+        auto dis = dir.dot(ob.axis.rowAt(i));
+
+        auto ext = ob.extents.at(i);
+        if(dis > ext)
+        {
+            return false;
+        }
+
+        if(dis < -ext)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 /// test if point is on plane
 /// Returns: bool
 bool onPlanePoint(Plane pl, Vec3 pt)
@@ -67,15 +93,15 @@ bool onLinePoint(Line ln, Vec3 pt)
 
 /// test if point is on ray
 /// Returns: bool
-bool onRayPoint(Ray r, Vec3 pt)
+bool onRayPoint(Ray ray, Vec3 pt)
 {
-    Vec3 op = pt.subbed(r.origin);
-    if(!op.isNormal())
+    Vec3 dir = pt.subbed(ray.origin);
+    if(!dir.isNormal())
     {
-        op = op.normalized();
+        dir = dir.normalized();
     }
 
-    auto dis = op.dot(r.direction);
+    auto dis = dir.dot(ray.direction);
 
     return isOneF(dis);
 }

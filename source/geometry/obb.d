@@ -11,15 +11,15 @@ import maths.mat3;
 struct Obb
 {
     Mat3 axis;
-    Vec3 basis;
+    Vec3 origin;
     Vec3 extents;
 
-    static Obb newObb(Vec3 basis, Vec3 extents)
+    static Obb newObb(Vec3 origin, Vec3 extents)
     {
         Obb result;
 
         result.axis = Mat3.identity();
-        result.basis = basis;
+        result.origin = origin;
         result.extents = extents;
         
         return result;
@@ -41,9 +41,9 @@ struct Obb
         tmp.m21 = axis.m21;
         tmp.m22 = axis.m22;
         tmp.m23 = 0.0f;
-        tmp.m30 = basis.x;
-        tmp.m31 = basis.y;
-        tmp.m32 = basis.z;
+        tmp.m30 = origin.x;
+        tmp.m31 = origin.y;
+        tmp.m32 = origin.z;
         tmp.m33 = 1.0f;
 
         Mat4 mul = tmp.multiplied(m4);
@@ -60,9 +60,9 @@ struct Obb
         result.axis.m00 = mul.m21;
         result.axis.m00 = mul.m22;
 
-        result.basis.x = mul.m30;
-        result.basis.y = mul.m31;
-        result.basis.z = mul.m32;
+        result.origin.x = mul.m30;
+        result.origin.y = mul.m31;
+        result.origin.z = mul.m32;
 
         result.extents.x = extents.x;
         result.extents.y = extents.y;
@@ -71,30 +71,32 @@ struct Obb
         return result;
     }
 
+    /// return closest point
+    /// Returns: Vec3
     Vec3 closestPoint(Vec3 pt)
     {
-        Vec3 d = pt.subbed(basis);
+        Vec3 dir = pt.subbed(origin);
 
-        Vec3 result = basis;
+        Vec3 result = origin;
 
         for(auto i = 0; i < 3 ; i++)
         {
-            Vec3 currentRow = axis.rowAt(i);
-            auto currentExtent = extents.at(i);
+            Vec3 currentAxis = axis.rowAt(i);
+            auto currentExt = extents.at(i);
 
-            auto dis = d.dot(currentRow);
+            auto dis = dir.dot(currentAxis);
            
-            if(dis > currentExtent)
+            if(dis > currentExt)
             {
-                dis = currentExtent;
+                dis = currentExt;
             }
            
-            if(dis < -currentExtent)
+            if(dis < -currentExt)
             {
-                dis = -currentExtent;
+                dis = -currentExt;
             }
 
-            result = result.added(currentRow.scaled(dis));
+            result = result.added(currentAxis.scaled(dis));
         }
 
         return result;
@@ -108,13 +110,13 @@ struct Obb
         size_t result = 1;
         size_t tmp;
 
-        tmp = floatToBits(basis.x);
+        tmp = floatToBits(origin.x);
         result = prime * result + (tmp ^ (tmp >>> 32));
 
-        tmp = floatToBits(basis.y);
+        tmp = floatToBits(origin.y);
         result = prime * result + (tmp ^ (tmp >>> 32));
 
-        tmp = floatToBits(basis.z);
+        tmp = floatToBits(origin.z);
         result = prime * result + (tmp ^ (tmp >>> 32));
 
 
@@ -160,9 +162,9 @@ struct Obb
 
     bool opEquals(ref const Obb other) const pure
     {
-        if(basis.x != other.basis.x) return false;
-        if(basis.y != other.basis.y) return false;
-        if(basis.z != other.basis.z) return false;
+        if(origin.x != other.origin.x) return false;
+        if(origin.y != other.origin.y) return false;
+        if(origin.z != other.origin.z) return false;
 
         if(extents.x != other.extents.x) return false;
         if(extents.y != other.extents.y) return false;
@@ -185,7 +187,7 @@ struct Obb
     string toString() const pure
     {
         return format("OBB [[%.2f, %.2f, %.2f], [%.2, %.2, %.2], []]", 
-            basis.x, basis.y, basis.z,
+            origin.x, origin.y, origin.z,
             extents.x, extents.y, extents.z
         );
     }

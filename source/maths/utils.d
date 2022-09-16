@@ -113,6 +113,12 @@ float minF(float x, float y)
     return (x < y) ? x : y;
 }
 
+/// return min float value between 'x, 'y and 'z
+float minF(float x, float y, float z)
+{
+    return minF(x, minF(y, z));
+}
+
 /// return min int value between 'x and 'y
 int minI(int x, int y)
 {
@@ -130,6 +136,7 @@ float maxF(float x, float y, float z)
 {
     return maxF(x, maxF(y, z));
 }
+
 
 /// return max int value between 'x and 'y
 int maxI(int x, int y)

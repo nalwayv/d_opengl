@@ -127,6 +127,13 @@ struct Vec2
         return xx + yy;
     }
 
+    /// retruns 2d cross product
+    /// Returns: float
+    float cross(Vec2 other)
+    {
+        return y * other.x - x * other.y;
+    }
+
     /// return length sqr of 'this vec2
     /// Returns: float
     float lengthSq()
