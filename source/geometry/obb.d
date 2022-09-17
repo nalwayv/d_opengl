@@ -16,15 +16,11 @@ struct Obb
     Vec3 origin;
     Vec3 extents;
 
-    static Obb newObb(Vec3 origin, Vec3 extents)
+    this(Vec3 origin, Vec3 extents)
     {
-        Obb result;
-
-        result.axis = Mat3.identity();
-        result.origin = origin;
-        result.extents = extents;
-        
-        return result;
+        this.axis = Mat3.identity();
+        this.origin = origin;
+        this.extents = extents;
     }
 
     Obb transformed(Mat4 m4)

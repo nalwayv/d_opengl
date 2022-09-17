@@ -37,18 +37,15 @@ struct AABB
     /// Returns: AABB
     static AABB fromMinMax(Vec3 pMin, Vec3 pMax)
     {
-        Vec3 p1 = pMin.added(pMax).scaled(0.5);
-        Vec3 p2 = pMin.subbed(pMax).scaled(0.5);
-
         AABB result;
 
-        result.origin.x = p1.x;
-        result.origin.y = p1.y;
-        result.origin.z = p1.z;
+        result.origin.x = (pMin.x + pMax.x) * 0.5f;
+        result.origin.y = (pMin.y + pMax.y) * 0.5f;
+        result.origin.z = (pMin.z + pMax.z) * 0.5f;
 
-        result.extents.x = p2.x;
-        result.extents.y = p2.y;
-        result.extents.z = p2.z;
+        result.extents.x = (pMax.x - pMin.x) * 0.5f;
+        result.extents.y = (pMax.y - pMin.y) * 0.5f;
+        result.extents.z = (pMax.z - pMin.z) * 0.5f;
 
         return result;
     }

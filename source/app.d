@@ -97,7 +97,7 @@ void main()
     auto bID = tree.add(cubeB.computeAABB(), cubeB);
     tree.valide();
 
-
+    tmp();
 
 	while(!glfwWindowShouldClose(window))
     {
