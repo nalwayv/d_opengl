@@ -106,7 +106,7 @@ float raycastObb(Ray ray, Obb ob)
                 return -1.0f;
             }
 
-            f[i] =  0.00001f;
+            f[i] = EPSILON;
         }
 
         t[i * 2 + 0] = (e[i] + size[i]) / f[i]; // min
