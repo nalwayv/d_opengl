@@ -2,7 +2,7 @@
 module utils.bits;
 
 
-/// helper function to convert float value to its size_t representation
+/// helper function to convert float value to size_t
 /// Returns: size_t
 size_t floatToBits(float value) pure nothrow @safe
 {
