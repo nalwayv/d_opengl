@@ -8,11 +8,12 @@ import maths.vec3;
 import maths.vec4;
 import maths.mat4;
 import maths.mat3;
+import geometry.shapes;
 
 struct Plane
 {
-    float d;
     Vec3 normal;
+    float d;
 
     /// normal should be normalized
     this(Vec3 normal, float d)
@@ -161,6 +162,11 @@ struct Plane
         result.normal = Vec3(v4.x, v4.y, v4.z);
         result.d = v4.w;
         return result;
+    }
+
+    int type()
+    {
+        return SHAPE_PLANE;
     }
 
     // -- override

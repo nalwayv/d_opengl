@@ -7,13 +7,14 @@ import utils.bits;
 import maths.utils;
 import maths.vec3;
 import maths.mat4;
+import geometry.shapes;
 import geometry.aabb;
 
 
 struct Sphere
 {
-    float radius;
     Vec3 origin;
+    float radius;
     
     /// create a sphere with a radius of one
     /// Returns: Sphere
@@ -89,6 +90,11 @@ struct Sphere
         Vec3 pMax = Vec3(origin.x + radius, origin.y + radius, origin.z + radius);
 
         return AABB.fromMinMax(pMin, pMax);
+    }
+
+    int type()
+    {
+        return SHAPE_SPHERE;
     }
 
     // -- override

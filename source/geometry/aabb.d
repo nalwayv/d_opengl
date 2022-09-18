@@ -9,6 +9,7 @@ import maths.vec3;
 import maths.vec4;
 import maths.mat3;
 import maths.mat4;
+import geometry.shapes;
 
 
 struct AABB
@@ -264,6 +265,11 @@ struct AABB
         auto cz = isEquilF(p1.z, p2.z);
 
         return cx && cy && cz;
+    }
+
+    int type()
+    {
+        return SHAPE_AABB;
     }
 
     // -- override

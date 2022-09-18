@@ -7,6 +7,7 @@ import utils.bits;
 import maths.utils;
 import maths.vec3;
 import maths.mat4;
+import geometry.shapes;
 
 
 struct Line
@@ -74,6 +75,11 @@ struct Line
         auto z2 = sqrF(ab.z);
 
         return sqrtF(x2 + y2 + z2);
+    }
+
+    int type()
+    {
+        return SHAPE_LINE;
     }
 
     // -- override

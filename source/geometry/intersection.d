@@ -290,7 +290,8 @@ bool intersectObbLine(Obb ob, Line ln)
     return t >= 0.0f && sqrF(t) <= ln.lengthSq();
 }
 
-
+/// test if obb and plane intersect
+/// Returns: bool
 bool intersectObbPlane(Obb ob, Plane pl)
 {
     Vec3 ex = ob.extents;

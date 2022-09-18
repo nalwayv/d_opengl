@@ -67,7 +67,6 @@ float raycastSphere(Ray ray, Sphere sph)
     return dis - f;
 }
 
-// TODO
 /// raycast against an obb
 /// Returns: float
 float raycastObb(Ray ray, Obb ob)

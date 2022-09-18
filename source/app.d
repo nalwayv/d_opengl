@@ -14,6 +14,7 @@ import mouse;
 import camera;
 import shadercache;
 
+import geometry.aabb;
 
 alias Tree = TreeTemplate!(Model).ABTree;
 

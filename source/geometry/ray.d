@@ -6,6 +6,7 @@ import std.format;
 import utils.bits;
 import maths.utils;
 import maths.vec3;
+import geometry.shapes;
 import geometry.aabb;
 import geometry.sphere;
 import geometry.plane;
@@ -93,6 +94,11 @@ struct Ray
         result.z = origin.z + direction.z * t;
 
         return result;
+    }
+
+    int type()
+    {
+        return SHAPE_RAY;
     }
 
     // -- override

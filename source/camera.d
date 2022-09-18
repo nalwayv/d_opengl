@@ -1,5 +1,4 @@
 /// CAMERA
-// TODO(...)
 module camera;
 
 
