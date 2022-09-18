@@ -11,6 +11,7 @@ import geometry.line;
 import geometry.obb;
 import geometry.plane;
 import geometry.ray;
+import geometry.raycast;
 
 
 /// test if aabb and aabb intersect
@@ -108,6 +109,16 @@ bool intersectSphereSphere(Sphere sph1, Sphere sph2)
     return disSq < sqrF(rSum);
 }
 
+/// test if line and sphere intersect
+/// Returns: bool
+bool intersectSphereLine(Sphere sph, Line ln)
+{
+    Vec3 cp = ln.closestPoint(sph.origin);
+    auto disSq = sph.origin.subbed(cp).lengthSq();
+
+    return disSq <= sqrF(sph.radius);
+}
+
 /// test if sphere and obb intersect
 /// Returns: bool
 bool intersectSphereObb(Sphere sph, Obb ob)
@@ -124,16 +135,6 @@ bool intersectSpherePlane(Sphere sph, Plane pl)
     auto cp = pl.closestPoint(sph.origin);
     auto disSq = sph.origin.subbed(cp).lengthSq();
     return disSq < sqrF(sph.radius);
-}
-
-/// test if line and sphere intersect
-/// Returns: bool
-bool intersectSphereLine(Sphere sph, Line ln)
-{
-    Vec3 cp = ln.closestPoint(sph.origin);
-    auto disSq = sph.origin.subbed(cp).lengthSq();
-
-    return disSq <= sqrF(sph.radius);
 }
 
 /// test if obb and obb intersect
@@ -275,6 +276,20 @@ bool intersectObbObb(Obb ob1, Obb ob2)
 
     return true;
 }
+
+/// test if obb and line intersect
+/// Returns: bool
+bool intersectObbLine(Obb ob, Line ln)
+{
+    Ray r;
+    r.origin = ln.start;
+    r.direction = ln.segment.normalized();
+
+    auto t =  raycastObb(r, ob);
+    
+    return t >= 0.0f && sqrF(t) <= ln.lengthSq();
+}
+
 
 bool intersectObbPlane(Obb ob, Plane pl)
 {
