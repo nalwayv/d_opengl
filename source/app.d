@@ -7,6 +7,7 @@ import maths.mat4;
 import maths.vec3;
 import collision.broad.abtree;
 import collision.narrow.gjk;
+import geometry.aabb;
 import model;
 import clock;
 import keyboard;
@@ -19,6 +20,56 @@ alias Tree = TreeTemplate!(Model).ABTree;
 
 enum WIDTH = 640;
 enum HEIGHT = 480;
+
+
+class Scene
+{
+    private
+    {
+        Tree tree;
+    }
+
+    this()
+    {
+        tree = new Tree();
+    }
+
+    int addModel(Model model)
+    {
+        auto id = tree.add(model.computeAABB(), model);
+        tree.valide();
+        return id;
+    }
+
+    void removeModel(int id)
+    {
+        tree.remove(id);
+        tree.valide();
+    }
+
+    void updateModel(int id)
+    {
+        auto m = tree.getData(id);
+        tree.move(m.computeAABB(), id);
+        tree.valide();
+    }
+
+    void query(int id)
+    {
+        auto m = tree.getData(id);
+        tree.query(m.computeAABB(), (Model b) {
+            auto gjk = new Gjk(m, b);
+            if(gjk.check())
+            {
+                auto cData = gjk.getCollisionData();
+                Vec3 translateBy = cData.normal.scaled(cData.depth);
+                m.translate(translateBy);
+                return true;
+            }
+            return false;
+        });
+    }
+}
 
 
 GLFWwindowsizefun windowSizeCB()
@@ -81,7 +132,7 @@ void main()
     auto shaderCache = new ShaderCache();
     shaderCache.add("default", "shaders\\default.vert", "shaders\\default.frag");
 
-    // model
+    // // model
     auto cubeA = new Model("models\\cube");
     cubeA.setColor(1, 0, 0);
 
@@ -90,18 +141,15 @@ void main()
     cubeB.translate(5.0f, 0.0f, 0.0f);
     cubeB.setColor(0, 1, 0);
 
-    // TODO
-    // collision
-    auto tree = new Tree();
-    auto bID = tree.add(cubeB.computeAABB(), cubeB);
-    tree.valide();
+    Scene scene = new Scene();
+    auto aID = scene.addModel(cubeA);
+    auto bID = scene.addModel(cubeB);
 
 	while(!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
-
         glClearColor(0.5, 0.5, 0.5, 1.0);
 
         // ---
@@ -113,18 +161,13 @@ void main()
         cubeA.render(shaderCache, cam);
         cubeB.render(shaderCache, cam);
 
-        tree.query(cubeA.computeAABB(), (Model b) {
-            auto gjk = new Gjk(cubeA, b);
-            if(gjk.check())
-            {
-                auto cData = gjk.getCollisionData();
-                Vec3 translateBy = cData.normal.scaled(cData.depth);
-                cubeA.translate(translateBy);
-                return true;
-            }
-            return false;
-        });
+        // ---
 
+        scene.query(aID);
+        scene.updateModel(aID);
+        scene.updateModel(bID);
+
+        // ---
 
         if(keyb.keyState(GLFW_KEY_UP) == KEY_HELD) 
         {

@@ -8,8 +8,6 @@ import maths.vec3;
 import geometry.aabb;
 import geometry.contains;
 import geometry.intersection;
-// import geometry.ray;
-// import geometry.raycast;
 
 
 enum float EXPAND = 0.1f;
