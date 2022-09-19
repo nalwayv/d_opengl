@@ -163,16 +163,6 @@ class Mesh
             null
         );
 
-        // glEnableVertexAttribArray(COLOR_IDX);
-        // glVertexAttribPointer(
-        //     COLOR_IDX,
-        //     COMPONENTS,
-        //     GL_FLOAT,
-        //     GL_FALSE,
-        //     cast(GLsizei)(Vertex.sizeof),
-        //     cast(void*)(COMPONENTS * float.sizeof)
-        // );
-
         vbo.unbind();
         vao.unbind();
         ebo.unbind();

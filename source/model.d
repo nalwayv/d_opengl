@@ -78,6 +78,13 @@ class Model : IMeshCollider
         mesh.render();
     }
 
+    /// get current transform matrix
+    /// Returns: Mat4
+    public Mat4 getMatrix()
+    {
+        return transform.getMatrix();
+    }
+
     /// get face normals
     /// Returns: Vec3[]
     public Vec3[] faceNormals()

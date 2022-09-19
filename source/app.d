@@ -14,7 +14,6 @@ import mouse;
 import camera;
 import shadercache;
 
-
 alias Tree = TreeTemplate!(Model).ABTree;
 
 

@@ -2,7 +2,6 @@
 module camera;
 
 
-import bindbc.glfw;
 import maths.utils;
 import maths.vec3;
 import maths.mat4;
