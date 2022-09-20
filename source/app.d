@@ -23,56 +23,6 @@ enum WIDTH = 640;
 enum HEIGHT = 480;
 
 
-class Scene
-{
-    private
-    {
-        Tree tree;
-    }
-
-    this()
-    {
-        tree = new Tree();
-    }
-
-    int addModel(Model model)
-    {
-        auto id = tree.add(model.computeAABB(), model);
-        tree.valide();
-        return id;
-    }
-
-    void removeModel(int id)
-    {
-        tree.remove(id);
-        tree.valide();
-    }
-
-    void updateModel(int id)
-    {
-        auto m = tree.getData(id);
-        tree.move(m.computeAABB(), id);
-        tree.valide();
-    }
-
-    void query(int id)
-    {
-        auto m = tree.getData(id);
-        tree.query(m.computeAABB(), (Model b) {
-            auto gjk = new Gjk(m, b);
-            if(gjk.check())
-            {
-                auto cData = gjk.getCollisionData();
-                Vec3 translateBy = cData.normal.scaled(cData.depth);
-                m.translate(translateBy);
-                return true;
-            }
-            return false;
-        });
-    }
-}
-
-
 GLFWwindowsizefun windowSizeCB()
 {
     return function(GLFWwindow* w, int width, int height) 
@@ -138,13 +88,15 @@ void main()
     cubeA.setColor(1, 0, 0);
 
     auto cubeB = new Model("models\\cube");
+    cubeB.setColor(0, 1, 0);
     cubeB.scale(1.1f, 1.1f, 1.1f);
     cubeB.translate(5.0f, 0.0f, 0.0f);
-    cubeB.setColor(0, 1, 0);
 
-    Scene scene = new Scene();
-    auto aID = scene.addModel(cubeA);
-    auto bID = scene.addModel(cubeB);
+
+    auto tree = new Tree();
+    auto aID = tree.add(cubeA.computeAABB(), cubeA);
+    auto bID = tree.add(cubeB.computeAABB(), cubeB);
+    tree.valide();
 
 	while(!glfwWindowShouldClose(window))
     {
@@ -164,9 +116,21 @@ void main()
 
         // ---
 
-        scene.query(aID);
-        scene.updateModel(aID);
-        scene.updateModel(bID);
+        auto ab = cubeA.computeAABB();
+        tree.query(ab, (Model b) {
+            auto gjk = new Gjk(cubeA, b);
+            if(gjk.check())
+            {
+                auto cData = gjk.getCollisionData();
+                Vec3 translateBy = cData.normal.scaled(cData.depth);
+                cubeA.translate(translateBy);
+                return true;
+            }
+            return false;
+        });
+
+        tree.move(ab, aID);
+        tree.valide();
 
         // ---
 

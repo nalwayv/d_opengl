@@ -198,6 +198,29 @@ float invSqrtF(float value)
     return 1.0 / sqrtF(value);
 }
 
+/// return fast inverse sqrt of 'value
+float fastInvSqrtF(float value)
+{
+    union data
+    {
+        int i;
+        float f;
+    }
+
+    data result;
+
+    result.f = value;
+    result.i = 0x5f3759df - (result.i >> 1);
+    
+    return result.f * (1.5f - (value * 0.5f) * (result.f * result.f));
+}
+
+/// return the fast sqrt of 'value
+float fastSqrtF(float value)
+{
+    return fastInvSqrtF(value) * value;
+}
+
 /// return a normalized float 'value between 'min and 'max
 /// Examples: normalizeF(50, 0, 100) // 0.5
 float normalizeF(float value, float min, float max)
