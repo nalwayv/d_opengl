@@ -2,52 +2,64 @@
 module utils.stack;
 
 
-enum size_t STACKCAP = 4;
+private class Node(T)
+{
+    public
+    {
+        T value;
+        Node next;
+    }
+
+    this(T value, Node next)
+    {
+        this.value = value;
+        this.next = next;
+    }
+}
 
 
-/// helper class for simple stack collection uses
-/// ```
-/// alias StackI = Stack!(int);
-///
-/// auto s = new StackI();
-/// ```
 class Stack(T)
 {
-    private T[] stack;
-    private size_t cap;
-    private int top;
+    private
+    {
+        Node!T top;
+        int size;
+    }
 
     this()
     {
-        cap = STACKCAP;
-        top = -1;
-        stack = new T[STACKCAP];
+        top = null;
+        size = 0;
     }
 
-    bool isEmpty()
+    public bool isEmpty()
     {
-        return top == -1;
+        return size == 0;
     }
 
-    void push(T value)
+    public void push(T value)
     {
-        if(top == cap - 1)
-        {
-            cap *= 2;
-            stack.length = cap;
-        }
-        stack[++top] = value;
+        top = new Node!T(value, top);
+        size++;
     }
 
-    T pop()
+    public T pop()
     {
         assert(!isEmpty());
-        return stack[top--];
+
+        auto result = top.value;
+
+        auto node = top;
+        top = node.next;
+        node = null;
+        size--;
+
+        return result;
     }
 
-    T peek()
+    public T peek()
     {
         assert(!isEmpty());
-        return stack[top];
+        return top.value;
     }
 }

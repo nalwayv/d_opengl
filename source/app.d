@@ -110,57 +110,7 @@ void main()
         clock.update(glfwGetTime());
 
         // ---
-
-        cubeA.render(shaderCache, cam);
-        cubeB.render(shaderCache, cam);
-
-        // ---
-
-        auto ab = cubeA.computeAABB();
-        tree.query(ab, (Model b) {
-            auto gjk = new Gjk(cubeA, b);
-            if(gjk.check())
-            {
-                auto cData = gjk.getCollisionData();
-                Vec3 translateBy = cData.normal.scaled(cData.depth);
-                cubeA.translate(translateBy);
-                return true;
-            }
-            return false;
-        });
-
-        tree.move(ab, aID);
-        tree.valide();
-
-        // ---
-
-        if(keyb.keyState(GLFW_KEY_UP) == KEY_HELD) 
-        {
-            cubeA.translate(0.0, 1.0 * moveSp * clock.dt, 0.0);
-        }
-
-        if(keyb.keyState(GLFW_KEY_DOWN) == KEY_HELD) 
-        {
-            cubeA.translate(0.0, -1.0 * moveSp * clock.dt, 0.0);
-        }
-
-        if(keyb.keyState(GLFW_KEY_LEFT) == KEY_HELD) 
-        {
-            cubeA.translate(-1.0 * moveSp * clock.dt, 0.0, 0.0);
-        }
-
-        if(keyb.keyState(GLFW_KEY_RIGHT) == KEY_HELD)
-        {
-            cubeA.translate(1.0 * moveSp * clock.dt, 0.0, 0.0);
-        }
-
-        if(keyb.keyState(GLFW_KEY_RIGHT) == KEY_HELD)
-        {
-            cubeA.translate(1.0 * moveSp * clock.dt, 0.0, 0.0);
-        }
-
-        // ---
-
+        // camera
         if(keyb.keyState(GLFW_KEY_W) == KEY_HELD)
         {
             cam.transform(CAM_FORWARD, clock.dt);
@@ -216,7 +166,55 @@ void main()
         }
 
         // ---
+        // update
+        auto ab = cubeA.computeAABB();
+        tree.query(ab, (Model b) {
+            auto gjk = new Gjk(cubeA, b);
+            if(gjk.check())
+            {
+                auto cData = gjk.getCollisionData();
+                Vec3 translateBy = cData.normal.scaled(cData.depth);
+                cubeA.translate(translateBy);
+                return true;
+            }
+            return false;
+        });
 
+        tree.move(ab, aID);
+        tree.valide();
+
+        if(keyb.keyState(GLFW_KEY_UP) == KEY_HELD) 
+        {
+            cubeA.translate(0.0, 1.0 * moveSp * clock.dt, 0.0);
+        }
+
+        if(keyb.keyState(GLFW_KEY_DOWN) == KEY_HELD) 
+        {
+            cubeA.translate(0.0, -1.0 * moveSp * clock.dt, 0.0);
+        }
+
+        if(keyb.keyState(GLFW_KEY_LEFT) == KEY_HELD) 
+        {
+            cubeA.translate(-1.0 * moveSp * clock.dt, 0.0, 0.0);
+        }
+
+        if(keyb.keyState(GLFW_KEY_RIGHT) == KEY_HELD)
+        {
+            cubeA.translate(1.0 * moveSp * clock.dt, 0.0, 0.0);
+        }
+
+        if(keyb.keyState(GLFW_KEY_RIGHT) == KEY_HELD)
+        {
+            cubeA.translate(1.0 * moveSp * clock.dt, 0.0, 0.0);
+        }
+
+        // ---
+        // render
+        cubeA.render(shaderCache, cam);
+        cubeB.render(shaderCache, cam);
+        
+        // ---
+        // buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
