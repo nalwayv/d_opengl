@@ -1,6 +1,7 @@
 /// Plane
 module geometry.plane;
 
+
 import std.format;
 import utils.bits;
 import maths.utils;
@@ -10,19 +11,14 @@ import maths.mat4;
 import maths.mat3;
 import geometry.shapes;
 
+
 struct Plane
 {
     Vec3 normal;
     float d;
 
-    /// normal should be normalized
     this(Vec3 normal, float d)
     {
-        if(!normal.isNormal())
-        {
-            normal = normal.normalized();
-        }
-
         this.normal.x = normal.x;
         this.normal.y = normal.y;
         this.normal.z = normal.z;
@@ -31,7 +27,7 @@ struct Plane
 
     /// create a plane from three points
     /// Returns: Plane
-    static Plane fromPointints(Vec3 a, Vec3 b, Vec3 c)
+    static Plane fromPoints(Vec3 a, Vec3 b, Vec3 c)
     {
         Vec3 ab = b.subbed(a);
         Vec3 ac = c.subbed(a);

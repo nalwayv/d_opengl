@@ -117,7 +117,7 @@ template TreeTemplate( T )
             assert(nodeID != NULLNODE);
 
             auto a = nodeID;
-            auto A =  nodes.ptr + nodeID;
+            auto A =  nodes[nodeID];
             if(A.isLeaf() || A.height < 2)
             {
                 return a;
@@ -129,8 +129,8 @@ template TreeTemplate( T )
             assert(b >= 0 && b < cap);
             assert(c >= 0 && c < cap);
 
-            auto B = nodes.ptr + b;
-            auto C = nodes.ptr + c;
+            auto B = nodes[b];
+            auto C = nodes[c];
 
             auto balance = C.height - B.height;
 
@@ -140,8 +140,8 @@ template TreeTemplate( T )
                 auto f = C.left;
                 auto g = C.right;
                 
-                auto F = nodes.ptr + f;
-                auto G = nodes.ptr + g;
+                auto F = nodes[f];
+                auto G = nodes[g];
 
                 assert(f >= 0 && f < cap);
                 assert(g >= 0 && g < cap);
@@ -202,8 +202,8 @@ template TreeTemplate( T )
                 int d = B.left;
                 int e = B.right;
 
-                auto D = nodes.ptr + d;
-                auto E = nodes.ptr + e;
+                auto D = nodes[d];
+                auto E = nodes[e];
 
                 assert(d >= 0 && d < cap);
                 assert(e >= 0 && e < cap);
@@ -438,7 +438,7 @@ template TreeTemplate( T )
                 assert(nodes[nodeID].parent == NULLNODE);
             }
 
-            auto node = nodes.ptr + nodeID;
+            auto node = nodes[nodeID];
 
             auto left = node.left;
             auto right = node.right;
@@ -551,9 +551,9 @@ template TreeTemplate( T )
 
         public void query(AABB ab, bool delegate(T) cb)
         {
-            auto stk = new Stack!int();
-            stk.push(root);
+            auto stk = new StackC!int(cap);
 
+            stk.push(root);
             while(!stk.isEmpty())
             {
                 auto current = stk.pop();
@@ -563,8 +563,7 @@ template TreeTemplate( T )
                 }
 
                 auto currentNode = nodes[current];
-
-                if(intersectsAabbAabb(ab, currentNode.aabb))
+                if(aabbAabb(ab, currentNode.aabb) == 1)
                 {
                     if(currentNode.isLeaf())
                     {

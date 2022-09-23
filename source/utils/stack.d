@@ -17,7 +17,7 @@ private class Node(T)
     }
 }
 
-
+/// Stack using LL
 class Stack(T)
 {
     private
@@ -61,5 +61,49 @@ class Stack(T)
     {
         assert(!isEmpty());
         return top.value;
+    }
+}
+
+
+/// Stack with a capacity limit
+///
+/// fails if isfull or tyying to pop data if isempty
+class StackC(T)
+{
+    private
+    {
+        T[] array;
+        size_t cap;
+        size_t top;
+    }
+
+    this(size_t capacity)
+    {
+        array = new T[capacity];
+        cap = capacity;
+        top = -1;
+    }
+
+    public bool isEmpty(){ return top == -1; }
+    
+    public bool isFull(){ return top == cap -1; }
+
+    public void push(T value)
+    {
+        assert(!isFull());
+
+        array[++top] = value;
+    }
+
+    public T pop()
+    {
+        assert(!isEmpty());
+        return array[top--];
+    }
+
+    public T peek()
+    {
+        assert(!isEmpty());
+        return array[top];
     }
 }

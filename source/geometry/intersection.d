@@ -11,46 +11,21 @@ import geometry.line;
 import geometry.obb;
 import geometry.plane;
 import geometry.ray;
+import geometry.frustum;
 import geometry.raycast;
 
 
-/// test if aabb and aabb intersect
-/// Returns: bool
-bool intersectsAabbAabb(AABB ab1, AABB ab2)
+enum : int
 {
-    Vec3 amin = ab1.min();
-    Vec3 amax = ab1.max();
-    Vec3 bmin = ab2.min();
-    Vec3 bmax = ab2.max();
-
-    if(amax.x < bmin.x || amin.x > bmax.x)
-    { 
-        return false;
-    }
-    if(amax.y < bmin.y || amin.y > bmax.y)
-    { 
-        return false;
-    }
-    if(amax.z < bmin.z || amin.z > bmax.z)
-    { 
-        return false;
-    }
-
-    return true;
+    PLANE_FRONT = 0,
+    PLANE_INTERSECT = 1,
+    PLANE_BACK = -1,
 }
 
-/// test if aabb and sphere intersect
-/// Returns: bool
-bool intersectsAabbSphere(AABB ab, Sphere sph)
-{
-    Vec3 cp = ab.closestPoint(sph.origin);
-    auto disSq = sph.origin.subbed(cp).lengthSq();
-    return disSq < sqrF(sph.radius);
-}
 
-/// test if aabb and line intersect
-/// Returns: bool
-bool intersectAABBLine(AABB ab, Line ln)
+/// line aabb intersection
+/// Returns: int
+int lineAabb(Line ln, AABB ab)
 {
     Vec3 e = ab.extents;
     Vec3 m = ln.start.added(ln.end).scaled(0.5f);
@@ -61,9 +36,9 @@ bool intersectAABBLine(AABB ab, Line ln)
     auto ady = absF(d.y);
     auto adz = absF(d.z);
 
-    if(absF(m.x) > e.x + adx) return false;
-    if(absF(m.y) > e.y + ady) return false;
-    if(absF(m.z) > e.z + adz) return false;
+    if(absF(m.x) > e.x + adx) return 0;
+    if(absF(m.y) > e.y + ady) return 0;
+    if(absF(m.z) > e.z + adz) return 0;
 
     adx += EPSILON;
     ady += EPSILON;
@@ -71,16 +46,198 @@ bool intersectAABBLine(AABB ab, Line ln)
 
     Vec3 cross = m.cross(d);
 
-    if(absF(cross.x) > e.y * adz + e.z * ady) return false;
-    if(absF(cross.y) > e.x * adz + e.z * adx) return false;
-    if(absF(cross.z) > e.x * ady + e.y * adx) return false;
+    if(absF(cross.x) > e.y * adz + e.z * ady) return 0;
+    if(absF(cross.y) > e.x * adz + e.z * adx) return 0;
+    if(absF(cross.z) > e.x * ady + e.y * adx) return 0;
 
-    return true;
+    return 1;
 }
 
-/// test if aabb and plane intersect
-/// Returns: bool
-bool intersectsAabbPlane(AABB ab, Plane pl)
+/// line sphere intersection
+/// Returns: int
+int lineSphere(Line ln, Sphere sph)
+{
+    Vec3 cp = ln.closestPoint(sph.origin);
+    auto disSq = sph.origin.subbed(cp).lengthSq();
+
+    return (disSq <= sqrF(sph.radius)) ? 1 : 0;
+}
+
+/// line obb intersection
+/// Returns: int
+int lineObb(Line ln, Obb ob)
+{
+    Ray r;
+    r.origin = ln.start;
+    r.direction = ln.segment.normalized();
+
+    auto t = raycastObb(r, ob);
+    
+    return (t >= 0.0f && sqrF(t) <= ln.lengthSq()) ? 1 : 0;
+}
+
+/// line plane intersection
+/// Returns: int
+int linePlane(Line ln, Plane pl)
+{   
+    auto ab = ln.segment();
+    auto na = pl.normal.dot(ln.start);
+    auto nb = pl.normal.dot(ab);
+
+    auto t = (pl.d - na) / nb;
+    
+    return (t >= 0.0f && t <= 1.0f) ? 1 : 0;
+}
+
+
+// --
+
+
+/// sphere sphere intersection
+/// Returns: int
+int sphereSphere(Sphere sph1, Sphere sph2)
+{
+    auto disSq = sph1.origin.subbed(sph2.origin).lengthSq();
+    auto rSum = sph1.radius + sph2.radius;
+    return (disSq < sqrF(rSum)) ? 1 : 0;
+}
+
+/// sphere aabb intersection
+/// Returns: int
+int sphereAabb(Sphere sph, AABB ab)
+{
+    Vec3 cp = ab.closestPoint(sph.origin);
+    
+    auto disSq = sph.origin.subbed(cp).lengthSq();
+
+    return (disSq < sqrF(sph.radius)) ? 1 : 0;
+}
+
+/// tsphere obb intersection
+/// Returns: int
+int sphereObb(Sphere sph, Obb ob)
+{
+    Vec3 cp = ob.closestPoint(sph.origin);
+    auto disSq = sph.origin.subbed(cp).lengthSq();
+    return (disSq < sqrF(sph.radius)) ? 1 : 0;
+}
+
+/// sphere plane intersection
+/// Returns: int
+int spherePlane(Sphere sph, Plane pl)
+{
+    auto dis = pl.normal.dot(sph.origin);
+    auto r = sph.radius * pl.normal.length();
+    
+    if(dis + r < pl.d) 
+    {
+        return PLANE_BACK;
+    }
+    
+    if(dis - r > pl.d)
+    {
+        return PLANE_FRONT;
+    }
+
+    return PLANE_INTERSECT;
+}
+
+/// sphere frustum intersection
+/// Returns: int
+int sphereFrustum(Sphere sph, Frustum fr)
+{
+    for(auto i = 0; i < 6; i++)
+    {
+        if(spherePlane(sph, fr.planes[i]) == PLANE_BACK)
+        {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+/// sphere frustum intersection accurate
+/// Returns: int
+int sphereFrustumAccurate(Sphere sph, Frustum fr)
+{
+    auto pt = Vec3.zero();
+    int[6] m = [1, -1, 1, -1, 1, -1];
+
+    auto r = sph.radius;
+    auto c = sph.origin;
+
+    for(auto i = 0; i < 6; i++)
+    {
+        Plane pl = fr.planes[i];
+        auto d = pl.d;
+        auto n = pl.normal;
+        auto dis = n.dot(c);
+
+        if(dis + r < d)
+        {
+            return 0;
+        }
+
+        if(dis - r > d)
+        {
+            continue;
+        }
+
+        pt = c.added(n.scaled(r));
+        
+        for(auto j = 0; j < 6; j++)
+        {
+            if(j == i || j == (i + m[i]))
+            {
+                continue;
+            }
+
+            Vec3 tn = fr.planes[j].normal;
+            auto td = fr.planes[j].d;
+
+            if(tn.dot(pt) < td)
+            {
+                return 0;
+            }
+        }
+    }
+
+    return 1;
+}
+
+
+// --
+
+
+/// aabb aabb intersection
+/// Returns: int
+int aabbAabb(AABB ab1, AABB ab2)
+{
+    Vec3 amin = ab1.min();
+    Vec3 amax = ab1.max();
+    Vec3 bmin = ab2.min();
+    Vec3 bmax = ab2.max();
+
+    if(amax.x < bmin.x || amin.x > bmax.x)
+    { 
+        return 0;
+    }
+    if(amax.y < bmin.y || amin.y > bmax.y)
+    { 
+        return 0;
+    }
+    if(amax.z < bmin.z || amin.z > bmax.z)
+    { 
+        return 0;
+    }
+
+    return 1;
+}
+
+/// aabb plane intersection
+/// Returns: int
+int aabbPlane(AABB ab, Plane pl)
 {
     auto enx = ab.extents.x * absF(pl.normal.x);
     auto eny = ab.extents.y * absF(pl.normal.y);
@@ -90,56 +247,37 @@ bool intersectsAabbPlane(AABB ab, Plane pl)
 
     if(dis + r < pl.d) 
     {
-        return false; 
+        return PLANE_BACK; 
     }
     if(dis - r > pl.d) 
     {
-        return false; 
+        return PLANE_FRONT; 
     }
 
-    return true;
+    return PLANE_INTERSECT;
 }
 
-/// test if sphere and sphere intersect
-/// Returns: bool
-bool intersectSphereSphere(Sphere sph1, Sphere sph2)
+/// aabb frustum intersection
+/// Returns: int
+int aabbFrustum(AABB ab, Frustum fr)
 {
-    auto disSq = sph1.origin.subbed(sph2.origin).lengthSq();
-    auto rSum = sph1.radius + sph2.radius;
-    return disSq < sqrF(rSum);
+    for(auto i = 0; i < 6; i++)
+    {
+        if(aabbPlane(ab, fr.planes[i]) == PLANE_BACK)
+        {
+            return 0;
+        }
+    }
+
+    return 1;
 }
 
-/// test if line and sphere intersect
-/// Returns: bool
-bool intersectSphereLine(Sphere sph, Line ln)
-{
-    Vec3 cp = ln.closestPoint(sph.origin);
-    auto disSq = sph.origin.subbed(cp).lengthSq();
+// --
 
-    return disSq <= sqrF(sph.radius);
-}
 
-/// test if sphere and obb intersect
-/// Returns: bool
-bool intersectSphereObb(Sphere sph, Obb ob)
-{
-    Vec3 cp = ob.closestPoint(sph.origin);
-    auto disSq = sph.origin.subbed(cp).lengthSq();
-    return disSq < sqrF(sph.radius);
-}
-
-/// test if sphere and plane intersect
-/// Returns: bool
-bool intersectSpherePlane(Sphere sph, Plane pl)
-{
-    auto cp = pl.closestPoint(sph.origin);
-    auto disSq = sph.origin.subbed(cp).lengthSq();
-    return disSq < sqrF(sph.radius);
-}
-
-/// test if obb and obb intersect
-/// Returns: bool
-bool intersectObbObb(Obb ob1, Obb ob2)
+/// obb obb intersection
+/// Returns: int
+int obbObb(Obb ob1, Obb ob2)
 {
     float[3][3] r;
     float[3][3] absR;
@@ -184,7 +322,7 @@ bool intersectObbObb(Obb ob1, Obb ob2)
         
         if(absF(t[i]) > ra + rb)
         {
-            return false;
+            return 0;
         }
     }
 
@@ -207,7 +345,7 @@ bool intersectObbObb(Obb ob1, Obb ob2)
 
         if(absF(check) > ra + rb)
         {
-            return false;
+            return 0;
         }
     }
 
@@ -215,84 +353,71 @@ bool intersectObbObb(Obb ob1, Obb ob2)
     rb = be[1] * absR[0][2] + be[2] * absR[0][1];
     if(absF(t[2] * r[1][0] - t[1] * r[2][0]) > ra + rb)
     {
-        return false;
+        return 0;
     }
 
     ra = ae[1] * absR[2][1] + ae[2] * absR[1][1];
     rb = be[0] * absR[0][2] + be[2] * absR[0][0];
     if(absF(t[2] * r[1][1] - t[1] * r[2][1]) > ra + rb)
     {
-        return false;
+        return 0;
     }
 
     ra = ae[1] * absR[2][2] + ae[2] * absR[1][2];
     rb = be[0] * absR[0][1] + be[1] * absR[0][0];
     if(absF(t[2] * r[1][2] - t[1] * r[2][2]) > ra + rb)
     {
-        return false;
+        return 0;
     }
 
     ra = ae[0] * absR[2][0] + ae[2] * absR[0][0];
     ra = be[1] * absR[1][2] + be[2] * absR[1][1];
     if(absF(t[0] * r[2][0] - t[2] * r[0][0]) > ra + rb)
     {
-        return false;
+        return 0;
     }
 
     ra = ae[0] * absR[2][1] + ae[2] * absR[0][1];
     rb = be[0] * absR[1][2] + be[2] * absR[1][0];
     if(absF(t[0] * r[2][1] - t[2] * r[0][1]) > ra + rb)
     {
-        return false;
+        return 0;
     }
 
     ra = ae[0] * absR[2][2] + ae[2] * absR[0][2];
     rb = be[0] * absR[1][1] + be[1] * absR[1][0];
     if(absF(t[0] * r[2][2] - t[2] * r[0][2]) > ra + rb)
     {
-        return false;
+        return 0;
     }
 
     ra = ae[0] * absR[1][0] + ae[1] * absR[0][0];
     rb = be[1] * absR[2][2] + be[2] * absR[2][1];
     if(absF(t[1] * r[0][0] - t[0] * r[1][0]) > ra + rb)
     {
-        return false;
+        return 0;
     }
 
     ra = ae[0] * absR[1][1] + ae[1] * absR[0][1];
     rb = be[0] * absR[2][2] + be[2] * absR[2][0];
     if(absF(t[1] * r[0][1] - t[0] * r[1][1]) > ra + rb)
     {
-        return false;
+        return 0;
     }
 
     ra = ae[0] * absR[1][2] + ae[1] * absR[0][2];
     rb = be[0] * absR[2][1] + be[1] * absR[2][0];
     if(absF(t[1] * r[0][2] - t[0] * r[1][2]) > ra + rb)
     {
-        return false;
+        return 0;
     }
 
-    return true;
+    return 1;
 }
 
-/// test if obb and line intersect
-/// Returns: bool
-bool intersectObbLine(Obb ob, Line ln)
-{
-    Ray r;
-    r.origin = ln.start;
-    r.direction = ln.segment.normalized();
-
-    auto t =  raycastObb(r, ob);
-    
-    return t >= 0.0f && sqrF(t) <= ln.lengthSq();
-}
-
-/// test if obb and plane intersect
-/// Returns: bool
-bool intersectObbPlane(Obb ob, Plane pl)
+/// obb plane intersection
+/// Returns: int
+int obbPlane(Obb ob, Plane pl)
 {
     Vec3 ex = ob.extents;
     Vec3 n = pl.normal;
@@ -307,33 +432,12 @@ bool intersectObbPlane(Obb ob, Plane pl)
     
     if(dis + r < pl.d)
     {
-        return false;
+        return PLANE_BACK;
     }
     if(dis - r > pl.d)
     {
-        return false;
+        return PLANE_FRONT;
     }
 
-    return true;
-}
-
-/// test if line and plane intersect
-/// Returns: bool
-bool intersectLinePlane(Line l, Plane p)
-{   
-    auto ab = l.segment();
-    auto na = p.normal.dot(l.start);
-    auto nb = p.normal.dot(ab);
-
-    auto t = (p.d - na) / nb;
-    
-    return t >= 0.0f && t <= 1.0f;
-}
-
-/// test if plane and plane intersect
-/// Returns: bool
-bool intersectPlanePlane(Plane pl1, Plane pl2)
-{
-    Vec3 dir = pl1.normal.cross(pl2.normal);
-    return dir.lengthSq() > EPSILON;
+    return PLANE_INTERSECT;
 }
