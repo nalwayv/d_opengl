@@ -83,7 +83,7 @@ struct Ray
         return result;
     }
 
-    /// return hit point based on t from raycasts.
+    /// return hit point based on t from ray casts.
     /// Returns: Vec3
     Vec3 getHit(float t)
     {

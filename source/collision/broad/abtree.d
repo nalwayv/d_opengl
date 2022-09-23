@@ -563,7 +563,7 @@ template TreeTemplate( T )
                 }
 
                 auto currentNode = nodes[current];
-                if(aabbAabb(ab, currentNode.aabb) == 1)
+                if(aabbAabb(ab, currentNode.aabb) == INTERSECT_PASS)
                 {
                     if(currentNode.isLeaf())
                     {

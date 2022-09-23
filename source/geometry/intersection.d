@@ -10,17 +10,147 @@ import geometry.sphere;
 import geometry.line;
 import geometry.obb;
 import geometry.plane;
-import geometry.ray;
 import geometry.frustum;
-import geometry.raycast;
+import geometry.ray;
 
 
+enum int INTERSECT_PASS = 1;
 enum : int
 {
     PLANE_FRONT = 0,
     PLANE_INTERSECT = 1,
     PLANE_BACK = -1,
 }
+
+
+/// ray aabb intersection
+/// Returns: float
+float rayAabb(Ray ray, AABB ab)
+{
+    Vec3 pMin = ab.min();
+    Vec3 pMax = ab.max();
+    Vec3 o = ray.origin;
+    Vec3 d = ray.direction;
+    
+    auto invX = 1.0f / d.x;
+    auto invY = 1.0f / d.y;
+    auto invZ = 1.0f / d.z;
+
+    auto t0 = (pMin.x - o.x) * invX;
+    auto t1 = (pMax.x - o.x) * invX;
+    auto t2 = (pMin.y - o.y) * invY;
+    auto t3 = (pMax.y - o.y) * invY;
+    auto t4 = (pMin.z - o.z) * invZ;
+    auto t5 = (pMax.z - o.z) * invZ;
+
+    auto tMin = maxF(maxF(minF(t0, t1), minF(t2, t3)), minF(t4, t5));
+    auto tMax = minF(minF(maxF(t0, t1), maxF(t2, t3)), maxF(t4, t5));
+
+    if(tMax < 0.0f || tMin > tMax)
+    {
+        return -1.0f;
+    }
+
+    return (tMin > 0.0f) ? tMin : tMax;
+}
+
+/// ray sphere intersection
+/// Returns: float
+float raySphere(Ray ray, Sphere sph)
+{
+    auto r2 = sqrF(sph.radius);
+    Vec3 dir = sph.origin.subbed(ray.origin);
+    auto d2 = dir.lengthSq();
+
+    auto dis = dir.dot(ray.direction);
+    auto f2 = r2 - (d2 - sqrF(dis));
+
+    if(f2 < 0.0)
+    {
+        return 0.0f;
+    }
+
+    auto f = sqrtF(f2);
+    auto t = (d2 < r2) ? dis + f : dis - f;
+
+    return (t < 0.0f) ? 0.0f : t;
+}
+
+/// ray obb intersection
+/// Returns: float
+float rayObb(Ray ray, Obb ob)
+{
+    Vec3 c = ob.origin;
+    Vec3 o = ray.origin;
+    Vec3 d = ray.direction;
+
+    float[3] size;
+    size[0] = ob.extents.x;
+    size[1] = ob.extents.y;
+    size[2] = ob.extents.z;
+
+    Vec3 x = ob.axis.row0();
+    Vec3 y = ob.axis.row1();
+    Vec3 z = ob.axis.row2();
+    Vec3 dir = c.subbed(o);
+
+    float[3] f;
+    f[0] = x.dot(d);
+    f[1] = y.dot(d);
+    f[2] = z.dot(d);
+
+    float[3] e;
+    e[0] = x.dot(dir);
+    e[1] = y.dot(dir);
+    e[2] = z.dot(dir);
+
+    float[6] t;
+    for(auto i = 0; i < 3; i++)
+    {
+        if(isEquilF(f[i], 0.0f))
+        {
+            if(-e[i] - size[i] > 0.0f || -e[i] + size[i] < 0.0f)
+            {
+                return -1.0f;
+            }
+
+            f[i] = EPSILON;
+        }
+
+        t[i * 2 + 0] = (e[i] + size[i]) / f[i]; // min
+        t[i * 2 + 1] = (e[i] - size[i]) / f[i]; // max
+    }
+
+    auto tMin = maxF(maxF(minF(t[0], t[1]), minF(t[2], t[3])), minF(t[4], t[5]));
+    auto tMax = minF(minF(maxF(t[0], t[1]), maxF(t[2], t[3])), maxF(t[4], t[5]));
+
+    if(tMax < 0.0f || tMin > tMax)
+    {
+        return -1.0f;
+    }
+
+    return (tMin > 0.0f) ? tMin : tMax;
+}
+
+/// ray plane intersection
+/// Returns: float
+float rayPlane(Ray ray, Plane pl)
+{
+    auto disA = ray.direction.dot(pl.normal);
+    auto disB = ray.origin.dot(pl.normal);
+    
+    if(disA >= 0.0f)
+    {
+        return -1.0f;
+    }
+
+    auto t = (pl.d - disB) / disA;
+
+    return (t >= 0.0f) ? t : -1.0f;
+}
+
+
+// --
 
 
 /// line aabb intersection
@@ -71,7 +201,7 @@ int lineObb(Line ln, Obb ob)
     r.origin = ln.start;
     r.direction = ln.segment.normalized();
 
-    auto t = raycastObb(r, ob);
+    auto t = rayObb(r, ob);
     
     return (t >= 0.0f && sqrF(t) <= ln.lengthSq()) ? 1 : 0;
 }
@@ -267,6 +397,106 @@ int aabbFrustum(AABB ab, Frustum fr)
         {
             return 0;
         }
+    }
+
+    return 1;
+}
+
+/// aabb frustum intersection accurate
+///Returns: int
+int aabbFrustumAccurate(AABB ab, Frustum fr)
+{
+    const planes = 6;
+    const verts = 8;
+    auto result = 0;
+    auto intersect = false;
+    int a;
+    int b;
+
+    for(auto i = 0; i < planes; i++)
+    {
+        result = aabbPlane(ab, fr.planes[i]);
+
+        if(result == PLANE_BACK)
+        {
+            return 0;
+        }
+
+        if(result == PLANE_INTERSECT)
+        {
+            intersect = true;
+        }
+    }
+
+    if(!intersect)
+    {
+        return 1;
+    }
+
+    Vec3[verts] tmp;
+    for(auto i = 0; i < verts; i++)
+    {
+        tmp[i] = fr.verts[i].subbed(ab.origin);
+    }
+
+    // x
+    a = 0;
+    b = 0;
+    for(auto i = 0; i < verts; i++)
+    {
+        if(tmp[i].x > ab.extents.x)
+        {
+            a++;
+        }
+        else if(tmp[i].x < -ab.extents.x)
+        {
+            b++;
+        }
+    }
+
+    if(a == 8 || b == 8)
+    {
+        return 0;
+    }
+
+    // y
+    a = 0;
+    b = 0;
+    for(auto i = 0; i < verts; i++)
+    {
+        if(tmp[i].y > ab.extents.y)
+        {
+            a++;
+        }
+        else if(tmp[i].y < -ab.extents.y)
+        {
+            b++;
+        }
+    }
+
+    if(a == 8 || b == 8)
+    {
+        return 0;
+    }
+
+    // z
+    a = 0;
+    b = 0;
+    for(auto i = 0; i < 8; i++)
+    {
+        if(tmp[i].z > ab.extents.z)
+        {
+            a++;
+        }
+        else if(tmp[i].z < -ab.extents.z)
+        {
+            b++;
+        }
+    }
+
+    if(a == 8 || b == 8)
+    {
+        return 0;
     }
 
     return 1;
