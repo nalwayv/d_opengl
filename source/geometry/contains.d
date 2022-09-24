@@ -12,9 +12,45 @@ import geometry.plane;
 import geometry.ray;
 
 
-/// test if AABB 'a1 contains AABB 'a2
+/// is point on plane
 /// Returns: bool
-bool containsAABBAABB(AABB ab1, AABB ab2)
+bool pointOnPlane(Vec3 pt, Plane pl)
+{
+    auto dis = pt.dot(pl.normal);
+    return isEquilF(dis - pl.d, 0.0f);
+}
+
+/// is point on line
+/// Returns: bool
+bool pointOnLine(Vec3 pt, Line ln)
+{
+    Vec3 close = ln.closestPoint(pt);
+    auto disSq = close.subbed(pt).lengthSq();
+    return isZeroF(disSq);
+}
+
+/// is point on ray
+/// Returns: bool
+bool pointOnRay(Vec3 pt, Ray ray)
+{
+    Vec3 dir = pt.subbed(ray.origin);
+    if(!dir.isNormal())
+    {
+        dir = dir.normalized();
+    }
+
+    auto dis = dir.dot(ray.direction);
+
+    return isOneF(dis);
+}
+
+
+// --
+
+
+/// aabb contains other aabb
+/// Returns: bool
+bool aabbConatinsAabb(AABB ab1, AABB ab2)
 {
     Vec3 aa = ab1.min();
     Vec3 ab = ab1.max();
@@ -28,9 +64,9 @@ bool containsAABBAABB(AABB ab1, AABB ab2)
     return checkX && checkY && checkZ;
 }
 
-/// test if aabb contains point
+/// aabb contains point
 /// Returns: bool
-bool containsAABBPoint(AABB ab, Vec3 pt)
+bool aabbContainsPoint(AABB ab, Vec3 pt)
 {
     Vec3 pMin = ab.min();
     Vec3 pMax = ab.max();
@@ -41,17 +77,25 @@ bool containsAABBPoint(AABB ab, Vec3 pt)
     return more && less;
 }
 
-/// test if sphere contains point
+
+// --
+
+
+/// sphere contrains point
 /// Returns: bool
-bool containsSpherePoint(Sphere sph, Vec3 pt)
+bool sphereContainsPoint(Sphere sph, Vec3 pt)
 {
     auto disSq = pt.subbed(sph.origin).lengthSq();
     return disSq < sqrF(sph.radius);
 }
 
-/// test if obb contains point
+
+// --
+
+
+/// obb contains point
 /// Returns: bool
-bool containsObbPoint(Obb ob, Vec3 pt)
+bool obbContainsPoint(Obb ob, Vec3 pt)
 {
     Vec3 dir = pt.subbed(ob.origin);
 
@@ -72,36 +116,4 @@ bool containsObbPoint(Obb ob, Vec3 pt)
     }
 
     return true;
-}
-
-/// test if point is on plane
-/// Returns: bool
-bool onPlanePoint(Plane pl, Vec3 pt)
-{
-    auto dis = pt.dot(pl.normal);
-    return isEquilF(dis - pl.d, 0.0f);
-}
-
-/// test if point is on line
-/// Returns: bool
-bool onLinePoint(Line ln, Vec3 pt)
-{
-    Vec3 close = ln.closestPoint(pt);
-    auto disSq = close.subbed(pt).lengthSq();
-    return isZeroF(disSq);
-}
-
-/// test if point is on ray
-/// Returns: bool
-bool onRayPoint(Ray ray, Vec3 pt)
-{
-    Vec3 dir = pt.subbed(ray.origin);
-    if(!dir.isNormal())
-    {
-        dir = dir.normalized();
-    }
-
-    auto dis = dir.dot(ray.direction);
-
-    return isOneF(dis);
 }

@@ -9,7 +9,7 @@ import maths.vec3;
 import maths.vec4;
 import maths.mat4;
 import maths.mat3;
-import geometry.shapes;
+import geometry.shapetypes;
 
 
 struct Plane

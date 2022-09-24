@@ -6,10 +6,7 @@ import std.format;
 import utils.bits;
 import maths.utils;
 import maths.vec3;
-import geometry.shapes;
-import geometry.aabb;
-import geometry.sphere;
-import geometry.plane;
+import geometry.shapetypes;
 
 
 struct Ray

@@ -5,7 +5,7 @@ import bindbc.glfw;
 import maths.utils;
 import maths.mat4;
 import maths.vec3;
-import collision.broad.abtree;
+import collision.broad.tree;
 import collision.narrow.gjk;
 import geometry.aabb;
 import model;
@@ -16,7 +16,7 @@ import camera;
 import shadercache;
 
 
-alias Tree = TreeTemplate!(Model).ABTree;
+alias Tree = TreeTemplate!(Model).Tree;
 
 
 enum WIDTH = 640;

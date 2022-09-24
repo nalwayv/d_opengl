@@ -4,11 +4,12 @@ module geometry.frustum;
 
 import std.format;
 import utils.bits;
-import geometry.plane;
-import geometry.aabb;
 import maths.utils;
 import maths.vec3;
 import maths.mat4;
+import geometry.aabb;
+import geometry.plane;
+import geometry.shapetypes;
 
 
 enum size_t PLANES = 6;
@@ -137,6 +138,11 @@ struct Frustum
         result.planes[5] = Plane.fromPoints(result.verts[7], result.verts[5], result.verts[6]);
 
         return result;
+    }
+
+    int type()
+    {
+        return SHAPE_FRUSTUM;
     }
 
     // -- override

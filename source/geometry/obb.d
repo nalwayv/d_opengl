@@ -8,7 +8,7 @@ import maths.utils;
 import maths.vec3;
 import maths.mat4;
 import maths.mat3;
-import geometry.shapes;
+import geometry.shapetypes;
 
 
 struct Obb

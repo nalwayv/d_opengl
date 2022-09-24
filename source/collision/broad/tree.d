@@ -1,5 +1,5 @@
 /// AABB Tree
-module collision.broad.abtree;
+module collision.broad.tree;
 
 
 import utils.stack;
@@ -37,7 +37,7 @@ template TreeTemplate( T )
         }
     }
 
-    class ABTree
+    class Tree
     {
         private 
         {
@@ -501,7 +501,7 @@ template TreeTemplate( T )
             assert(nodes[nodeID].isLeaf());
 
             auto aabb = nodes[nodeID].aabb;
-            if(containsAABBAABB(aabb, ab))
+            if(aabbConatinsAabb(aabb, ab))
             {
                 auto p0 = ab.perimeter();
                 auto p1 = aabb.perimeter();
@@ -563,7 +563,7 @@ template TreeTemplate( T )
                 }
 
                 auto currentNode = nodes[current];
-                if(testAabbAabb(ab, currentNode.aabb) == INTERSECTION)
+                if(aabbToAabb(ab, currentNode.aabb) == INTERSECTION)
                 {
                     if(currentNode.isLeaf())
                     {

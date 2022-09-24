@@ -1,5 +1,5 @@
 /// Types
-module geometry.shapes;
+module geometry.shapetypes;
 
 enum : int 
 {
@@ -9,4 +9,5 @@ enum : int
     SHAPE_SPHERE = 1 << 3,
     SHAPE_LINE = 1 << 4,
     SHAPE_PLANE = 1 << 5,
+    SHAPE_FRUSTUM = 1 << 6,
 }
