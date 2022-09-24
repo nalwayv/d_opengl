@@ -14,7 +14,11 @@ import geometry.frustum;
 import geometry.ray;
 
 
-enum int INTERSECT_PASS = 1;
+enum : int
+{
+    INTERSECTION = 1,
+    NO_INTERSECTION = 0
+}
 enum : int
 {
     PLANE_FRONT = 0,
@@ -155,7 +159,7 @@ float rayPlane(Ray ray, Plane pl)
 
 /// line aabb intersection
 /// Returns: int
-int lineAabb(Line ln, AABB ab)
+int testLineAabb(Line ln, AABB ab)
 {
     Vec3 e = ab.extents;
     Vec3 m = ln.start.added(ln.end).scaled(0.5f);
@@ -185,7 +189,7 @@ int lineAabb(Line ln, AABB ab)
 
 /// line sphere intersection
 /// Returns: int
-int lineSphere(Line ln, Sphere sph)
+int testLineSphere(Line ln, Sphere sph)
 {
     Vec3 cp = ln.closestPoint(sph.origin);
     auto disSq = sph.origin.subbed(cp).lengthSq();
@@ -195,7 +199,7 @@ int lineSphere(Line ln, Sphere sph)
 
 /// line obb intersection
 /// Returns: int
-int lineObb(Line ln, Obb ob)
+int testLineObb(Line ln, Obb ob)
 {
     Ray r;
     r.origin = ln.start;
@@ -208,7 +212,7 @@ int lineObb(Line ln, Obb ob)
 
 /// line plane intersection
 /// Returns: int
-int linePlane(Line ln, Plane pl)
+int testLinePlane(Line ln, Plane pl)
 {   
     auto ab = ln.segment();
     auto na = pl.normal.dot(ln.start);
@@ -225,7 +229,7 @@ int linePlane(Line ln, Plane pl)
 
 /// sphere sphere intersection
 /// Returns: int
-int sphereSphere(Sphere sph1, Sphere sph2)
+int testSphereSphere(Sphere sph1, Sphere sph2)
 {
     auto disSq = sph1.origin.subbed(sph2.origin).lengthSq();
     auto rSum = sph1.radius + sph2.radius;
@@ -234,7 +238,7 @@ int sphereSphere(Sphere sph1, Sphere sph2)
 
 /// sphere aabb intersection
 /// Returns: int
-int sphereAabb(Sphere sph, AABB ab)
+int testSphereAabb(Sphere sph, AABB ab)
 {
     Vec3 cp = ab.closestPoint(sph.origin);
     
@@ -245,7 +249,7 @@ int sphereAabb(Sphere sph, AABB ab)
 
 /// tsphere obb intersection
 /// Returns: int
-int sphereObb(Sphere sph, Obb ob)
+int testSphereObb(Sphere sph, Obb ob)
 {
     Vec3 cp = ob.closestPoint(sph.origin);
     auto disSq = sph.origin.subbed(cp).lengthSq();
@@ -254,7 +258,7 @@ int sphereObb(Sphere sph, Obb ob)
 
 /// sphere plane intersection
 /// Returns: int
-int spherePlane(Sphere sph, Plane pl)
+int testSpherePlane(Sphere sph, Plane pl)
 {
     auto dis = pl.normal.dot(sph.origin);
     auto r = sph.radius * pl.normal.length();
@@ -274,7 +278,7 @@ int spherePlane(Sphere sph, Plane pl)
 
 /// sphere frustum intersection
 /// Returns: int
-int sphereFrustum(Sphere sph, Frustum fr)
+int testSphereFrustum(Sphere sph, Frustum fr)
 {
     for(auto i = 0; i < 6; i++)
     {
@@ -289,7 +293,7 @@ int sphereFrustum(Sphere sph, Frustum fr)
 
 /// sphere frustum intersection accurate
 /// Returns: int
-int sphereFrustumAccurate(Sphere sph, Frustum fr)
+int testSphereFrustumAccurate(Sphere sph, Frustum fr)
 {
     auto pt = Vec3.zero();
     int[6] m = [1, -1, 1, -1, 1, -1];
@@ -342,7 +346,7 @@ int sphereFrustumAccurate(Sphere sph, Frustum fr)
 
 /// aabb aabb intersection
 /// Returns: int
-int aabbAabb(AABB ab1, AABB ab2)
+int testAabbAabb(AABB ab1, AABB ab2)
 {
     Vec3 amin = ab1.min();
     Vec3 amax = ab1.max();
@@ -367,7 +371,7 @@ int aabbAabb(AABB ab1, AABB ab2)
 
 /// aabb plane intersection
 /// Returns: int
-int aabbPlane(AABB ab, Plane pl)
+int testAabbPlane(AABB ab, Plane pl)
 {
     auto enx = ab.extents.x * absF(pl.normal.x);
     auto eny = ab.extents.y * absF(pl.normal.y);
@@ -389,7 +393,7 @@ int aabbPlane(AABB ab, Plane pl)
 
 /// aabb frustum intersection
 /// Returns: int
-int aabbFrustum(AABB ab, Frustum fr)
+int testAabbFrustum(AABB ab, Frustum fr)
 {
     for(auto i = 0; i < 6; i++)
     {
@@ -404,7 +408,7 @@ int aabbFrustum(AABB ab, Frustum fr)
 
 /// aabb frustum intersection accurate
 ///Returns: int
-int aabbFrustumAccurate(AABB ab, Frustum fr)
+int testAabbFrustumAccurate(AABB ab, Frustum fr)
 {
     const planes = 6;
     const verts = 8;
@@ -507,7 +511,7 @@ int aabbFrustumAccurate(AABB ab, Frustum fr)
 
 /// obb obb intersection
 /// Returns: int
-int obbObb(Obb ob1, Obb ob2)
+int testObbObb(Obb ob1, Obb ob2)
 {
     float[3][3] r;
     float[3][3] absR;
@@ -647,7 +651,7 @@ int obbObb(Obb ob1, Obb ob2)
 
 /// obb plane intersection
 /// Returns: int
-int obbPlane(Obb ob, Plane pl)
+int testObbPlane(Obb ob, Plane pl)
 {
     Vec3 ex = ob.extents;
     Vec3 n = pl.normal;

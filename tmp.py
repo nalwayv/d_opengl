@@ -1,10 +1,19 @@
 # ---
 
 
-def sqr(x) -> float:
-    return x*x
+EPSILON = 0.00001
+PI = 3.14159
+TAU = 6.28318
+PHI = 1.57079
 
-def sqrt(x) -> float:
+
+# ---
+
+
+def sqr(x: float) -> float:
+    return x * x
+
+def sqrt(x: float) -> float:
     return x ** 0.5
 
 
@@ -12,45 +21,83 @@ def sqrt(x) -> float:
 
 
 class V3:
-    def __init__(self, x, y, z):
-        self.x = x
-        self.y = y
-        self.z = z
+    def __init__(self, x: float, y: float, z: float):
+        self.x: float = x
+        self.y: float = y
+        self.z: float = z
+
+    def __str__(self):
+        return f"[{self.x} {self.y} {self.z}]"
 
 
-def subV3(a, b) -> V3:
+def subV3(a: V3, b: V3) -> V3:
     return V3(a.x - b.x, a.y - b.y, a.z - b.z)
 
-def addV3(a, b) -> V3:
+def addV3(a: V3, b: V3) -> V3:
     return V3(a.x + b.x, a.y + b.y, a.z + b.z)
 
-def scaleV3(a, by) -> V3:
+def scaleV3(a: V3, by: float) -> V3:
     return V3(a.x * by, a.y * by, a.z * by)
 
-def dot(a, b) -> V3:
-    return a.x*b.x + a.y*b.y + a.z*b.z
+def cross(a: V3, b: V3) -> V3:
+    x = a.y * b.z - a.z * b.y
+    y = a.z * b.x - a.x * b.z
+    z = a.x * b.y - a.y * b.x
+    return V3(x, y, z)
 
-def length(a) -> V3:
-    return sqrt(dot(a,a))
+def dot(a: V3, b: V3) -> float:
+    return (a.x * b.x) + (a.y * b.y) + (a.z * b.z)
+
+def length(a: V3) -> float:
+    return sqrt(dot(a, a))
 
 
 # ---
 
 
 class Sphere:
-    def __init__(self, c, r):
-        self.c = c
-        self.r = r
+    def __init__(self, c: V3, r: float):
+        self.c: V3 = c
+        self.r: float = r
+
+    def __str__(self):
+        return f"[{self.c.x} {self.c.y} {self.c.z}] {self.r}"
+
+
+# ---
+
+
+class Aabb:
+    def __init__(self, c: V3, e: V3):
+        self.c: V3 = c
+        self.e: V3 = e
+
+    def getMin(self) -> V3:
+        a = addV3(self.c, self.e)
+        b = subV3(self.c, self.e)
+        return V3(min(a.x, b.x), min(a.y, b.y), min(a.z, b.z))
+
+    def getMax(self) -> V3:
+        a = addV3(self.c, self.e)
+        b = subV3(self.c, self.e)
+        return V3(max(a.x, b.x), max(a.y, b.y), max(a.z, b.z))
 
 
 # ---
 
 
 class Plane:
-    def __init__(self, n, d):
+    def __init__(self, n: V3, d: float):
         self.n = n
         self.d = d
 
+    def __str__(self):
+        return f"[{self.n.x} {self.n.y} {self.n.z}] {self.d}"
+
+def planeNormal(plane: Plane) -> Plane:
+    nLen = length(plane.n)
+    inv = 1.0 / nLen
+    return Plane(scaleV3(plane.n, inv), plane.d * inv)
 
 def planeCp(plane: Plane, pt: V3) -> V3:
     dis = (dot(plane.n, pt) - plane.d) / dot(plane.n, plane.n)
@@ -61,30 +108,41 @@ def planeCp(plane: Plane, pt: V3) -> V3:
 # ---
 
 
-# def testA(plane: Plane, sphere: Sphere) -> None:
-#     cp = planeCp(plane, sphere.c)
-#     v = subV3(sphere.c, cp)
-#     lsq = dot(v, v)
-#     # r2 = sphere.r * dot(plane.n, plane.n)
-#     r2 = sqr(sphere.r)
+def test(start: V3, end: V3, aabb: Aabb):
+    e = aabb.e
+    m = scaleV3(addV3(start, end), 0.5)
+    d = subV3(end, m)
+    m = subV3(m, aabb.c)
 
-#     if lsq < r2:
-#         print("I")
-#     elif lsq > r2:
-#         print("F")
-#     else:
-#         print("B")
+    dx = abs(d.x)
+    dy = abs(d.y)
+    dz = abs(d.z)
 
+    if abs(m.x) > e.x + dx:
+        return 0
+    
+    if abs(m.y) > e.y + dy:
+        return 0
 
-def testB(plane: Plane, sphere: Sphere) -> None:
-    d = dot(plane.n, sphere.c)
-    r = sphere.r * length(plane.n)
-    if d + r < plane.d:
-        print("B")
-    elif d - r > plane.d:
-        print("F")
-    else:
-        print("I")
+    if abs(m.z) > e.z + dz:
+        return 0
+
+    dx = dx + EPSILON
+    dy = dy + EPSILON
+    dz = dz + EPSILON
+
+    cr = cross(m, d)
+
+    if abs(cr.x) > e.y * dz + e.z * dy:
+        return 0
+
+    if abs(cr.y) > e.x * dz + e.z * dx:
+        return 0
+
+    if abs(cr.z) > e.x * dy + e.y * dx:
+        return 0
+
+    return 1
 
 
 # ---
@@ -92,7 +150,12 @@ def testB(plane: Plane, sphere: Sphere) -> None:
 
 sphere = Sphere(V3(-1, -6, -7), 1)
 plane = Plane(V3(2, 10, 2), 4)
+aabb = Aabb(V3(1,1,1), V3(-1,-1,-1))
 
-# testA(plane, sphere)
-testB(plane, sphere)
+
+# ---
+
+
+print(test(V3(0,0,0), V3(1,1,1), aabb))
+
 
