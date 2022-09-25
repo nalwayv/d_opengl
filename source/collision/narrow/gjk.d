@@ -364,8 +364,8 @@ private class Epa
             {
                 return updateContactData(minTri);
             }
-    
-            for(auto it = 0; it < tris.length;)
+
+            for(auto it = 0; it < tris.length; it++)
             {
                 Triangle current = tris[it];
                 Vec3 sp = support.subbedPoint(current.a);
@@ -377,10 +377,8 @@ private class Epa
                     addEdge(edges, current.c, current.a);
 
                     tris = remove(tris, it);
-                    continue;
+                    it--;
                 }
-                
-                it++;
             }
 
             // add new tris from edges
