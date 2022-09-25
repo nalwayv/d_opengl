@@ -64,6 +64,24 @@ bool aabbConatinsAabb(AABB ab1, AABB ab2)
     return checkX && checkY && checkZ;
 }
 
+/// aabb contains sphere
+/// Returns: bool
+bool aabbContainsSphere(AABB ab, Sphere sph)
+{
+    Vec3 pMin = ab.min();
+    Vec3 pMax = ab.max();
+
+    if(sph.origin.x - pMin.x <= sph.radius) return false;
+    if(sph.origin.y - pMin.y <= sph.radius) return false;
+    if(sph.origin.z - pMin.z <= sph.radius) return false;
+
+    if(pMax.x - sph.origin.x <= sph.radius) return false;
+    if(pMax.y - sph.origin.y <= sph.radius) return false;
+    if(pMax.z - sph.origin.z <= sph.radius) return false;
+
+    return true;
+}
+
 /// aabb contains point
 /// Returns: bool
 bool aabbContainsPoint(AABB ab, Vec3 pt)
@@ -80,6 +98,15 @@ bool aabbContainsPoint(AABB ab, Vec3 pt)
 
 // --
 
+/// sphere contains sphere
+/// Returns: bool
+bool sphereContainsSphere(Sphere sph1, Sphere sph2)
+{
+    Vec3 c1 = sph1.origin;
+    Vec3 c2 = sph2.origin;
+    auto disSq = c2.subbed(c1).lengthSq();
+    return disSq <= sqrF(sph1.radius - sph2.radius);
+}
 
 /// sphere contrains point
 /// Returns: bool

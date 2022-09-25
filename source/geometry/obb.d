@@ -9,6 +9,7 @@ import maths.vec3;
 import maths.mat4;
 import maths.mat3;
 import geometry.shapetypes;
+import geometry.aabb;
 
 
 struct Obb
@@ -101,6 +102,19 @@ struct Obb
         return result;
     }
 
+    /// Returns: AABB
+    AABB computeAABB()
+    {
+        Mat3 axisAbs = axis.abs();
+        Vec3 trExtents = axisAbs.transform(extents);
+        
+        Vec3 pMin = origin.subbed(trExtents);
+        Vec3 pMax = origin.added(trExtents);
+
+        return AABB.fromMinMax(pMin, pMax);
+    }
+
+    /// Returns: int
     int type()
     {
         return SHAPE_OBB;

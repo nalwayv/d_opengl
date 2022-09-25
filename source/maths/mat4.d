@@ -503,6 +503,32 @@ struct Mat4
         return a + b + c + d + e + f;
     }
 
+    /// return m4 with abs values
+    /// Returns: Mat4
+    Mat4 abs()
+    {
+        Mat4 result;
+
+        result.m00 = absF(m00);
+        result.m01 = absF(m01);
+        result.m02 = absF(m02);
+        result.m03 = absF(m03);
+        result.m10 = absF(m10);
+        result.m11 = absF(m11);
+        result.m12 = absF(m12);
+        result.m13 = absF(m13);
+        result.m20 = absF(m20);
+        result.m21 = absF(m21);
+        result.m22 = absF(m22);
+        result.m23 = absF(m23);
+        result.m30 = absF(m30);
+        result.m31 = absF(m31);
+        result.m32 = absF(m32);
+        result.m33 = absF(m33);
+
+        return result;
+    }
+
     /// return an inverse mat4 of 'this
     /// Returns: Mat4
     Mat4 inverse()

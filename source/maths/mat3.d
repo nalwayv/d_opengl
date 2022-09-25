@@ -390,6 +390,25 @@ struct Mat3
         return d0 + d1 + d2 - d3 - d4 - d5;
     }
 
+    /// return m4 with abs values
+    /// Returns: Mat4
+    Mat3 abs()
+    {
+        Mat3 result;
+
+        result.m00 = absF(m00);
+        result.m01 = absF(m01);
+        result.m02 = absF(m02);
+        result.m10 = absF(m10);
+        result.m11 = absF(m11);
+        result.m12 = absF(m12);
+        result.m20 = absF(m20);
+        result.m21 = absF(m21);
+        result.m22 = absF(m22);
+
+        return result;
+    }
+
     /// return an inverse mat3 of 'this
     /// Returns: Mat3
     Mat3 inverse()

@@ -108,38 +108,22 @@ def planeCp(plane: Plane, pt: V3) -> V3:
 # ---
 
 
-def test(start: V3, end: V3, aabb: Aabb):
-    e = aabb.e
-    m = scaleV3(addV3(start, end), 0.5)
-    d = subV3(end, m)
-    m = subV3(m, aabb.c)
+def test(aabb: Aabb, sphere: Sphere):
+    pmin = aabb.getMin()
+    pmax = aabb.getMax()
 
-    dx = abs(d.x)
-    dy = abs(d.y)
-    dz = abs(d.z)
-
-    if abs(m.x) > e.x + dx:
+    if sphere.c.x - pmin.x <= sphere.r:
         return 0
-    
-    if abs(m.y) > e.y + dy:
+    if sphere.c.y - pmin.y <= sphere.r:
+        return 0
+    if sphere.c.z - pmin.z <= sphere.r:
         return 0
 
-    if abs(m.z) > e.z + dz:
+    if pmax.x - sphere.c.x <= sphere.r:
         return 0
-
-    dx = dx + EPSILON
-    dy = dy + EPSILON
-    dz = dz + EPSILON
-
-    cr = cross(m, d)
-
-    if abs(cr.x) > e.y * dz + e.z * dy:
+    if pmax.y - sphere.c.y <= sphere.r:
         return 0
-
-    if abs(cr.y) > e.x * dz + e.z * dx:
-        return 0
-
-    if abs(cr.z) > e.x * dy + e.y * dx:
+    if pmax.z - sphere.c.z <= sphere.r:
         return 0
 
     return 1
@@ -148,14 +132,14 @@ def test(start: V3, end: V3, aabb: Aabb):
 # ---
 
 
-sphere = Sphere(V3(-1, -6, -7), 1)
+sphere = Sphere(V3(0, 0, 0), 2)
 plane = Plane(V3(2, 10, 2), 4)
-aabb = Aabb(V3(1,1,1), V3(-1,-1,-1))
+aabb = Aabb(V3(0, 0, 0), V3(3, 3, 3))
 
 
 # ---
 
 
-print(test(V3(0,0,0), V3(1,1,1), aabb))
+print(test(aabb, sphere))
 
 
