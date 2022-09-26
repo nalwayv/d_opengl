@@ -173,9 +173,19 @@ void main()
             auto gjk = new Gjk(cubeA, b);
             if(gjk.check())
             {
-                auto cData = gjk.getCollisionData();
-                Vec3 translateBy = cData.normal.scaled(cData.depth);
-                cubeA.translate(translateBy);
+                // auto cData = gjk.getCollisionData();
+                // Vec3 translateBy = cData.normal.scaled(cData.depth);
+                // cubeA.translate(translateBy);
+                // writeln("GJK PASS");
+
+                Vec3 value;
+                if(gjk.responce(value))
+                {
+                    // writeln("HIT");
+                    cubeA.translate(value.negated());
+
+                }
+
                 return true;
             }
             return false;

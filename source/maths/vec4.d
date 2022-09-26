@@ -343,12 +343,12 @@ struct Vec4
     /// Returns: bool
     bool isEquil(Vec4 other) const
     {
-        auto checkX = isEquilF(x, other.x);
-        auto checkY = isEquilF(y, other.y);
-        auto checkZ = isEquilF(z, other.z);
-        auto checkW = isEquilF(w, other.w);
+        if(x != other.x) return false;
+        if(y != other.y) return false;
+        if(z != other.z) return false;
+        if(w != other.w) return false;
 
-        return checkX & checkY & checkZ & checkW;
+        return true;
     }
 
     /// check if 'this vec4 is normalized

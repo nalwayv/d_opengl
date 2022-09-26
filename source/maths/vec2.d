@@ -289,10 +289,9 @@ struct Vec2
     /// Returns: bool
     bool isEquil(Vec2 other) const
     {
-        auto checkX = isEquilF(x, other.x);
-        auto checkY = isEquilF(y, other.y);
-
-        return checkX & checkY;
+        if(x != other.x) return false;
+        if(y != other.y) return false;
+        return true;
     }
 
     /// check if 'this vec2 is normalized

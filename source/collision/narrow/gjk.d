@@ -17,85 +17,64 @@ enum int GJK_ITERATIONS = 30;
 enum int EPA_ITERATIONS = 30;
 
 
-private struct SupportPoint
+private Vec3 tripleCross(Vec3 a, Vec3 b, Vec3 c)
 {
-    Vec3 pt;
-    Vec3 spA;
-    Vec3 spB;
+    return a.cross(b).cross(c);
+}
 
-    static SupportPoint newSupportPoint(Vec3 pt)
-    {
-        SupportPoint result;
-
-        result.pt = pt;
-        result.spA = Vec3(0.0f, 0.0f, 0.0f);
-        result.spB = Vec3(0.0f, 0.0f, 0.0f);
-
-        return result;
-    }
-
-    Vec3 subbedPoint(SupportPoint other)
-    {
-        return pt.subbed(other.pt);
-    }
-
-    Vec3 negatedPoint()
-    {
-        return pt.negated();
-    }
-
-    bool isEquilPoint(SupportPoint other)
-    {
-        return pt.isEquil(other.pt);
-    }
+private bool sameDirection(Vec3 a, Vec3 b)
+{
+    return a.dot(b) > 0.0f;
 }
 
 
 private struct Edge
 {
-    SupportPoint a;
-    SupportPoint b;
-
-    /// check for equality between edges support points
-    /// Returns: bool
-    bool isEquil(Edge other)
-    {
-        return a.isEquilPoint(other.a) && b.isEquilPoint(other.b);
-    }
+    Vec3 a;
+    Vec3 b;
 }
 
 
 private struct Triangle
 {
-    SupportPoint a;
-    SupportPoint b;
-    SupportPoint c;
+    Vec3 a;
+    Vec3 b;
+    Vec3 c;
     Vec3 n;
 
-    this(SupportPoint a, SupportPoint b, SupportPoint c)
+    this(Vec3 a, Vec3 b, Vec3 c)
     {
         this.a = a;
         this.b = b;
         this.c = c;
 
-        this.n = b.subbedPoint(this.a).cross(this.c.subbedPoint(this.a)).normalized();
+        Vec3 ab = b.subbed(a);
+        Vec3 ac = c.subbed(a);
+        this.n = ab.cross(ac).normalized();
     }
+}
+
+
+private struct NearestData
+{
+    float distance;
+    int index;
 }
 
 
 private struct Simplex 
 {
-    SupportPoint[4] pts;
+    Vec3[4] pts;
     int length;
 
     static Simplex newSimplex()
     {
         Simplex result;
 
-        result.pts[0] = SupportPoint.newSupportPoint(Vec3.zero());
-        result.pts[1] = SupportPoint.newSupportPoint(Vec3.zero());
-        result.pts[2] = SupportPoint.newSupportPoint(Vec3.zero());
-        result.pts[3] = SupportPoint.newSupportPoint(Vec3.zero());
+        result.pts[0] = Vec3.zero();
+        result.pts[1] = Vec3.zero();
+        result.pts[2] = Vec3.zero();
+        result.pts[3] = Vec3.zero();
 
         result.length = 0;
 
@@ -107,27 +86,27 @@ private struct Simplex
         length = 0; 
     }
 
-    SupportPoint a()
+    Vec3 a()
     { 
         return pts[0];
     }
 
-    SupportPoint b()
+    Vec3 b()
     { 
         return pts[1];
     }
 
-    SupportPoint c()
+    Vec3 c()
     { 
         return pts[2];
     }
 
-    SupportPoint d()
+    Vec3 d()
     { 
         return pts[3];
     }
 
-    void set(SupportPoint a, SupportPoint b, SupportPoint c, SupportPoint d)
+    void set(Vec3 a, Vec3 b, Vec3 c, Vec3 d)
     {
         length = 4;
 
@@ -137,7 +116,7 @@ private struct Simplex
         pts[3] = d;
     }
 
-    void set(SupportPoint a, SupportPoint b, SupportPoint c)
+    void set(Vec3 a, Vec3 b, Vec3 c)
     {
         length = 3;
 
@@ -146,7 +125,7 @@ private struct Simplex
         pts[2] = c;
     }
 
-    void set(SupportPoint a, SupportPoint b)
+    void set(Vec3 a, Vec3 b)
     {
         length = 2;
 
@@ -154,7 +133,7 @@ private struct Simplex
         pts[1] = b;
     }
 
-    void set(SupportPoint a)
+    void set(Vec3 a)
     {
         length = 1;
 
@@ -162,7 +141,7 @@ private struct Simplex
     }
 
     /// add support point to simplex
-    void push(SupportPoint p)
+    void push(Vec3 p)
     {
         length = minI(length + 1, 4);
 
@@ -176,234 +155,12 @@ private struct Simplex
 }
 
 
-struct CollisionData
-{
-    Vec3 normal;
-    Vec3 point;
-    float depth;
-}
-
-
-private class Epa
-{
-    private
-    {
-        CollisionData collisionData;
-        IMeshCollider mcA;
-        IMeshCollider mcB;
-        Simplex simplex;
-    }
-
-    this(IMeshCollider a, IMeshCollider b, Simplex simplex)
-    {
-        mcA = a;
-        mcB = b;
-        this.simplex = simplex;
-    }
-
-    /// Returns: CollisionData
-    public CollisionData getCollisionData()
-    {
-        return collisionData;
-    }
-
-    // --- helpers
-
-    /// return current support point based on models furest point in direction
-    /// Returns: SupportPoint
-    private SupportPoint getSupport(Vec3 dir)
-    {
-        auto a = mcA.farthestPoint(dir);
-        auto b = mcB.farthestPoint(dir.negated());
-
-        auto ba = a.subbed(b);
-
-        SupportPoint result;
-
-        result.pt = ba;
-        result.spA = a;
-        result.spB = b;
-
-        return result;
-    }
-
-    /// just to make to code look cleaner
-    ///
-    /// tri.n.dot(tri.a.pt) => dot(tri.n, tri.a.pt)
-    private float dot(Vec3 a, Vec3 b)
-    {
-        return a.dot(b);
-    }
-
-    /// compute barycentric
-    /// Returns: Vec3
-    private Vec3 barycentric(Vec3 p, Vec3 a, Vec3 b, Vec3 c)
-    {
-        Vec3 v0 = b.subbed(a);
-        Vec3 v1 = c.subbed(a);
-        Vec3 v2 = p.subbed(a);
-
-        auto d00 = dot(v0, v0);
-        auto d01 = dot(v0, v1);
-        auto d11 = dot(v1, v1);
-        auto d20 = dot(v2, v0);
-        auto d21 = dot(v2, v1);
-
-        auto denom = d00 * d11  - d01 * d01;
-        auto v = (d11 * d20 - d01 * d21) / denom;
-        auto w = (d00 * d21 - d01 * d20) / denom;
-        auto u = 1.0f - v - w;
-
-        Vec3 result;
-
-        result.x = u;
-        result.y = v;
-        result.z = w;
-        
-        return result;
-    }
-
-    /// check for same direction
-    /// Returns: bool
-    private bool sameDirection(Vec3 a, Vec3 b)
-    {
-        return dot(a, b) > 0.0f;
-    }
-
-    /// add/remove edge data from edges
-    private void addEdge(Edge[] edges, SupportPoint a, SupportPoint b)
-    {
-        auto edge = Edge(a, b);
-
-        for (auto i = 0; i < edges.length; i++)
-        {
-            if(edges[i].isEquil(edge))
-            {
-                edges = remove(edges, i);
-                return;
-            }
-        }
-
-        edges ~= edge;
-    }
-
-    /// update contact information
-    /// Returns: bool
-    private bool updateContactData(Triangle tri)
-    {
-        auto dis = dot(tri.n, tri.a.pt);
-        
-        Vec3 a = tri.n.scaled(dis);
-        Vec3 b = tri.a.pt;
-        Vec3 c = tri.b.pt;
-        Vec3 d = tri.c.pt;
-
-        Vec3 bary = barycentric(a, b, c, d);
-
-        // if bary fails
-        if(!isValidF(bary.x) || !isValidF(bary.y) || !isValidF(bary.z))
-        {
-            return false;
-        }
-        if(absF(bary.x) > 1.0f || absF(bary.y) > 1.0f || absF(bary.z) > 1.0f)
-        {
-            return false;
-        }
-
-        Vec3 u = tri.a.spA.scaled(bary.x);
-        Vec3 v = tri.b.spA.scaled(bary.y);
-        Vec3 w = tri.c.spA.scaled(bary.z);
-
-        Vec3 point = u.added(v).added(w);
-        Vec3 normal = tri.n.negated();
-        auto depth = dis;
-
-        collisionData.normal = normal;
-        collisionData.point = point;
-        collisionData.depth = depth + EPA_BUFFER;
-
-        return true;
-    }
-
-    /// collect information bassed on gjk simplex
-    /// Returns: bool
-    private bool check()
-    {
-        assert(simplex.length == 4);
-        
-        Triangle[] tris = [
-            Triangle(simplex.a(), simplex.b(), simplex.c()),
-            Triangle(simplex.a(), simplex.c(), simplex.d()),
-            Triangle(simplex.a(), simplex.d(), simplex.b()),
-            Triangle(simplex.b(), simplex.d(), simplex.c()),
-        ];
-
-        Edge[] edges;
-
-        for(auto i = 0; i < EPA_ITERATIONS; i++)
-        {
-            // closest tri
-            auto minDis = MAXFLOAT;
-            Triangle minTri;
-            for(auto j = 0; j < tris.length; j++)
-            {
-                Triangle current = tris[j];
-
-                auto dis = dot(current.n, current.a.pt);
-                if(dis < minDis)
-                {
-                    minDis = dis;
-                    minTri = current;
-                }
-            }
-
-            SupportPoint support = getSupport(minTri.n);
-            auto newDis = dot(minTri.n, support.pt);
-
-            if((newDis - minDis) < EPA_OPTIMAL)
-            {
-                return updateContactData(minTri);
-            }
-
-            for(auto it = 0; it < tris.length; it++)
-            {
-                Triangle current = tris[it];
-                Vec3 sp = support.subbedPoint(current.a);
-
-                if(sameDirection(current.n, sp))
-                {
-                    addEdge(edges, current.a, current.b);
-                    addEdge(edges, current.b, current.c);
-                    addEdge(edges, current.c, current.a);
-
-                    tris = remove(tris, it);
-                    it--;
-                }
-            }
-
-            // add new tris from edges
-            for(auto j = 0; j < edges.length; j++)
-            {
-                Edge current = edges[j];
-                tris ~= Triangle(support, current.a, current.b);
-            }
-
-            // clear old edges
-            edges = [];
-        }
-
-        return false;
-    }
-}
-
-
 class Gjk
 {
     private 
     {
         Simplex simplex;
         Vec3 direction;
-        CollisionData collisionData;
         IMeshCollider mcA;
         IMeshCollider mcB;
     }
@@ -426,76 +183,47 @@ class Gjk
         mcB = b;
     }
 
-    public CollisionData getCollisionData()
-    {
-        return collisionData;
-    }
 
     // --- helpers
 
-    private float dot(Vec3 a, Vec3 b)
-    {
-        return a.dot(b);
-    }
-
-    /// return triple cross product
-    /// Returns: Vec3
-    public Vec3 tripleCross(Vec3 a, Vec3 b, Vec3 c)
-    {
-        return a.cross(b).cross(c);
-    }
 
     /// return support pt from direction 'dir
     /// Returns: Vec3
-    private SupportPoint getSupport(Vec3 dir)
+    private Vec3 getSupport(Vec3 dir)
     {
         auto a = mcA.farthestPoint(dir);
         auto b = mcB.farthestPoint(dir.negated());
 
-        auto ba = a.subbed(b);
-
-        SupportPoint result;
-
-        result.pt = ba;
-        result.spA = a;
-        result.spB = b;
-
-        return result;
+        return a.subbed(b);
     }
 
-    /// check for same direction
-    /// Returns: bool
-    private bool sameDirection(Vec3 a, Vec3 b)
-    {
-        return dot(a, b) > 0.0f;
-    }
 
-    /// --- simplex
+    // --- simplex
 
     /// check line if length is 2
     /// Returns: bool
-    private bool line()
+    private bool solve2()
     {
         if(simplex.length != 2) 
         {
             return false;
         }
 
-        SupportPoint a = simplex.a();
-        SupportPoint b = simplex.b();
+        Vec3 a = simplex.a();
+        Vec3 b = simplex.b();
 
-        Vec3 ab = b.subbedPoint(a);
-        Vec3 an = a.negatedPoint();        
+        Vec3 ab = b.subbed(a);
+        Vec3 ao = a.negated();
         
-        if(sameDirection(ab, an))
+        if(sameDirection(ab, ao))
         {
-            direction = tripleCross(ab, an, ab);
+            direction = tripleCross(ab, ao, ab);
         }
         else
         {
             simplex.set(a);
 
-            direction = an;
+            direction = ao;
         }
 
         return false;
@@ -503,49 +231,49 @@ class Gjk
 
     /// check triangle if length is 3
     /// Returns: bool
-    private bool triangle()
+    private bool solve3()
     {
         if(simplex.length != 3)
         {
             return false;
         }
 
-        SupportPoint a = simplex.a();
-        SupportPoint b = simplex.b();
-        SupportPoint c = simplex.c();
+        Vec3 a = simplex.a();
+        Vec3 b = simplex.b();
+        Vec3 c = simplex.c();
 
-        Vec3 ab = b.subbedPoint(a);
-        Vec3 ac = c.subbedPoint(a);
-        Vec3 an = a.negatedPoint();
+        Vec3 ab = b.subbed(a);
+        Vec3 ac = c.subbed(a);
+        Vec3 ao = a.negated();
 
         Vec3 abc = ab.cross(ac);
 
-        if(sameDirection(abc.cross(ac), an))
+        if(sameDirection(abc.cross(ac), ao))
         {
-            if(sameDirection(ac, an))
+            if(sameDirection(ac, ao))
             {
                 simplex.set(a, c);
 
-                direction = tripleCross(ac, an, ac);
+                direction = tripleCross(ac, ao, ac);
             }
             else
             {
                 simplex.set(a, b);
 
-                return line();
+                return solve2();
             }
         }
         else
         {
-            if(sameDirection(ab.cross(abc), an))
+            if(sameDirection(ab.cross(abc), ao))
             {
                 simplex.set(a, b);
 
-                return line();
+                return solve2();
             }
             else
             {
-                if(sameDirection(abc, an))
+                if(sameDirection(abc, ao))
                 {
                     direction = abc;
                 }
@@ -563,22 +291,22 @@ class Gjk
 
     /// check tetrahedron if length is 4
     /// Returns: bool
-    private bool tetrahedron()
+    private bool solve4()
     {
         if(simplex.length != 4)
         {
             return false;
         }
 
-        SupportPoint a = simplex.a();
-        SupportPoint b = simplex.b();
-        SupportPoint c = simplex.c();
-        SupportPoint d = simplex.d();
+        Vec3 a = simplex.a();
+        Vec3 b = simplex.b();
+        Vec3 c = simplex.c();
+        Vec3 d = simplex.d();
 
-        Vec3 ab = b.subbedPoint(a);
-        Vec3 ac = c.subbedPoint(a);
-        Vec3 ad = d.subbedPoint(a);
-        Vec3 an = a.negatedPoint();
+        Vec3 ab = b.subbed(a);
+        Vec3 ac = c.subbed(a);
+        Vec3 ad = d.subbed(a);
+        Vec3 an = a.negated();
 
         Vec3 abc = ab.cross(ac);
         Vec3 acd = ac.cross(ad);
@@ -588,21 +316,21 @@ class Gjk
         {
             simplex.set(a, b, c);
 
-            return triangle(); 
+            return solve3(); 
         }
 
         if(sameDirection(acd, an))
         {
             simplex.set(a, c, d);
 
-            return triangle();
+            return solve3();
         }
 
         if(sameDirection(adb, an))
         {
             simplex.set(a, d, b);
 
-            return triangle();
+            return solve3();
         }
 
         return true;
@@ -610,27 +338,27 @@ class Gjk
 
     /// check what simplex is next based on length
     /// Returns: bool
-    private bool evolve()
+    private bool solve()
     {
         if(simplex.length == 2)
         {
-            return line();
+            return solve2();
         }
 
         if(simplex.length == 3)
         {
-            return triangle();
+            return solve3();
         }
 
         if(simplex.length == 4)
         {
-            return tetrahedron();
+            return solve4();
         }
 
         return false;
     }
 
-    /// --- gjk
+    // --- gjk
 
     /// check for a collision between two shapes
     /// Returns: bool
@@ -640,31 +368,133 @@ class Gjk
 
         direction = Vec3(1.0f, 0.0f, 0.0f);
 
-        SupportPoint support = getSupport(direction);
+        Vec3 support = getSupport(direction);
 
         simplex.push(support);
 
-        direction = support.pt.negated();
+        direction = support.negated();
 
         for(auto i = 0; i < GJK_ITERATIONS; i++)
         {
             support = getSupport(direction);
 
-            if(dot(support.pt, direction) <= 0.0f)
+            if(support.dot(direction) <= 0.0f)
             {
                 return false;
             }
     
             simplex.push(support);
 
-            if(evolve())
+            if(solve())
             {
-                Epa epa = new Epa(mcA, mcB, simplex);
-                if(epa.check())
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // --- epa
+
+    private void addEdge(ref Edge[] edges, Edge edge)
+    {
+        for(auto i = 0; i < edges.length; i++)
+        {
+            Vec3 a = edges[i].a;
+            Vec3 b = edges[i].b;
+            if(a.isEquil(edge.b) && b.isEquil(edge.a))
+            {
+                edges = remove(edges, i);
+                return;
+            }
+        }
+        edges ~= edge;
+    }
+
+    private NearestData nearestTri(Triangle[] polytype)
+    {
+        auto distance = MAXFLOAT;
+        auto index = -1;
+
+        for(auto i = 0; i < polytype.length; i++)
+        {
+            Triangle t = polytype[i];
+            auto dis = t.n.dot(t.a);
+            if(dis < distance)
+            {
+                distance = dis;
+                index = i;
+            }
+        }
+
+        return NearestData(distance, index);
+    }
+
+    private bool triRespone(ref Triangle[] polytope, ref Vec3 value)
+    {
+        if(polytope.length == 0)
+        {
+            return false;
+        } 
+
+        NearestData nearest = nearestTri(polytope);
+        Triangle tri = polytope[nearest.index];
+
+        Vec3 sup = getSupport(tri.n);
+        auto dis = absF(sup.dot(tri.n));
+        
+        if((dis - nearest.distance) <= EPA_OPTIMAL)
+        {
+            value = tri.n.scaled(nearest.distance);
+            return true;
+        }
+        else
+        {
+            Edge[] edges;
+            for(auto i = cast(int)(polytope.length) - 1; i >= 0; i--)
+            {
+                tri = polytope[i];
+                if(sameDirection(tri.n, sup.subbed(polytope[i].a)))
                 {
-                    collisionData = epa.getCollisionData();
-                    return true;
+                    addEdge(edges, Edge(tri.a, tri.b));
+                    addEdge(edges, Edge(tri.b, tri.c));
+                    addEdge(edges, Edge(tri.c, tri.a));
+
+                    polytope = remove(polytope, i);
                 }
+            }
+            
+            for(auto i = 0; i < edges.length; i++)
+            {
+                tri = Triangle(sup, edges[i].a, edges[i].b);
+                if(tri.n.length() != 0.0f)
+                {
+                    polytope ~= tri;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /// ref value is vec3 depth
+    /// Returns: bool
+    public bool responce(ref Vec3 value)
+    {
+        Triangle[] tris = [
+            Triangle(simplex.pts[0], simplex.pts[1], simplex.pts[2]),
+            Triangle(simplex.pts[0], simplex.pts[2], simplex.pts[3]),
+            Triangle(simplex.pts[0], simplex.pts[3], simplex.pts[1]),
+            Triangle(simplex.pts[1], simplex.pts[3], simplex.pts[2]),
+        ];
+
+        for(auto it = 0; it < EPA_ITERATIONS; it++)
+        {
+            if(triRespone(tris, value))
+            {
+                Vec3 buffer = value.normalized().scaled(EPSILON);
+                value = value.added(buffer);
+                return true;
             }
         }
 

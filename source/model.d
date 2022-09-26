@@ -97,9 +97,9 @@ class Model : IMeshCollider
 
         for(auto i = 0;  i < ind.length; i += 3)
         {
-            auto a = Vec3.fromArray(vertex[ind[i + 0]].vert); 
-            auto b = Vec3.fromArray(vertex[ind[i + 1]].vert); 
-            auto c = Vec3.fromArray(vertex[ind[i + 2]].vert); 
+            Vec3 a = vertex[ind[i + 0]].vert; 
+            Vec3 b = vertex[ind[i + 1]].vert; 
+            Vec3 c = vertex[ind[i + 2]].vert; 
 
             auto ab = b.subbed(a);
             auto ac = c.subbed(a);
@@ -140,8 +140,7 @@ class Model : IMeshCollider
 
         for(auto i = 0; i < vertex.length; i++)
         {
-            auto vert = vertex[i].vert;
-            Vec3 pt = Vec3.fromArray(vert);
+            Vec3 pt = vertex[i].vert;
 
             auto distance = pt.dot(direction);
 
@@ -155,6 +154,13 @@ class Model : IMeshCollider
         return m4.transform(result);
     }
 
+    size_t vertexLength()
+    {
+        Obj obj = mesh.getObj();
+        Vertex[] vertex = obj.getVertex();
+        return vertex.length;
+    }
+
     /// compute an AABB from this model based on its verts
     /// Returns: AABB
     public AABB computeAABB()
@@ -165,31 +171,35 @@ class Model : IMeshCollider
         Vec3 pMax = Vec3(MINFLOAT, MINFLOAT, MINFLOAT);
 
         Obj obj = mesh.getObj();
-        foreach(ref vertex; obj.getVertex())
+        Vertex[] vertexes = obj.getVertex();
+        
+        for(auto i = 0; i < vertexes.length; i++)
         {
-            if(vertex.vert[x] < pMin.x) 
+            Vec3 vert = vertexes[i].vert;
+
+            if(vert.x < pMin.x) 
             {
-                pMin.x = vertex.vert[x];
+                pMin.x = vert.x;
             }
-            if(vertex.vert[x] > pMax.x) 
+            if(vert.x > pMax.x) 
             {
-                pMax.x = vertex.vert[x];
+                pMax.x = vert.x;
             }
-            if(vertex.vert[y] < pMin.y) 
+            if(vert.y < pMin.y) 
             {
-                pMin.y = vertex.vert[y];
+                pMin.y = vert.y;
             }
-            if(vertex.vert[y] > pMax.y) 
+            if(vert.y > pMax.y) 
             {
-                pMax.y = vertex.vert[y];
+                pMax.y = vert.y;
             }
-            if(vertex.vert[z] < pMin.z) 
+            if(vert.z < pMin.z) 
             {
-                pMin.z = vertex.vert[z];
+                pMin.z = vert.z;
             }
-            if(vertex.vert[z] > pMax.z) 
+            if(vert.z > pMax.z) 
             {
-                pMax.z = vertex.vert[z];
+                pMax.z = vert.z;
             }
         }
 

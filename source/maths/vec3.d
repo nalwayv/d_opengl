@@ -439,11 +439,11 @@ struct Vec3
     /// Returns: bool
     bool isEquil(Vec3 other) const
     {
-        auto checkX = isEquilF(x, other.x);
-        auto checkY = isEquilF(y, other.y);
-        auto checkZ = isEquilF(z, other.z);
+        if(x != other.x) return false;
+        if(y != other.y) return false;
+        if(z != other.z) return false;
 
-        return checkX & checkY & checkZ;
+        return true;
     }
 
     /// check if 'this vec3 is normalized

@@ -29,6 +29,11 @@ class V3:
     def __str__(self):
         return f"[{self.x} {self.y} {self.z}]"
 
+def dot(a: V3, b: V3) -> float:
+    return (a.x * b.x) + (a.y * b.y) + (a.z * b.z)
+
+def length(a: V3) -> float:
+    return sqrt(dot(a, a))
 
 def subV3(a: V3, b: V3) -> V3:
     return V3(a.x - b.x, a.y - b.y, a.z - b.z)
@@ -45,11 +50,14 @@ def cross(a: V3, b: V3) -> V3:
     z = a.x * b.y - a.y * b.x
     return V3(x, y, z)
 
-def dot(a: V3, b: V3) -> float:
-    return (a.x * b.x) + (a.y * b.y) + (a.z * b.z)
+def normal(v3: V3) -> V3:
+    l = length(v3)
 
-def length(a: V3) -> float:
-    return sqrt(dot(a, a))
+    x = v3.x / l
+    y = v3.y / l
+    z = v3.z / l
+    
+    return V3(x, y, z)
 
 
 # ---
@@ -108,25 +116,22 @@ def planeCp(plane: Plane, pt: V3) -> V3:
 # ---
 
 
-def test(aabb: Aabb, sphere: Sphere):
-    pmin = aabb.getMin()
-    pmax = aabb.getMax()
+def testA(a:V3,b:V3,c:V3):
+    ac = dot(a, c)
+    bc = dot(b, c)
+    bac = scaleV3(b,ac)
+    abc = scaleV3(a,bc)
 
-    if sphere.c.x - pmin.x <= sphere.r:
-        return 0
-    if sphere.c.y - pmin.y <= sphere.r:
-        return 0
-    if sphere.c.z - pmin.z <= sphere.r:
-        return 0
+    norm  = subV3(bac, abc)
 
-    if pmax.x - sphere.c.x <= sphere.r:
-        return 0
-    if pmax.y - sphere.c.y <= sphere.r:
-        return 0
-    if pmax.z - sphere.c.z <= sphere.r:
-        return 0
+    if dot(norm, norm) < sqr(EPSILON):
+        return scaleV3(norm, 0)
+    else:
+        return normal(norm)
 
-    return 1
+
+def testB(a:V3,b:V3,c:V3):
+    return normal(cross(cross(a, b), c))
 
 
 # ---
@@ -139,7 +144,8 @@ aabb = Aabb(V3(0, 0, 0), V3(3, 3, 3))
 
 # ---
 
+print(testA(V3(1,2,3), V3(4,5,6), V3(1,2,3)))
+print(testB(V3(1,2,3), V3(4,5,6), V3(1,2,3)))
 
-print(test(aabb, sphere))
 
 

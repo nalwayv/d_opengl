@@ -5,6 +5,7 @@ import std.conv : to;
 import std.stdio : File;
 import std.exception : ErrnoException;
 import std.string;
+import maths.vec3;
 
 
 enum size_t KB = 1 << 10;
@@ -27,7 +28,7 @@ enum : int
 
 struct Vertex
 {
-    float[3] vert;
+    Vec3 vert;
 }
 
 
@@ -80,9 +81,9 @@ class Obj
 
             Vertex result;
 
-            result.vert[0] = to!float(arr[X]);
-            result.vert[1] = to!float(arr[Y]);
-            result.vert[2] = to!float(arr[Z]);
+            result.vert.x = to!float(arr[X]);
+            result.vert.y = to!float(arr[Y]);
+            result.vert.z = to!float(arr[Z]);
 
             vertex ~= result;
         }
