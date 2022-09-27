@@ -6,7 +6,6 @@ import bindbc.opengl;
 import utils.path;
 import maths.utils;
 import maths.vec3;
-// import primitive.object;
 
 
 enum int COMPONENTS = 3;
@@ -120,65 +119,17 @@ class Mesh
         Vao vao;
         Ebo ebo;
         Vec3[] points;
-        int[] indicies;
+        int[] indices;
     }
 
-    // this(string filePath)
-    // {
-    //     vbo = Vbo.newVbo();
-    //     vao = Vao.newVao();
-    //     ebo = Ebo.newEbo();
-
-    //     auto object = new Obj(filePath);
-
-    //     points = object.getPoints();
-    //     indicies = object.getIndicies();
-
-    //     // setup
-    //     vao.bind();
-    //     vbo.bind();
-
-    //     glBufferData(
-    //         GL_ARRAY_BUFFER,
-    //         cast(GLsizeiptr)(points.length * Vec3.sizeof),
-    //         points.ptr,
-    //         GL_STATIC_DRAW
-    //     );
-
-    //     // ebo set data
-    //     ebo.bind();
-        
-    //     glBufferData(
-    //         GL_ELEMENT_ARRAY_BUFFER,
-    //         cast(GLsizeiptr)(indicies.length * indicies[0].sizeof),
-    //         indicies.ptr,
-    //         GL_STATIC_DRAW
-    //     );
-
-    //     // vbo link
-    //     glEnableVertexAttribArray(POSITION_IDX);
-    //     glVertexAttribPointer(
-    //         POSITION_IDX,
-    //         COMPONENTS,
-    //         GL_FLOAT,
-    //         GL_FALSE,
-    //         cast(GLsizei)(Vec3.sizeof),
-    //         null
-    //     );
-
-    //     vbo.unbind();
-    //     vao.unbind();
-    //     ebo.unbind();
-    // }
-
-    this(Vec3[] points, int[] indicies)
+    this(Vec3[] points, int[] indices)
     {
         vbo = Vbo.newVbo();
         vao = Vao.newVao();
         ebo = Ebo.newEbo();
 
         this.points = points.dup();
-        this.indicies = indicies.dup();
+        this.indices = indices.dup();
 
         // setup
         vao.bind();
@@ -196,8 +147,8 @@ class Mesh
         
         glBufferData(
             GL_ELEMENT_ARRAY_BUFFER,
-            cast(GLsizeiptr)(this.indicies.length * this.indicies[0].sizeof),
-            this.indicies.ptr,
+            cast(GLsizeiptr)(this.indices.length * this.indices[0].sizeof),
+            this.indices.ptr,
             GL_STATIC_DRAW
         );
 
@@ -228,21 +179,21 @@ class Mesh
         return points;
     }
 
-    public int[] getIndicies()
+    public int[] getIndices()
     {
-        return indicies;
+        return indices;
     }
 
-    public void render(bool dbg = true)
+    public void render(bool dbg = false)
     {
         vao.bind();
         if(!dbg)
         {
-            glDrawElements(GL_TRIANGLES, cast(int)indicies.length, GL_UNSIGNED_INT, null);
+            glDrawElements(GL_TRIANGLES, cast(int)indices.length, GL_UNSIGNED_INT, null);
         }
         else
         {
-            glDrawElements(GL_LINE_LOOP, cast(int)indicies.length, GL_UNSIGNED_INT, null);
+            glDrawElements(GL_LINE_LOOP, cast(int)indices.length, GL_UNSIGNED_INT, null);
         } 
 
         vao.unbind();

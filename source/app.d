@@ -9,6 +9,7 @@ import collision.broad.tree;
 import collision.narrow.gjk;
 import geometry.aabb;
 import primitive.box;
+import primitive.sphere;
 import model;
 import clock;
 import keyboard;
@@ -84,20 +85,21 @@ void main()
     auto shaderCache = new ShaderCache();
     shaderCache.add("default", "shaders\\default.vert", "shaders\\default.frag");
 
-    auto boxPrimitive = new Box(2.0f, 2.0f, 2.0f, 1, 1, 1);
+    auto boxPrimitive = new BoxPrimitive(2.0f, 2.0f, 2.0f, 1, 1, 1);
+    auto spherePrimitive = new SpherePrimitive(1, 1, 10, 3);
 
     // // model
-    auto cubeA = new Model(boxPrimitive.getPoints(), boxPrimitive.getIndicies());
-    cubeA.setColor(1, 0, 0);
+    auto shapeA = new Model(boxPrimitive.getPoints(), boxPrimitive.getIndices());
+    shapeA.setColor(1, 0, 0);
 
-    // auto cubeB = new Model("models\\cube");
-    auto cubeB = new Model(boxPrimitive.getPoints(), boxPrimitive.getIndicies());
-    cubeB.translate(5.0f, 0.0f, 0.0f);
+    // auto shapeB = new Model("models\\cube");
+    auto shapeB = new Model(spherePrimitive.getPoints(), spherePrimitive.getIndices());
+    shapeB.translate(5.0f, 0.0f, 0.0f);
 
 
     auto tree = new Tree();
-    auto aID = tree.add(cubeA.computeAABB(), cubeA);
-    auto bID = tree.add(cubeB.computeAABB(), cubeB);
+    auto aID = tree.add(shapeA.computeAABB(), shapeA);
+    auto bID = tree.add(shapeB.computeAABB(), shapeB);
     tree.valide();
 
 
@@ -170,21 +172,21 @@ void main()
 
         // ---
         // update
-        auto ab = cubeA.computeAABB();
+        auto ab = shapeA.computeAABB();
         tree.query(ab, (Model b) {
-            auto gjk = new Gjk(cubeA, b);
+            auto gjk = new Gjk(shapeA, b);
             if(gjk.check())
             {
                 // auto cData = gjk.getCollisionData();
                 // Vec3 translateBy = cData.normal.scaled(cData.depth);
-                // cubeA.translate(translateBy);
+                // shapeA.translate(translateBy);
                 // writeln("GJK PASS");
 
                 Vec3 result;
                 if(gjk.responce(result))
                 {
                     // writeln("HIT");
-                    cubeA.translate(result.negated());
+                    shapeA.translate(result.negated());
 
                 }
 
@@ -198,39 +200,39 @@ void main()
 
         if(keyb.keyState(GLFW_KEY_I) == KEY_HELD) 
         {
-            cubeA.translate(0.0, 1.0 * moveSp * clock.dt, 0.0);
+            shapeA.translate(0.0, 1.0 * moveSp * clock.dt, 0.0);
         }
 
         if(keyb.keyState(GLFW_KEY_K) == KEY_HELD) 
         {
-            cubeA.translate(0.0, -1.0 * moveSp * clock.dt, 0.0);
+            shapeA.translate(0.0, -1.0 * moveSp * clock.dt, 0.0);
         }
 
         if(keyb.keyState(GLFW_KEY_J) == KEY_HELD) 
         {
-            cubeA.translate(-1.0 * moveSp * clock.dt, 0.0, 0.0);
+            shapeA.translate(-1.0 * moveSp * clock.dt, 0.0, 0.0);
         }
 
         if(keyb.keyState(GLFW_KEY_L) == KEY_HELD)
         {
-            cubeA.translate(1.0 * moveSp * clock.dt, 0.0, 0.0);
+            shapeA.translate(1.0 * moveSp * clock.dt, 0.0, 0.0);
         }
 
         if(keyb.keyState(GLFW_KEY_U) == KEY_HELD)
         {
-            cubeA.translate(0.0, 0.0, -1.0 * moveSp * clock.dt);
+            shapeA.translate(0.0, 0.0, -1.0 * moveSp * clock.dt);
         }
 
         if(keyb.keyState(GLFW_KEY_O) == KEY_HELD)
         {
-            cubeA.translate(0.0, 0.0, 1.0 * moveSp * clock.dt);
+            shapeA.translate(0.0, 0.0, 1.0 * moveSp * clock.dt);
         }
 
 
         // ---
         // render
-        cubeA.render(shaderCache, cam);
-        cubeB.render(shaderCache, cam);
+        shapeA.render(shaderCache, cam);
+        shapeB.render(shaderCache, cam);
         
         // ---
         // buffers

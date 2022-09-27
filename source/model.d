@@ -7,7 +7,6 @@ import maths.vec3;
 import maths.mat4;
 import geometry.aabb;
 import collision.narrow.imeshcollider;
-// import primitive.object;
 import mesh;
 import color;
 import transform;
@@ -102,7 +101,7 @@ class Model : IMeshCollider
 
         // auto obj = mesh.getObj();
         auto points = mesh.getPoints();
-        auto ind = mesh.getIndicies();
+        auto ind = mesh.getIndices();
 
         for(auto i = 0;  i < ind.length; i += 3)
         {

@@ -32,7 +32,7 @@ class Obj
     private 
     {
         Vec3[] points;
-        int[] indicies;
+        int[] indices;
     }
 
     /// load a model from models file
@@ -102,7 +102,7 @@ class Obj
                 to!int(arr[F])
             ];
 
-            indicies ~= data;
+            indices ~= data;
         }
         catch(ErrnoException e)
         {
@@ -117,8 +117,8 @@ class Obj
     }
 
     /// Returns: int[]
-    public int[] getIndicies() pure
+    public int[] getIndices() pure
     {
-        return indicies;
+        return indices;
     }
 }

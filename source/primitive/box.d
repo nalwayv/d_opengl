@@ -5,7 +5,7 @@ module primitive.box;
 import maths.vec3;
 
 
-class Box
+class BoxPrimitive
 {
     private 
     {
@@ -179,7 +179,7 @@ class Box
         return points;
     }
 
-    public int[] getIndicies()
+    public int[] getIndices()
     {
         return indices;
     }
