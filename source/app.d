@@ -172,31 +172,6 @@ void main()
 
         // ---
         // update
-        auto ab = shapeA.computeAABB();
-        tree.query(ab, (Model b) {
-            auto gjk = new Gjk(shapeA, b);
-            if(gjk.check())
-            {
-                // auto cData = gjk.getCollisionData();
-                // Vec3 translateBy = cData.normal.scaled(cData.depth);
-                // shapeA.translate(translateBy);
-                // writeln("GJK PASS");
-
-                Vec3 result;
-                if(gjk.responce(result))
-                {
-                    // writeln("HIT");
-                    shapeA.translate(result.negated());
-
-                }
-
-                return true;
-            }
-            return false;
-        });
-
-        tree.move(ab, aID);
-        tree.valide();
 
         if(keyb.keyState(GLFW_KEY_I) == KEY_HELD) 
         {
@@ -227,7 +202,24 @@ void main()
         {
             shapeA.translate(0.0, 0.0, 1.0 * moveSp * clock.dt);
         }
+        
+        auto ab = shapeA.computeAABB();
+        tree.query(ab, (Model b) {
+            auto gjk = new Gjk(shapeA, b);
+            if(gjk.check())
+            {
+                Vec3 result;
+                if(gjk.responce(result))
+                {
+                    shapeA.translate(result.negated());
+                }
+                return true;
+            }
+            return false;
+        });
 
+        tree.move(ab, aID);
+        tree.valide();
 
         // ---
         // render
