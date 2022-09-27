@@ -178,11 +178,11 @@ void main()
                 // cubeA.translate(translateBy);
                 // writeln("GJK PASS");
 
-                Vec3 value;
-                if(gjk.responce(value))
+                Vec3 result;
+                if(gjk.responce(result))
                 {
                     // writeln("HIT");
-                    cubeA.translate(value.negated());
+                    cubeA.translate(result.negated());
 
                 }
 

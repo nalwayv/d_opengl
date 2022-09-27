@@ -3,8 +3,10 @@ module mesh;
 
 
 import bindbc.opengl;
+import utils.path;
 import maths.utils;
-import utils.obj;
+import maths.vec3;
+import primitive.object;
 
 
 enum int COMPONENTS = 3;
@@ -16,7 +18,7 @@ enum : int
 }
 
 
-struct Vbo
+private struct Vbo
 {
     GLuint id;
 
@@ -47,7 +49,7 @@ struct Vbo
 }
 
 
-struct Vao
+private struct Vao
 {
     GLuint id;
 
@@ -78,7 +80,7 @@ struct Vao
 }
 
 
-struct Ebo
+private struct Ebo
 {
     GLuint id;
 
@@ -117,7 +119,8 @@ class Mesh
         Vbo vbo;
         Vao vao;
         Ebo ebo;
-        Obj object;
+        Vec3[] points;
+        int[] indicies;
     }
 
     this(string filePath)
@@ -126,10 +129,10 @@ class Mesh
         vao = Vao.newVao();
         ebo = Ebo.newEbo();
 
-        object = new Obj(filePath);
+        auto object = new Obj(filePath);
 
-        auto vertex = object.getVertex();
-        auto indicies = object.getIndicies();
+        points = object.getPoints();
+        indicies = object.getIndicies();
 
         // setup
         vao.bind();
@@ -137,8 +140,8 @@ class Mesh
 
         glBufferData(
             GL_ARRAY_BUFFER,
-            cast(GLsizeiptr)(vertex.length * Vertex.sizeof),
-            vertex.ptr,
+            cast(GLsizeiptr)(points.length * Vec3.sizeof),
+            points.ptr,
             GL_STATIC_DRAW
         );
 
@@ -159,7 +162,7 @@ class Mesh
             COMPONENTS,
             GL_FLOAT,
             GL_FALSE,
-            cast(GLsizei)(Vertex.sizeof),
+            cast(GLsizei)(Vec3.sizeof),
             null
         );
 
@@ -175,16 +178,18 @@ class Mesh
         ebo.destroy();
     }
 
-    /// Returns: Obj
-    public Obj getObj()
+    public Vec3[] getPoints()
     {
-        return object;
+        return points;
+    }
+
+    public int[] getIndicies()
+    {
+        return indicies;
     }
 
     public void render(bool dbg = false)
     {
-        auto indicies = object.getIndicies();
-
         vao.bind();
         if(!dbg)
         {

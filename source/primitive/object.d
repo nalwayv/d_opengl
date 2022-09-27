@@ -1,5 +1,6 @@
 /// Object
-module utils.obj;
+module primitive.object;
+
 
 import std.conv : to;
 import std.stdio : File;
@@ -26,17 +27,11 @@ enum : int
 }
 
 
-struct Vertex
-{
-    Vec3 vert;
-}
-
-
 class Obj
 {
     private 
     {
-        Vertex[] vertex;
+        Vec3[] points;
         int[] indicies;
     }
 
@@ -79,13 +74,13 @@ class Obj
         {
             auto arr = line.split();
 
-            Vertex result;
+            Vec3 point;
 
-            result.vert.x = to!float(arr[X]);
-            result.vert.y = to!float(arr[Y]);
-            result.vert.z = to!float(arr[Z]);
+            point.x = to!float(arr[X]);
+            point.y = to!float(arr[Y]);
+            point.z = to!float(arr[Z]);
 
-            vertex ~= result;
+            points ~= point;
         }
         catch(ErrnoException e)
         {
@@ -115,10 +110,10 @@ class Obj
         }
     }
 
-    /// Returns: Vertex[]
-    public Vertex[] getVertex() pure
+    /// Returns: Vec3[]
+    public Vec3[] getPoints() pure
     {
-        return vertex;
+        return points;
     }
 
     /// Returns: int[]

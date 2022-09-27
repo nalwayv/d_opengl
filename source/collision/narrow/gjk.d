@@ -411,7 +411,7 @@ class Gjk
         edges ~= edge;
     }
 
-    private NearestData nearestTri(Triangle[] polytype)
+    private NearestData nearestTri(ref Triangle[] polytype)
     {
         auto distance = MAXFLOAT;
         auto index = -1;

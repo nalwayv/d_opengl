@@ -7,7 +7,7 @@ import maths.vec3;
 import maths.mat4;
 import geometry.aabb;
 import collision.narrow.imeshcollider;
-import utils.obj;
+import primitive.object;
 import mesh;
 import color;
 import transform;
@@ -91,15 +91,15 @@ class Model : IMeshCollider
     {
         Vec3[] result;
 
-        auto obj = mesh.getObj();
-        auto vertex = obj.getVertex();
-        auto ind = obj.getIndicies();
+        // auto obj = mesh.getObj();
+        auto points = mesh.getPoints();
+        auto ind = mesh.getIndicies();
 
         for(auto i = 0;  i < ind.length; i += 3)
         {
-            Vec3 a = vertex[ind[i + 0]].vert; 
-            Vec3 b = vertex[ind[i + 1]].vert; 
-            Vec3 c = vertex[ind[i + 2]].vert; 
+            Vec3 a = points[ind[i + 0]]; 
+            Vec3 b = points[ind[i + 1]]; 
+            Vec3 c = points[ind[i + 2]]; 
 
             auto ab = b.subbed(a);
             auto ac = c.subbed(a);
@@ -135,12 +135,12 @@ class Model : IMeshCollider
         Vec3 result;
 
         Mat4 m4 = transform.getMatrix();
-        Obj obj = mesh.getObj();
-        Vertex[] vertex = obj.getVertex();
+        //Obj obj = mesh.getObj();
+        auto points = mesh.getPoints();
 
-        for(auto i = 0; i < vertex.length; i++)
+        for(auto i = 0; i < points.length; i++)
         {
-            Vec3 pt = vertex[i].vert;
+            Vec3 pt = points[i];
 
             auto distance = pt.dot(direction);
 
@@ -154,52 +154,50 @@ class Model : IMeshCollider
         return m4.transform(result);
     }
 
-    size_t vertexLength()
+    size_t pointsLength()
     {
-        Obj obj = mesh.getObj();
-        Vertex[] vertex = obj.getVertex();
-        return vertex.length;
+        // Obj obj = mesh.getObj();
+        auto points = mesh.getPoints();
+        return points.length;
     }
 
     /// compute an AABB from this model based on its verts
     /// Returns: AABB
     public AABB computeAABB()
     {
-        const x= 0, y= 1, z = 2;
-
         Vec3 pMin = Vec3(MAXFLOAT, MAXFLOAT, MAXFLOAT);
         Vec3 pMax = Vec3(MINFLOAT, MINFLOAT, MINFLOAT);
 
-        Obj obj = mesh.getObj();
-        Vertex[] vertexes = obj.getVertex();
+        // Obj obj = mesh.getObj();
+        auto points = mesh.getPoints();
         
-        for(auto i = 0; i < vertexes.length; i++)
+        for(auto i = 0; i < points.length; i++)
         {
-            Vec3 vert = vertexes[i].vert;
+            Vec3 pt = points[i];
 
-            if(vert.x < pMin.x) 
+            if(pt.x < pMin.x) 
             {
-                pMin.x = vert.x;
+                pMin.x = pt.x;
             }
-            if(vert.x > pMax.x) 
+            if(pt.x > pMax.x) 
             {
-                pMax.x = vert.x;
+                pMax.x = pt.x;
             }
-            if(vert.y < pMin.y) 
+            if(pt.y < pMin.y) 
             {
-                pMin.y = vert.y;
+                pMin.y = pt.y;
             }
-            if(vert.y > pMax.y) 
+            if(pt.y > pMax.y) 
             {
-                pMax.y = vert.y;
+                pMax.y = pt.y;
             }
-            if(vert.z < pMin.z) 
+            if(pt.z < pMin.z) 
             {
-                pMin.z = vert.z;
+                pMin.z = pt.z;
             }
-            if(vert.z > pMax.z) 
+            if(pt.z > pMax.z) 
             {
-                pMax.z = vert.z;
+                pMax.z = pt.z;
             }
         }
 
