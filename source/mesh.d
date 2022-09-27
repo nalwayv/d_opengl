@@ -6,7 +6,7 @@ import bindbc.opengl;
 import utils.path;
 import maths.utils;
 import maths.vec3;
-import primitive.object;
+// import primitive.object;
 
 
 enum int COMPONENTS = 3;
@@ -123,25 +123,71 @@ class Mesh
         int[] indicies;
     }
 
-    this(string filePath)
+    // this(string filePath)
+    // {
+    //     vbo = Vbo.newVbo();
+    //     vao = Vao.newVao();
+    //     ebo = Ebo.newEbo();
+
+    //     auto object = new Obj(filePath);
+
+    //     points = object.getPoints();
+    //     indicies = object.getIndicies();
+
+    //     // setup
+    //     vao.bind();
+    //     vbo.bind();
+
+    //     glBufferData(
+    //         GL_ARRAY_BUFFER,
+    //         cast(GLsizeiptr)(points.length * Vec3.sizeof),
+    //         points.ptr,
+    //         GL_STATIC_DRAW
+    //     );
+
+    //     // ebo set data
+    //     ebo.bind();
+        
+    //     glBufferData(
+    //         GL_ELEMENT_ARRAY_BUFFER,
+    //         cast(GLsizeiptr)(indicies.length * indicies[0].sizeof),
+    //         indicies.ptr,
+    //         GL_STATIC_DRAW
+    //     );
+
+    //     // vbo link
+    //     glEnableVertexAttribArray(POSITION_IDX);
+    //     glVertexAttribPointer(
+    //         POSITION_IDX,
+    //         COMPONENTS,
+    //         GL_FLOAT,
+    //         GL_FALSE,
+    //         cast(GLsizei)(Vec3.sizeof),
+    //         null
+    //     );
+
+    //     vbo.unbind();
+    //     vao.unbind();
+    //     ebo.unbind();
+    // }
+
+    this(Vec3[] points, int[] indicies)
     {
         vbo = Vbo.newVbo();
         vao = Vao.newVao();
         ebo = Ebo.newEbo();
 
-        auto object = new Obj(filePath);
-
-        points = object.getPoints();
-        indicies = object.getIndicies();
+        this.points = points.dup();
+        this.indicies = indicies.dup();
 
         // setup
         vao.bind();
         vbo.bind();
 
-        glBufferData(
+       glBufferData(
             GL_ARRAY_BUFFER,
-            cast(GLsizeiptr)(points.length * Vec3.sizeof),
-            points.ptr,
+            cast(GLsizeiptr)(this.points.length * Vec3.sizeof),
+            this.points.ptr,
             GL_STATIC_DRAW
         );
 
@@ -150,8 +196,8 @@ class Mesh
         
         glBufferData(
             GL_ELEMENT_ARRAY_BUFFER,
-            cast(GLsizeiptr)(indicies.length * indicies[0].sizeof),
-            indicies.ptr,
+            cast(GLsizeiptr)(this.indicies.length * this.indicies[0].sizeof),
+            this.indicies.ptr,
             GL_STATIC_DRAW
         );
 
@@ -165,7 +211,6 @@ class Mesh
             cast(GLsizei)(Vec3.sizeof),
             null
         );
-
         vbo.unbind();
         vao.unbind();
         ebo.unbind();
@@ -188,7 +233,7 @@ class Mesh
         return indicies;
     }
 
-    public void render(bool dbg = false)
+    public void render(bool dbg = true)
     {
         vao.bind();
         if(!dbg)

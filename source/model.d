@@ -7,7 +7,7 @@ import maths.vec3;
 import maths.mat4;
 import geometry.aabb;
 import collision.narrow.imeshcollider;
-import primitive.object;
+// import primitive.object;
 import mesh;
 import color;
 import transform;
@@ -25,13 +25,22 @@ class Model : IMeshCollider
         string shader;
     }
 
-    this(string filePath)
+    // this(string filePath)
+    // {
+    //     transform = Transform.newTransform(0.0f, 0.0f, 0.0f);
+    //     mesh = new Mesh(filePath);
+    //     shader = "default";
+    //     color = Color(0.2f, 0.2f, 0.2f);
+    // }
+
+    this(Vec3[] points, int[] indices)
     {
         transform = Transform.newTransform(0.0f, 0.0f, 0.0f);
-        mesh = new Mesh(filePath);
+        mesh = new Mesh(points, indices);
         shader = "default";
         color = Color(0.2f, 0.2f, 0.2f);
     }
+
 
     public Vec3 getPosition()
     {
@@ -152,13 +161,6 @@ class Model : IMeshCollider
         }
 
         return m4.transform(result);
-    }
-
-    size_t pointsLength()
-    {
-        // Obj obj = mesh.getObj();
-        auto points = mesh.getPoints();
-        return points.length;
     }
 
     /// compute an AABB from this model based on its verts

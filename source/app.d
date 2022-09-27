@@ -8,6 +8,7 @@ import maths.vec3;
 import collision.broad.tree;
 import collision.narrow.gjk;
 import geometry.aabb;
+import primitive.box;
 import model;
 import clock;
 import keyboard;
@@ -83,13 +84,14 @@ void main()
     auto shaderCache = new ShaderCache();
     shaderCache.add("default", "shaders\\default.vert", "shaders\\default.frag");
 
+    auto boxPrimitive = new Box(2.0f, 2.0f, 2.0f, 1, 1, 1);
+
     // // model
-    auto cubeA = new Model("models\\cube");
+    auto cubeA = new Model(boxPrimitive.getPoints(), boxPrimitive.getIndicies());
     cubeA.setColor(1, 0, 0);
 
-    auto cubeB = new Model("models\\cube");
-    cubeB.setColor(0, 1, 0);
-    cubeB.scale(1.1f, 1.1f, 1.1f);
+    // auto cubeB = new Model("models\\cube");
+    auto cubeB = new Model(boxPrimitive.getPoints(), boxPrimitive.getIndicies());
     cubeB.translate(5.0f, 0.0f, 0.0f);
 
 
@@ -194,30 +196,36 @@ void main()
         tree.move(ab, aID);
         tree.valide();
 
-        if(keyb.keyState(GLFW_KEY_UP) == KEY_HELD) 
+        if(keyb.keyState(GLFW_KEY_I) == KEY_HELD) 
         {
             cubeA.translate(0.0, 1.0 * moveSp * clock.dt, 0.0);
         }
 
-        if(keyb.keyState(GLFW_KEY_DOWN) == KEY_HELD) 
+        if(keyb.keyState(GLFW_KEY_K) == KEY_HELD) 
         {
             cubeA.translate(0.0, -1.0 * moveSp * clock.dt, 0.0);
         }
 
-        if(keyb.keyState(GLFW_KEY_LEFT) == KEY_HELD) 
+        if(keyb.keyState(GLFW_KEY_J) == KEY_HELD) 
         {
             cubeA.translate(-1.0 * moveSp * clock.dt, 0.0, 0.0);
         }
 
-        if(keyb.keyState(GLFW_KEY_RIGHT) == KEY_HELD)
+        if(keyb.keyState(GLFW_KEY_L) == KEY_HELD)
         {
             cubeA.translate(1.0 * moveSp * clock.dt, 0.0, 0.0);
         }
 
-        if(keyb.keyState(GLFW_KEY_RIGHT) == KEY_HELD)
+        if(keyb.keyState(GLFW_KEY_U) == KEY_HELD)
         {
-            cubeA.translate(1.0 * moveSp * clock.dt, 0.0, 0.0);
+            cubeA.translate(0.0, 0.0, -1.0 * moveSp * clock.dt);
         }
+
+        if(keyb.keyState(GLFW_KEY_O) == KEY_HELD)
+        {
+            cubeA.translate(0.0, 0.0, 1.0 * moveSp * clock.dt);
+        }
+
 
         // ---
         // render

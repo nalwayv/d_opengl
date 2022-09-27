@@ -1,162 +1,186 @@
+/// Box primitive
 module primitive.box;
 
 
 import maths.vec3;
 
 
-struct Box
+class Box
 {
-    Vec3 size;
-    int subWidth;
-    int subHeight;
-    int subDepth;
-
-    void createMesh(ref Vec3[] points, ref int[] indices)
+    private 
     {
+        Vec3[] points;
+        int[] indices;
+    }
+
+    this(float width, float height, float depth, int subWidth, int subHeight, int subDepth)
+    {
+        Vec3 size = Vec3(width, height, depth);
+
+        int subdivideW = subWidth;
+        int subdivideH = subHeight;
+        int subdivideD = subDepth;
+        int previousRow;
+        int currentRow;
+        int point;
         float x;
         float y;
         float z;
 
-        Vec3 startAt = size.scaled(0.5f);
+        Vec3 startPos = size.scaled(-0.5f);
 
-        int pt = 0;
+        point = 0;
 
-        // front back
-        y = startAt.y;
-        auto currentRow = pt;
-        auto prevRow = 0;
-
-        for(auto j = 0; j <= subHeight + 1; j++)
+        // front  back
+        y = startPos.y;
+        currentRow = point;
+        previousRow = 0;
+        for (auto j = 0; j <= subdivideH + 1; j++) 
         {
-            x = startAt.x;
 
-            for(auto i = 0; i <= subWidth + 1; i++)
+            x = startPos.x;
+
+            for (auto i = 0; i <= subdivideW + 1; i++) 
             {
-                // f
-                points ~= Vec3(x, -y, -startAt.z);
-                pt++;
-                // b
-                points ~= Vec3(-x, -y, startAt.z);
-                pt++;
+                // front
+                points ~= Vec3(x, -y, startPos.z);
+                point++;
 
-                if(i > 0 && j > 0)
+                // back
+                points ~= Vec3(-x, -y, -startPos.z);
+                point++;
+
+                if (i > 0 && j > 0)
                 {
-                    auto i2 = i * 2;
-                    // f
-                    indices ~= prevRow    + i2 - 2;
-                    indices ~= prevRow    + i2;
+                    int i2 = i * 2;
+
+                    // front
+                    indices ~= previousRow + i2 - 2;
+                    indices ~= previousRow + i2;
                     indices ~= currentRow + i2 - 2;
-                    indices ~= prevRow    + i2;
+                    indices ~= previousRow + i2;
                     indices ~= currentRow + i2;
                     indices ~= currentRow + i2 - 2;
-                    // b
-                    indices ~= prevRow    + i2 - 1;
-                    indices ~= prevRow    + i2 + 1;
+
+                    // back
+                    indices ~= previousRow + i2 - 1;
+                    indices ~= previousRow + i2 + 1;
                     indices ~= currentRow + i2 - 1;
-                    indices ~= prevRow    + i2 + 1;
+                    indices ~= previousRow + i2 + 1;
                     indices ~= currentRow + i2 + 1;
                     indices ~= currentRow + i2 - 1;
                 }
 
-                x += size.x / (subWidth + 1);
+                x += size.x / (subdivideW + 1.0f);
             }
 
-            y += size.y / (subHeight + 1);
-            prevRow = currentRow;
-            currentRow = pt;
-
+            y += size.y / (subdivideH + 1.0f);
+            previousRow = currentRow;
+            currentRow = point;
         }
 
-        // right left
-        y = startAt.y;
-        currentRow = pt;
-        prevRow = 0;
-
-        for(auto j = 0; j <= subHeight + 1; j++)
+        // left  right
+        y = startPos.y;
+        currentRow = point;
+        previousRow = 0;
+        for (auto j = 0; j <= (subdivideH + 1); j++) 
         {
-            z = startAt.z;
 
-            for(auto i = 0; i < subWidth + 1; i++)
+            z = startPos.z;
+
+            for (auto i = 0; i <= (subdivideD + 1); i++) 
             {
-                // r
-                points ~= Vec3(-startAt.x, -y, -z);
-                pt++;
-                // l
-                points ~= Vec3(startAt.x, -y, z);
-                pt++;
+                // right
+                points ~= Vec3(-startPos.x, -y, z);
+                point++;
 
-                if(i > 0 && j > 0)
+                // left
+                points ~= Vec3(startPos.x, -y, -z);
+                point++;
+
+                if (i > 0 && j > 0) 
                 {
-                    auto i2 = i * 2;
+                    int i2 = i * 2;
+
                     // right
-                    indices ~= prevRow    + i2 - 2;
-                    indices ~= prevRow    + i2;
+                    indices ~= previousRow + i2 - 2;
+                    indices ~= previousRow + i2;
                     indices ~= currentRow + i2 - 2;
-                    indices ~= prevRow    + i2;
+                    indices ~= previousRow + i2;
                     indices ~= currentRow + i2;
                     indices ~= currentRow + i2 - 2;
+
                     // left
-                    indices ~= prevRow    + i2 - 1;
-                    indices ~= prevRow    + i2 + 1;
+                    indices ~= previousRow + i2 - 1;
+                    indices ~= previousRow + i2 + 1;
                     indices ~= currentRow + i2 - 1;
-                    indices ~= prevRow    + i2 + 1;
+                    indices ~= previousRow + i2 + 1;
                     indices ~= currentRow + i2 + 1;
-                    indices ~= currentRow + i2 - 1; 
+                    indices ~= currentRow + i2 - 1;
                 }
 
-                z += size.z / (subDepth + 1);
+                z += size.z / (subdivideD + 1.0f);
             }
 
-            y += size.y / (subHeight + 1);
-            prevRow = currentRow;
-            currentRow = pt;
-
+            y += size.y / (subdivideH + 1.0f);
+            previousRow = currentRow;
+            currentRow = point;
         }
 
-        // top bottom
-        z = startAt.z;
-        currentRow = pt;
-        prevRow = 0;
-
-        for(auto j = 0; j <= subDepth + 1; j++)
+        // top  bottom
+        z = startPos.z;
+        currentRow = point;
+        previousRow = 0;
+        for (auto j = 0; j <= (subdivideD + 1); j++) 
         {
-            x = startAt.x;
-
-            for(auto i = 0; i < subWidth + 1; i++)
+            x = startPos.x;
+            for (auto i = 0; i <= (subdivideW + 1); i++) 
             {
-                // t
-                points ~= Vec3(-x, -startAt.y, -z);
-                pt++;
-                // b
-                points ~= Vec3(x, startAt.y, -z);
-                pt++;
+                // top
+                points ~= Vec3(-x, -startPos.y, z);
+                point++;
 
-		        if (i > 0 && j > 0) 
+                // bottom
+                points ~= Vec3(x, startPos.y, z);
+                point++;
+
+                if (i > 0 && j > 0) 
                 {
                     int i2 = i * 2;
 
                     // top
-                    indices ~= prevRow    + i2 - 2;
-                    indices ~= prevRow    + i2;
+                    indices ~= previousRow + i2 - 2;
+                    indices ~= previousRow + i2;
                     indices ~= currentRow + i2 - 2;
-                    indices ~= prevRow    + i2;
+                    indices ~= previousRow + i2;
                     indices ~= currentRow + i2;
                     indices ~= currentRow + i2 - 2;
+
                     // bottom
-                    indices ~= prevRow    + i2 - 1;
-                    indices ~= prevRow    + i2 + 1;
+                    indices ~= previousRow + i2 - 1;
+                    indices ~= previousRow + i2 + 1;
                     indices ~= currentRow + i2 - 1;
-                    indices ~= prevRow    + i2 + 1;
+                    indices ~= previousRow + i2 + 1;
                     indices ~= currentRow + i2 + 1;
                     indices ~= currentRow + i2 - 1;
-			    }
+                }
 
-                x += size.x / (subWidth + 1);
+                x += size.x / (subdivideW + 1.0f);
             }
 
-            z += size.z / (subDepth + 1);
-            prevRow = currentRow;
-            currentRow = pt;
+            z += size.z / (subdivideD + 1.0f);
+            previousRow = currentRow;
+            currentRow = point;
         }
+    }
+
+    public Vec3[] getPoints()
+    {
+        return points;
+    }
+
+    public int[] getIndicies()
+    {
+        return indices;
     }
 }
