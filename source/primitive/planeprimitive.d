@@ -25,17 +25,16 @@ class PlanePrimitive
     this(float width, float height, int subWidth, int subHeight, int orientationEnum)
     {
         Vec2 size = Vec2(width, height);
-        Vec3 offset;
 
         float x;
         float z;
 
-        int prevrow;
-        int thisrow;
+        int prevoiusRow;
+        int currentRow;
         int point;
 
-        int subdivide_w = subWidth;
-        int subdivide_d = subHeight;
+        int subdivideW = subWidth;
+        int subdivideD = subHeight;
         int orientation = orientationEnum;
 
         Vec2 startAt = size.scaled(-0.5f);
@@ -60,13 +59,13 @@ class PlanePrimitive
         }
 
     	z = startAt.y;
-        thisrow = point;
-        prevrow = 0;
-        for (auto j = 0; j <= (subdivide_d + 1); j++)
+        currentRow = point;
+        prevoiusRow = 0;
+        for (auto j = 0; j <= (subdivideD + 1); j++)
         {
             x = startAt.x;
 
-            for (auto i = 0; i <= (subdivide_w + 1); i++)
+            for (auto i = 0; i <= (subdivideW + 1); i++)
             {
 
                 switch(orientation)
@@ -90,20 +89,20 @@ class PlanePrimitive
 
                 if (i > 0 && j > 0) 
                 {
-                    indices ~= prevrow + i - 1;
-                    indices ~= prevrow + i;
-                    indices ~= thisrow + i - 1;
-                    indices ~= prevrow + i;
-                    indices ~= thisrow + i;
-                    indices ~= thisrow + i - 1;
+                    indices ~= prevoiusRow + i - 1;
+                    indices ~= prevoiusRow + i;
+                    indices ~= currentRow + i - 1;
+                    indices ~= prevoiusRow + i;
+                    indices ~= currentRow + i;
+                    indices ~= currentRow + i - 1;
                 }
 
-                x += size.x / (subdivide_w + 1.0);
+                x += size.x / (subdivideW + 1.0);
             }
 
-            z += size.y / (subdivide_d + 1.0);
-            prevrow = thisrow;
-            thisrow = point;
+            z += size.y / (subdivideD + 1.0);
+            prevoiusRow = currentRow;
+            currentRow = point;
         }
     }
 
@@ -116,5 +115,4 @@ class PlanePrimitive
     {
         return indices;
     }
-
 }

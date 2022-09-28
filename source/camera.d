@@ -7,7 +7,7 @@ import maths.vec3;
 import maths.mat4;
 
 
-enum float SPEED = 5.0f;
+enum float SPEED = 8.0f;
 enum float SENSITIVITY = 2500.0f;
 enum float ZOOM = 50.0f;
 enum : int

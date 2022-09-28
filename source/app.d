@@ -11,6 +11,7 @@ import geometry.aabb;
 import primitive.boxprimitive;
 import primitive.sphereprimitive;
 import primitive.planeprimitive;
+import primitive.capsuleprimitive;
 import model;
 import clock;
 import keyboard;
@@ -76,7 +77,7 @@ void main()
 
     const moveSp = 3.0f;
     bool clicked;
-    bool debugMode = true;
+    bool debugMode = false;
 
     auto clock = Clock.newClock(glfwGetTime());
     auto keyb = Keyboard.newKeyboard(window);
@@ -89,14 +90,19 @@ void main()
 
     auto boxPrimitive = new BoxPrimitive(2.0f, 2.0f, 2.0f, 1, 1, 1);
     auto spherePrimitive = new SpherePrimitive(1, 1, 10, 3);
-    // auto planePrimitive = new PlanePrimitive(5, 5, 1, 1, PLANE_ORIENTATION_Y);
+    auto planePrimitive = new PlanePrimitive(25, 25, 1, 1, PLANE_ORIENTATION_Y);
+    // auto capsulePrimitive = new CapsulePrimitive(1, 3, 6, 2);
 
     // // model
     auto shapeA = new Model(boxPrimitive.getPoints(), boxPrimitive.getIndices());
     shapeA.setColor(1, 0, 0);
 
     auto shapeB = new Model(spherePrimitive.getPoints(), spherePrimitive.getIndices());
+    shapeB.setColor(0, 1, 0);
     shapeB.translate(5.0f, 0.0f, 0.0f);
+
+    auto shapeC = new Model(planePrimitive.getPoints(), planePrimitive.getIndices());
+    shapeC.translate(0.0f, -1.0f, 0.0f);
 
     auto tree = new Tree();
     auto aID = tree.add(shapeA.computeAABB(), shapeA);
@@ -112,7 +118,7 @@ void main()
         glClearColor(0.5, 0.5, 0.5, 1.0);
         if(debugMode)
         {
-            glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         }
         // ---
 
@@ -229,6 +235,7 @@ void main()
         // render
         shapeA.render(shaderCache, cam);
         shapeB.render(shaderCache, cam);
+        shapeC.render(shaderCache, cam);
         
         // ---
         // buffers
