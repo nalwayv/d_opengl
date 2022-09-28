@@ -8,8 +8,9 @@ import maths.vec3;
 import collision.broad.tree;
 import collision.narrow.gjk;
 import geometry.aabb;
-import primitive.box;
-import primitive.sphere;
+import primitive.boxprimitive;
+import primitive.sphereprimitive;
+import primitive.planeprimitive;
 import model;
 import clock;
 import keyboard;
@@ -75,6 +76,7 @@ void main()
 
     const moveSp = 3.0f;
     bool clicked;
+    bool debugMode = true;
 
     auto clock = Clock.newClock(glfwGetTime());
     auto keyb = Keyboard.newKeyboard(window);
@@ -87,15 +89,14 @@ void main()
 
     auto boxPrimitive = new BoxPrimitive(2.0f, 2.0f, 2.0f, 1, 1, 1);
     auto spherePrimitive = new SpherePrimitive(1, 1, 10, 3);
+    // auto planePrimitive = new PlanePrimitive(5, 5, 1, 1, PLANE_ORIENTATION_Y);
 
     // // model
     auto shapeA = new Model(boxPrimitive.getPoints(), boxPrimitive.getIndices());
     shapeA.setColor(1, 0, 0);
 
-    // auto shapeB = new Model("models\\cube");
     auto shapeB = new Model(spherePrimitive.getPoints(), spherePrimitive.getIndices());
     shapeB.translate(5.0f, 0.0f, 0.0f);
-
 
     auto tree = new Tree();
     auto aID = tree.add(shapeA.computeAABB(), shapeA);
@@ -109,7 +110,10 @@ void main()
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         glClearColor(0.5, 0.5, 0.5, 1.0);
-
+        if(debugMode)
+        {
+            glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+        }
         // ---
 
         clock.update(glfwGetTime());

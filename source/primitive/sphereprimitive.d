@@ -1,5 +1,5 @@
 /// Sphere primitive
-module primitive.sphere;
+module primitive.sphereprimitive;
 
 
 import maths.utils;
@@ -16,18 +16,18 @@ class SpherePrimitive
 
     this(float radius, float height, int radialSegments, int rings)
     {
-        int previousRow;
-        int currentRow;
-        int point = 0;
         float x;
         float y;
         float z;
-
         float scale = height;
+        int previousRow;
+        int currentRow;
+        int point = 0;
+
 
         currentRow = 0;
         previousRow = 0;
-        for(auto j = 0; j <= (rings + 1); j++)
+        for(auto j = 0; j <= rings + 1; j++)
         {
             float v = cast(float)j;
             float w;

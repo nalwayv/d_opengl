@@ -1,5 +1,5 @@
 /// Box primitive
-module primitive.box;
+module primitive.boxprimitive;
 
 
 import maths.vec3;
@@ -17,15 +17,15 @@ class BoxPrimitive
     {
         Vec3 size = Vec3(width, height, depth);
 
+        float x;
+        float y;
+        float z;
         int subdivideW = subWidth;
         int subdivideH = subHeight;
         int subdivideD = subDepth;
         int previousRow;
         int currentRow;
         int point;
-        float x;
-        float y;
-        float z;
 
         Vec3 startPos = size.scaled(-0.5f);
 
@@ -83,7 +83,7 @@ class BoxPrimitive
         y = startPos.y;
         currentRow = point;
         previousRow = 0;
-        for (auto j = 0; j <= (subdivideH + 1); j++) 
+        for (auto j = 0; j <= subdivideH + 1; j++) 
         {
 
             z = startPos.z;
@@ -131,7 +131,7 @@ class BoxPrimitive
         z = startPos.z;
         currentRow = point;
         previousRow = 0;
-        for (auto j = 0; j <= (subdivideD + 1); j++) 
+        for (auto j = 0; j <= subdivideD + 1; j++) 
         {
             x = startPos.x;
             for (auto i = 0; i <= (subdivideW + 1); i++) 

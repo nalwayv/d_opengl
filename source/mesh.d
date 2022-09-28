@@ -184,17 +184,11 @@ class Mesh
         return indices;
     }
 
-    public void render(bool dbg = false)
+    public void render()
     {
         vao.bind();
-        if(!dbg)
-        {
-            glDrawElements(GL_TRIANGLES, cast(int)indices.length, GL_UNSIGNED_INT, null);
-        }
-        else
-        {
-            glDrawElements(GL_LINE_LOOP, cast(int)indices.length, GL_UNSIGNED_INT, null);
-        } 
+
+        glDrawElements(GL_TRIANGLES, cast(int)indices.length, GL_UNSIGNED_INT, null);
 
         vao.unbind();
     }
