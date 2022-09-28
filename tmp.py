@@ -116,23 +116,8 @@ def planeCp(plane: Plane, pt: V3) -> V3:
 # ---
 
 
-def testA(a:V3,b:V3,c:V3):
-    ac = dot(a, c)
-    bc = dot(b, c)
-    bac = scaleV3(b,ac)
-    abc = scaleV3(a,bc)
-
-    norm  = subV3(bac, abc)
-
-    if dot(norm, norm) < sqr(EPSILON):
-        return scaleV3(norm, 0)
-    else:
-        return normal(norm)
-
-
-def testB(a:V3,b:V3,c:V3):
-    return normal(cross(cross(a, b), c))
-
+def testA():
+    pass
 
 # ---
 
@@ -144,8 +129,7 @@ aabb = Aabb(V3(0, 0, 0), V3(3, 3, 3))
 
 # ---
 
-print(testA(V3(1,2,3), V3(4,5,6), V3(1,2,3)))
-print(testB(V3(1,2,3), V3(4,5,6), V3(1,2,3)))
+print("")
 
 
 

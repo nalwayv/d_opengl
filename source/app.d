@@ -102,7 +102,7 @@ void main()
     shapeB.translate(5.0f, 0.0f, 0.0f);
 
     auto shapeC = new Model(planePrimitive.getPoints(), planePrimitive.getIndices());
-    shapeC.translate(0.0f, -1.0f, 0.0f);
+    shapeC.translate(0.0f, -2.0f, 0.0f);
 
     auto tree = new Tree();
     auto aID = tree.add(shapeA.computeAABB(), shapeA);

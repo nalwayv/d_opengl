@@ -17,14 +17,6 @@ struct Plane
     Vec3 normal;
     float d;
 
-    this(Vec3 normal, float d)
-    {
-        this.normal.x = normal.x;
-        this.normal.y = normal.y;
-        this.normal.z = normal.z;
-        this.d = d;
-    }
-
     /// create a plane from three points
     /// Returns: Plane
     static Plane fromPoints(Vec3 a, Vec3 b, Vec3 c)
