@@ -1,11 +1,11 @@
-/// Box primitive
-module primitive.boxprimitive;
+/// Box mesh
+module primitive.box;
 
 
 import maths.vec3;
 
 
-class BoxPrimitive
+class BoxMesh
 {
     private 
     {

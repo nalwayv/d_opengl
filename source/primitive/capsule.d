@@ -1,11 +1,12 @@
-module primitive.capsuleprimitive;
+/// Capsule mesh
+module primitive.capsule;
 
 
 import maths.utils;
 import maths.vec3;
 
 
-class CapsulePrimitive
+class CapsuleMesh
 {
     private
     {

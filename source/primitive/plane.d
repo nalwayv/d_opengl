@@ -1,4 +1,5 @@
-module primitive.planeprimitive;
+/// Plane mesh
+module primitive.plane;
 
 
 import maths.utils;
@@ -14,7 +15,7 @@ enum : int
 }
 
 
-class PlanePrimitive
+class PlaneMesh
 {
     private
     {

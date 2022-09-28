@@ -1,12 +1,12 @@
-/// Sphere primitive
-module primitive.sphereprimitive;
+/// Sphere mesh
+module primitive.sphere;
 
 
 import maths.utils;
 import maths.vec3;
 
 
-class SpherePrimitive
+class SphereMesh
 {
     private
     {

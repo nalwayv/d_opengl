@@ -8,10 +8,10 @@ import maths.vec3;
 import collision.broad.tree;
 import collision.narrow.gjk;
 import geometry.aabb;
-import primitive.boxprimitive;
-import primitive.sphereprimitive;
-import primitive.planeprimitive;
-import primitive.capsuleprimitive;
+import primitive.box;
+import primitive.sphere;
+import primitive.plane;
+import primitive.capsule;
 import model;
 import clock;
 import keyboard;
@@ -88,9 +88,9 @@ void main()
     auto shaderCache = new ShaderCache();
     shaderCache.add("default", "shaders\\default.vert", "shaders\\default.frag");
 
-    auto boxPrimitive = new BoxPrimitive(2.0f, 2.0f, 2.0f, 1, 1, 1);
-    auto spherePrimitive = new SpherePrimitive(1, 1, 10, 3);
-    auto planePrimitive = new PlanePrimitive(25, 25, 1, 1, PLANE_ORIENTATION_Y);
+    auto boxPrimitive = new BoxMesh(2.0f, 2.0f, 2.0f, 1, 1, 1);
+    auto spherePrimitive = new SphereMesh(1.0f, 1.0f, 10, 3);
+    auto planePrimitive = new PlaneMesh(15.0f, 15.0f, 1, 1, PLANE_ORIENTATION_Y);
     // auto capsulePrimitive = new CapsulePrimitive(1, 3, 6, 2);
 
     // // model
@@ -107,8 +107,8 @@ void main()
     auto tree = new Tree();
     auto aID = tree.add(shapeA.computeAABB(), shapeA);
     auto bID = tree.add(shapeB.computeAABB(), shapeB);
+    auto cID = tree.add(shapeB.computeAABB(), shapeC);
     tree.valide();
-
 
 	while(!glfwWindowShouldClose(window))
     {
@@ -119,6 +119,10 @@ void main()
         if(debugMode)
         {
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        }
+        else
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         }
         // ---
 
@@ -183,6 +187,11 @@ void main()
         // ---
         // update
 
+        if(keyb.keyState(GLFW_KEY_F1) == KEY_PRESSED) 
+        {
+            debugMode=!debugMode;
+        }
+
         if(keyb.keyState(GLFW_KEY_I) == KEY_HELD) 
         {
             shapeA.translate(0.0, 1.0 * moveSp * clock.dt, 0.0);
@@ -205,12 +214,12 @@ void main()
 
         if(keyb.keyState(GLFW_KEY_U) == KEY_HELD)
         {
-            shapeA.translate(0.0, 0.0, -1.0 * moveSp * clock.dt);
+            shapeA.translate(0.0, 0.0, 1.0 * moveSp * clock.dt);
         }
 
         if(keyb.keyState(GLFW_KEY_O) == KEY_HELD)
         {
-            shapeA.translate(0.0, 0.0, 1.0 * moveSp * clock.dt);
+            shapeA.translate(0.0, 0.0, -1.0 * moveSp * clock.dt);
         }
         
         auto ab = shapeA.computeAABB();
