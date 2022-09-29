@@ -98,10 +98,10 @@ class PlaneMesh
                     indices ~= currentRow + i - 1;
                 }
 
-                x += size.x / (subdivideW + 1.0);
+                x += size.x / (cast(float)subdivideW + 1.0);
             }
 
-            z += size.y / (subdivideD + 1.0);
+            z += size.y / (cast(float)subdivideD + 1.0);
             prevoiusRow = currentRow;
             currentRow = point;
         }

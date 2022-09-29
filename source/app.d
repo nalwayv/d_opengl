@@ -78,22 +78,21 @@ void main()
     const moveSp = 3.0f;
     bool clicked;
     bool debugMode = false;
-
     auto clock = Clock.newClock(glfwGetTime());
     auto keyb = Keyboard.newKeyboard(window);
     auto mouse = Mouse.newMouse(window);
     auto cam = new Camera(0, 0, 5, cast(float)WIDTH, cast(float)HEIGHT);
 
-    // shaders
+
     auto shaderCache = new ShaderCache();
     shaderCache.add("default", "shaders\\default.vert", "shaders\\default.frag");
+
 
     auto boxPrimitive = new BoxMesh(2.0f, 2.0f, 2.0f, 1, 1, 1);
     auto spherePrimitive = new SphereMesh(1.0f, 1.0f, 10, 3);
     auto planePrimitive = new PlaneMesh(15.0f, 15.0f, 1, 1, PLANE_ORIENTATION_Y);
-    // auto capsulePrimitive = new CapsulePrimitive(1, 3, 6, 2);
 
-    // // model
+
     auto shapeA = new Model(boxPrimitive.getPoints(), boxPrimitive.getIndices());
     shapeA.setColor(1, 0, 0);
 
@@ -104,11 +103,13 @@ void main()
     auto shapeC = new Model(planePrimitive.getPoints(), planePrimitive.getIndices());
     shapeC.translate(0.0f, -2.0f, 0.0f);
 
+
     auto tree = new Tree();
     auto aID = tree.add(shapeA.computeAABB(), shapeA);
     auto bID = tree.add(shapeB.computeAABB(), shapeB);
     auto cID = tree.add(shapeB.computeAABB(), shapeC);
     tree.valide();
+
 
 	while(!glfwWindowShouldClose(window))
     {
@@ -223,17 +224,24 @@ void main()
         }
         
         auto ab = shapeA.computeAABB();
-        tree.query(ab, (Model b) {
+        tree.query(ab, (Model b) 
+        {
+        
             auto gjk = new Gjk(shapeA, b);
+            
             if(gjk.check())
             {
+            
                 Vec3 result;
+            
                 if(gjk.responce(result))
                 {
                     shapeA.translate(result.negated());
+
+                    return true;
                 }
-                return true;
             }
+
             return false;
         });
 

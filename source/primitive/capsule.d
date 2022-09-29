@@ -34,16 +34,16 @@ class CapsuleMesh
         previousRow = 0;
         for(auto j = 0; j <= (rings + 1); j++) 
         {
-            v = j;
+            v = cast(float)j;
 
-            v /= (rings + 1);
+            v /= (cast(float)rings + 1);
             w = sinF(0.5f * PI * v);
             y = radius * cosF(0.5f * PI * v);
 
             for (auto i = 0; i <= radialSegments; i++) 
             {
-                u = i;
-                u /= radialSegments;
+                u = cast(float)i;
+                u /= cast(float)radialSegments;
 
                 x = -sinF(u * TAU);
                 z = cosF(u * TAU);
@@ -73,15 +73,15 @@ class CapsuleMesh
         previousRow = 0;
         for (auto j = 0; j <= (rings + 1); j++) 
         {
-            v = j;
-            v /= (rings + 1.0f);
+            v = cast(float)j;
+            v /= (cast(float)rings + 1.0f);
 
             y = (height - 2.0f * radius) * v;
             y = (0.5f * height - radius) - y;
 
             for (auto i = 0; i <= radialSegments; i++) {
-                u = i;
-                u /= radialSegments;
+                u = cast(float)i;
+                u /= cast(float)radialSegments;
 
                 x = -sinF(u * TAU);
                 z = cosF(u * TAU);
@@ -110,16 +110,17 @@ class CapsuleMesh
         previousRow = 0;
         for (auto j = 0; j <= (rings + 1); j++) 
         {
-            v = j;
-
-            v /= (rings + 1);
+            v = cast(float)j;
+            v /= (cast(float)rings + 1);
             v += 1.0f;
+
             w = sinF(0.5f * PI * v);
             y = radius * cosF(0.5f * PI * v);
 
-            for (auto i = 0; i <= radialSegments; i++) {
-                float u2 = i;
-                u2 /= radialSegments;
+            for (auto i = 0; i <= radialSegments; i++) 
+            {
+                float u2 = cast(float)i;
+                u2 /= cast(float)radialSegments;
 
                 x = -sinF(u2 * TAU);
                 z = cosF(u2 * TAU);

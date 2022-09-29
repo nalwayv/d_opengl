@@ -71,10 +71,10 @@ class BoxMesh
                     indices ~= currentRow + i2 - 1;
                 }
 
-                x += size.x / (subdivideW + 1.0f);
+                x += size.x / (cast(float)subdivideW + 1.0f);
             }
 
-            y += size.y / (subdivideH + 1.0f);
+            y += size.y / (cast(float)subdivideH + 1.0f);
             previousRow = currentRow;
             currentRow = point;
         }
@@ -119,10 +119,10 @@ class BoxMesh
                     indices ~= currentRow + i2 - 1;
                 }
 
-                z += size.z / (subdivideD + 1.0f);
+                z += size.z / (cast(float)subdivideD + 1.0f);
             }
 
-            y += size.y / (subdivideH + 1.0f);
+            y += size.y / (cast(float)subdivideH + 1.0f);
             previousRow = currentRow;
             currentRow = point;
         }
@@ -165,10 +165,10 @@ class BoxMesh
                     indices ~= currentRow + i2 - 1;
                 }
 
-                x += size.x / (subdivideW + 1.0f);
+                x += size.x / (cast(float)subdivideW + 1.0f);
             }
 
-            z += size.z / (subdivideD + 1.0f);
+            z += size.z / (cast(float)subdivideD + 1.0f);
             previousRow = currentRow;
             currentRow = point;
         }

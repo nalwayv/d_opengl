@@ -563,15 +563,12 @@ template TreeTemplate( T )
                 }
 
                 auto currentNode = nodes[current];
+
                 if(aabbToAabb(ab, currentNode.aabb) == INTERSECTION)
                 {
                     if(currentNode.isLeaf())
                     {
                         cb(currentNode.data);
-                        // if(!cb(currentNode.data))
-                        // {
-                        //     return;
-                        // }
                     }
                     else
                     {

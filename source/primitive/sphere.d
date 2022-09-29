@@ -32,7 +32,7 @@ class SphereMesh
             float v = cast(float)j;
             float w;
 
-            v /= (rings + 1.0f);
+            v /= (cast(float)rings + 1.0f);
             w = sinF(PI * v);
             y = scale * cosF(PI * v);
 

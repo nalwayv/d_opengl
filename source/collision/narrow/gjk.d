@@ -161,26 +161,26 @@ class Gjk
     {
         Simplex simplex;
         Vec3 direction;
-        IMeshCollider mcA;
-        IMeshCollider mcB;
+        IMeshCollider collider;
+        IMeshCollider collided;
     }
 
     this(IMeshCollider a, IMeshCollider b)
     {
         simplex = Simplex.newSimplex();
         direction = Vec3(1.0f, 0.0f, 0.0f);
-        mcA = a;
-        mcB = b;
+        collider = a;
+        collided = b;
     }
 
-    public void setSupportA(IMeshCollider a)
+    public void setCollider(IMeshCollider value)
     {
-        mcA = a;
+        collider = value;
     }
 
-    public void setSupportB(IMeshCollider b)
+    public void setCollided(IMeshCollider value)
     {
-        mcB = b;
+        collided = value;
     }
 
 
@@ -191,8 +191,8 @@ class Gjk
     /// Returns: Vec3
     private Vec3 getSupport(Vec3 dir)
     {
-        auto a = mcA.farthestPoint(dir);
-        auto b = mcB.farthestPoint(dir.negated());
+        auto a = collider.farthestPoint(dir);
+        auto b = collided.farthestPoint(dir.negated());
 
         return a.subbed(b);
     }
