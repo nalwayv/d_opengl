@@ -107,7 +107,7 @@ void main()
     auto tree = new Tree();
     auto aID = tree.add(shapeA.computeAABB(), shapeA);
     auto bID = tree.add(shapeB.computeAABB(), shapeB);
-    auto cID = tree.add(shapeB.computeAABB(), shapeC);
+    auto cID = tree.add(shapeC.computeAABB(), shapeC);
     tree.valide();
 
 
