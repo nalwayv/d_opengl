@@ -1,4 +1,4 @@
-/// KEyboard
+/// Keyboard
 module keyboard;
 
 

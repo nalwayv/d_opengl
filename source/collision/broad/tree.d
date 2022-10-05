@@ -6,6 +6,7 @@ import utils.stack;
 import maths.utils;
 import maths.vec3;
 import geometry.aabb;
+// import geometry.ray;
 import geometry.contains;
 import geometry.intersection;
 
@@ -578,5 +579,39 @@ template TreeTemplate( T )
                 }
             }
         }
+
+        // TODO
+        // public void raycast(Ray ray, bool delegate(T) cb)
+        // {
+        //     assert(ray.direction.lengthSq() > 0.0f);
+
+        //     auto stk = new StackC!int(cap);
+
+        //     stk.push(root);
+        //     while(!stk.isEmpty())
+        //     {
+        //         auto current = stk.pop();
+        //         if(current == NULLNODE)  
+        //         {
+        //             continue;
+        //         }
+
+        //         auto currentNode = nodes[current];
+
+        //         if(rayAabb(ray, currentNode.aabb))
+        //         {
+
+        //             if(currentNode.isLeaf())
+        //             {
+        //                 cb(currentNode.data);
+        //             }
+        //             else
+        //             {
+        //                 stk.push(currentNode.left);
+        //                 stk.push(currentNode.right); 
+        //             }
+        //         }
+        //     }
+        // }
     }
 }

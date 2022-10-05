@@ -14,23 +14,6 @@ struct Ray
     Vec3 origin;
     Vec3 direction;
 
-    /// direction sould be normalized
-    this(Vec3 origin, Vec3 direction)
-    {
-        if(!direction.isNormal())
-        {
-            direction = direction.normalized();
-        }
-        
-        this.origin.x = origin.x;
-        this.origin.y = origin.y;
-        this.origin.z = origin.z;
-
-        this.direction.x = direction.x;
-        this.direction.y = direction.y;
-        this.direction.z = direction.z;
-    }
-
     static Ray fromPoints(Vec3 a, Vec3 b)
     {
         Vec3 o = a;
@@ -44,11 +27,28 @@ struct Ray
         return result;
     }
 
-    /// Returns: Ray
-    Ray normalized(Ray r)
+    static Ray fromValues(float x, float y, float z, float dx, float dy, float dz)
     {
-        Vec3 o = r.origin;
-        Vec3 d = r.direction;
+        Ray result;
+
+        result.origin.x = x;
+        result.origin.y = y;
+        result.origin.z = z;
+
+        result.direction.x = dx;
+        result.direction.y = dy;
+        result.direction.z = dz;
+
+        result = result.normalized();
+
+        return result;
+    }
+
+    /// Returns: Ray
+    Ray normalized()
+    {
+        Vec3 o = origin;
+        Vec3 d = direction;
 
         if(!d.isNormal())
         {

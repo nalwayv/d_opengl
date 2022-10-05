@@ -74,6 +74,12 @@ class Model : IMeshCollider
         color.b = clampF(b, 0.0f, 1.0f);
     }
 
+    /// set shader key name for lookup within shader cache
+    public void setShader(string shaderName)
+    {
+        shader = shaderName;
+    }
+
     /// render model
     public void render(ShaderCache cache, Camera cam)
     {

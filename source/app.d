@@ -224,8 +224,7 @@ void main()
         }
         
         auto ab = shapeA.computeAABB();
-        tree.query(ab, (Model b) 
-        {
+        tree.query(ab, (Model b) {
         
             auto gjk = new Gjk(shapeA, b);
             
