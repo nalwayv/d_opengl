@@ -320,63 +320,63 @@ struct Mat4
         return result;
     }
 
-    /// return mat4 row 0 values
+    /// return **this** mat4's row 0 values
     /// Returns: Vec4
     Vec4 row0()
     {
         return Vec4(m00, m01, m02, m03);
     }
 
-    /// return mat4 row 1 values
+    /// return **this** mat4's row 1 values
     /// Returns: Vec4
     Vec4 row1()
     {
         return Vec4(m10, m11, m12, m13);
     }
 
-    /// return mat4 row 2 values
+    /// return **this** mat4's row 2 values
     /// Returns: Vec4
     Vec4 row2()
     {
         return Vec4(m20, m21, m22, m23);
     }
 
-    /// return mat4 row 3 values
+    /// return **this** mat4's row 3 values
     /// Returns: Vec4
     Vec4 row3()
     {
         return Vec4(m30, m31, m32, m33);
     }
 
-    /// return mat4 col 0 values
+    /// return **this** mat4's column 0 values
     /// Returns: Vec4
     Vec4 col0()
     {
         return Vec4(m00, m10, m20, m30);
     }
 
-    /// return mat4 col 1 values
+    /// return **this** mat4's column 1 values
     /// Returns: Vec4
     Vec4 col1()
     {
         return Vec4(m01, m11, m21, m31);
     }
 
-    /// return mat4 col 2 values
+    /// return **this** mat4's column 2 values
     /// Returns: Vec4
     Vec4 col2()
     {
         return Vec4(m02, m12, m22, m32);
     }
 
-    /// return mat4 col 3 values
+    /// return **this** mat4's column 3 values
     /// Returns: Vec4
     Vec4 col3()
     {
         return Vec4(m03, m13, m23, m33);
     }
 
-    /// return a vec4 transformed by this mat4
+    /// return a vec4 transformed by **this** mat4
     /// Returns: Vec4
     Vec4 transform(Vec4 v4)
     {
@@ -390,7 +390,7 @@ struct Mat4
         return result;
     }
 
-    /// return a vec3 transformed by this mat4
+    /// return a vec3 transformed by **this** mat4
     /// Returns: Vec3
     Vec3 transform(Vec3 v3)
     {
@@ -403,7 +403,7 @@ struct Mat4
         return result;
     }
 
-    /// return the position vec3 from the mat4
+    /// return the position values from the mat4
     /// Returns: Vec3
     Vec3 getPosition()
     {
@@ -416,7 +416,7 @@ struct Mat4
         return result;
     }
 
-    /// get float value at 'row 'col
+    /// get the float value at coords **row** and **col**
     /// Returns: float
     float at(size_t row, size_t col) const
     {
@@ -459,12 +459,13 @@ struct Mat4
         assert(0);
     }
 
+    /// return trace value of **this** mat4
     float trace() const
     {
         return m00 + m11 + m22 + m33;
     }
 
-    /// return the determinant of 'this mat4
+    /// return the determinant of **this** mat4
     /// Returns: float
     float determinant()
     {
@@ -503,7 +504,7 @@ struct Mat4
         return a + b + c + d + e + f;
     }
 
-    /// return m4 with abs values
+    /// return a copy of **this** mat4 with abs values
     /// Returns: Mat4
     Mat4 abs()
     {
@@ -529,7 +530,7 @@ struct Mat4
         return result;
     }
 
-    /// return an inverse mat4 of 'this
+    /// return a copy of **this** mat4 with inverse values
     /// Returns: Mat4
     Mat4 inverse()
     {
@@ -574,6 +575,7 @@ struct Mat4
         return result;
     }
 
+    /// return a copy of **this** mat4 with transposed values
     Mat4 transposed()
     {
         Mat4 result;
@@ -598,6 +600,7 @@ struct Mat4
         return result;
     }
 
+    /// return a copy of **this** mat3 with cofactor values
     Mat4 cofactor()
     {
         Mat4 result;
@@ -622,6 +625,7 @@ struct Mat4
         return result;
     }
 
+    /// return a copy of **this** mat4 with **other** values added
     Mat4 added(Mat4 other)
     {
         Mat4 result;
@@ -646,7 +650,7 @@ struct Mat4
         return result;
     }
 
-
+    /// return a copy of **this** mat4 with **other** values subbed
     Mat4 subbed(Mat4 other)
     {
         Mat4 result;
@@ -671,9 +675,7 @@ struct Mat4
         return result;
     }
 
-
-    /// return a mat4 multiplyed by 'other mat4 values
-    /// Returns: Mat4
+    /// return a copy of **this** mat4 multiplyed by **other**
     Mat4 multiplied(Mat4 other)
     {
         Vec4 r0 = row0();
@@ -707,6 +709,8 @@ struct Mat4
         return result;
     }
 
+    /// return a normalized copy of **this**
+    /// Returns: Mat4
     Mat4 normalized()
     {
         auto det = determinant();
@@ -761,21 +765,21 @@ struct Mat4
         return result;
     }
 
-    /// return 'this mat4 rotated by 'rad along the 'axis
+    /// return a copy of **this** mat4 rotated in **radians** along the unit **axis**
     /// Returns: Mat4
-    Mat4 rotated(float rad, Vec3 axis)
+    Mat4 rotated(float radians, Vec3 axis)
     {
-        return multiplied(Mat4.fromAxis(rad, axis));
+        return multiplied(Mat4.fromAxis(radians, axis));
     }
 
-    /// return 'this mat4 scaled along its x, y and z axis
+    /// return a copy of **this** mat4 scaled along its x, y and z axis
     /// Returns: Mat4
     Mat4 scaled(float x, float y, float z)
     {
         return multiplied(Mat4.scaler(x, y, z));
     }
 
-    /// Return this 'mat4 as a 'mat3
+    /// Return **this** mat4 as a mat3
     /// Returns: Mat3
     Mat3 toMat3()
     {
@@ -796,6 +800,8 @@ struct Mat4
         return result;
     }
 
+    /// return the values of **this** mat4 in a multi array form
+    /// Returns: float[4][4]
     float[4][4] toArrayM()
     {
         float[4][4] result;
@@ -820,6 +826,8 @@ struct Mat4
         return result;
     }   
 
+    /// return the values of **this** mat4 in a single array form
+    /// Returns: float[16]
     float[16] toArrayS()
     {
         float[16] result;
@@ -844,7 +852,7 @@ struct Mat4
         return result;
     } 
 
-    // -- ovcerride
+    // -- override
 
     string toString() const pure
     {

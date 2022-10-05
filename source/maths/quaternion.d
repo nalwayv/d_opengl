@@ -388,7 +388,7 @@ struct Quaternion
         return result;
     }
 
-    /// return a negated copy of 'this quaternion
+    /// return a copy of **this** quaternion with negated values
     /// Returns: Quaternion
     Quaternion negate()
     {
@@ -511,7 +511,7 @@ struct Quaternion
         return result;
     }
 
-    /// return a vec3 transformed by 'this quaternion
+    /// return a vec3 transformed by **this** quaternion
     /// Returns: Vec3
     Vec3 transform(Vec3 v3)
     {

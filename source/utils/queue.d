@@ -18,7 +18,7 @@ private class Node(T)
 }
 
 /// Queue using LL
-class Queue(T)
+class QueueL(T)
 {
     private
     {

@@ -18,7 +18,7 @@ private class Node(T)
 }
 
 /// Stack using LL
-class Stack(T)
+class StackL(T)
 {
     private
     {

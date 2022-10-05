@@ -11,10 +11,10 @@ import maths.vec4;
 import maths.vec3;
 
 
-enum float EPA_OPTIMAL = 0.002f;
-enum float EPA_BUFFER = 0.001f;
-enum int GJK_ITERATIONS = 30;
-enum int EPA_ITERATIONS = 30;
+private enum float EPA_OPTIMAL = 0.002f;
+private enum float EPA_BUFFER = 0.001f;
+private enum int GJK_ITERATIONS = 30;
+private enum int EPA_ITERATIONS = 30;
 
 
 private Vec3 tripleCross(Vec3 a, Vec3 b, Vec3 c)

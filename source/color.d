@@ -11,7 +11,7 @@ struct Color
     float g;
     float b;
 
-    Vec3 vec3()
+    Vec3 toVec3()
     {
         Vec3 result;
 

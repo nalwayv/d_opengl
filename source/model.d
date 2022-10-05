@@ -24,14 +24,6 @@ class Model : IMeshCollider
         string shader;
     }
 
-    // this(string filePath)
-    // {
-    //     transform = Transform.newTransform(0.0f, 0.0f, 0.0f);
-    //     mesh = new Mesh(filePath);
-    //     shader = "default";
-    //     color = Color(0.2f, 0.2f, 0.2f);
-    // }
-
     this(Vec3[] points, int[] indices)
     {
         transform = Transform.newTransform(0.0f, 0.0f, 0.0f);
@@ -85,7 +77,7 @@ class Model : IMeshCollider
     {
         cache.use(shader);
 
-        cache.setVec3(shader, "color_Vec3", color.vec3());
+        cache.setVec3(shader, "color_Vec3", color.toVec3());
         cache.setMat4(shader, "model_Mat4", transform.getMatrix());
         cache.setMat4(shader, "cam_Mat4", cam.getMatrix());
 
