@@ -190,7 +190,7 @@ void main()
 
         if(keyb.keyState(GLFW_KEY_F1) == KEY_PRESSED) 
         {
-            debugMode=!debugMode;
+            debugMode = !debugMode;
         }
 
         if(keyb.keyState(GLFW_KEY_I) == KEY_HELD) 
